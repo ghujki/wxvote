@@ -1,0 +1,81 @@
+<?php
+define("MSG_TEXT","<xml>
+                   <ToUserName><![CDATA[%s]]></ToUserName>
+                   <FromUserName><![CDATA[%s]]></FromUserName>
+                   <CreateTime>%s</CreateTime>
+                   <MsgType><![CDATA[text]]></MsgType>
+                   <Content><![CDATA[%s]]></Content>
+                   <FuncFlag>0</FuncFlag>
+                   </xml>"
+);
+
+define("MSG_SINGLE_PIC_TXT" , 		
+"<xml>
+<ToUserName><![CDATA[%s]]></ToUserName>
+<FromUserName><![CDATA[%s]]></FromUserName>
+<CreateTime>%s</CreateTime>
+<MsgType><![CDATA[news]]></MsgType>
+<ArticleCount>1</ArticleCount>
+<Articles>
+<item>
+<Title><![CDATA[%s]]></Title> 
+<Description><![CDATA[%s]]></Description>
+<PicUrl><![CDATA[%s]]></PicUrl>
+<Url><![CDATA[%s]]></Url>
+</item>					
+</Articles>
+</xml> ");
+
+define("MSG_MULTI_PIC_TXT_COVER", "<xml>
+<ToUserName><![CDATA[%s]]></ToUserName>
+<FromUserName><![CDATA[%s]]></FromUserName>
+<CreateTime>%s</CreateTime>
+<MsgType><![CDATA[news]]></MsgType>
+<ArticleCount>%s</ArticleCount>
+<Articles>%s
+</Articles>
+</xml> ");
+
+define("MSG_MULTI_PIC_TXT_INNER", 
+"<item>
+<Title><![CDATA[%s]]></Title> 
+<Description><![CDATA[%s]]></Description>
+<PicUrl><![CDATA[%s]]></PicUrl>
+<Url><![CDATA[%s]]></Url>
+</item>");
+
+define("MSG_URL",
+"<xml>
+<ToUserName><![CDATA[%s]]></ToUserName>
+<FromUserName><![CDATA[%s]]></FromUserName>
+<CreateTime>%s</CreateTime>
+<MsgType><![CDATA[link]]></MsgType>
+<Title><![CDATA[%s]]></Title>
+<Description><![CDATA[%s]]></Description>
+<Url><![CDATA[%s]]></Url>
+<MsgId>%s</MsgId>
+</xml>");
+
+define("MSG_SERVICER", "<xml>
+    <ToUserName><![CDATA[%s]]></ToUserName>
+    <FromUserName><![CDATA[%s]]></FromUserName>
+    <CreateTime>%s</CreateTime>
+    <MsgType><![CDATA[transfer_customer_service]]></MsgType>
+</xml>");
+
+define("kf_txt_msg",json_encode(array("touser"=>'%s',"msgtype"=>"text","text"=>array("content"=>"%s"))));
+
+define("kf_template_msg", json_encode(array("touser"=>"%s",
+           "template_id"=>"%s",
+           "url"=>"%s",
+           "topcolor"=>"#FF0000",
+		   "data"=>array(
+		   		"first" => array("value"=>"%s","color"=>"#173177"),
+				"orderID" => array("value"=>"%s","color"=>"#173177"),
+				"orderMoneySum" => array("value"=>"%s","color"=>"#173177"),
+				"backupFieldName" => array("value"=>"%s","color"=>"#173177"),
+				"backupFieldData" => array("value"=>"%s","color"=>"#173177"),
+				"remark" => array("value"=>"%s","color"=>"#173177"),
+			)
+)));
+?>
