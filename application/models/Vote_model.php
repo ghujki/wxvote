@@ -6,8 +6,6 @@
  * Time: 22:39
  */
 
-namespace com\wsg\wx;
-
 
 class Vote_model extends \CI_Model
 {

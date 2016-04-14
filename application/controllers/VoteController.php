@@ -6,13 +6,13 @@
  * Time: 23:11
  */
 
-namespace com\wsg\wx;
+require "AdminController.php";
 
-
-class VoteController extends My_Controller
+class VoteController extends AdminController
 {
     public function index() {
-        $model = $this->model->load("Vote_model");
-        $list = $model->getVoteList();
+        $this->load->model("Vote_model","vote_model");
+        $list = $this->vote_model->getVoteList();
+        $this->load->view("");
     }
 }
