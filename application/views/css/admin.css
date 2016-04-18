@@ -1,0 +1,60 @@
+.admin-query {
+    padding:.5em 1em ;
+    text-align:right;
+}
+
+.query-result {
+    padding:.5em;
+}
+
+.query-result thead {
+    background-color: #8c8c8c;
+    color:#fff;
+}
+
+.query-result thead td {
+    padding:.3em;
+    text-align:center;
+}
+.query-result td {
+    padding:.3em;
+}
+
+.query-result td a {
+    padding:.5em;
+    font-size:small;
+}
+
+.admin-form td {
+    padding:.5em;
+}
+
+.admin-form tr td:first-child {
+    text-align:right;
+}
+
+.admin-form td input[type="text"] {
+    width:200px;
+}
+
+.admin-form tr:last-child td {
+    text-align:left;
+}
+
+.admin-menu {
+    margin-top:1em;
+    font-size:small;
+}
+.admin-menu dt {
+    background-color:#8c8c8c;
+    padding:.5em;
+}
+.admin-menu dd {
+    margin-left:10px;
+    padding:.5em;
+}
+
+.admin-menu dd a {
+    text-decoration: none;
+    cursor:pointer;
+}

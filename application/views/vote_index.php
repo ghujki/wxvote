@@ -89,6 +89,25 @@
         padding: .5em .2em;
         color:#fff;
     }
+
+    .link-box a,.link-box strong{
+        padding:0 .3em;
+    }
+    .bottom-menu {
+        position:fixed;
+        bottom:0;
+        background-color:#fff;
+        width:100%;
+        left:0px;
+    }
+    .bottom-menu li {
+        float:left;
+        width:30%;
+        text-align:center;
+    }
+    .main-content {
+        padding-bottom:2em;
+    }
 </style>
     <div class="container">
         <header>
@@ -227,15 +246,12 @@
         </section>
 
         <section class="row light-green text-center">
-            <div class="column col-xs-12">
-                <a href="">1</a>
-                <a href="">2</a>
-                <a href="">3</a>
-                <a href="">4</a>
+            <div class="column col-xs-12 link-box">
+                <?=$links?>
             </div>
         </section>
 
-        <section class="row light-green">
+        <section class="row light-green main-content">
             <div class="column col-xs-4 green">
                 奖品设置
             </div>

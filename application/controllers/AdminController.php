@@ -66,4 +66,10 @@ class AdminController extends MY_Controller
             }
         }
     }
+
+    public function render($file,$data = array()) {
+        $content = $this->load->view($file,$data,TRUE);
+        $data['content'] = $content;
+        $this->load->view("admin_layout",$data);
+    }
 }
