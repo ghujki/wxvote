@@ -33,6 +33,9 @@
 .admin-form tr td:first-child {
     text-align:right;
 }
+.admin-form tr td:last-child {
+    text-align:left;
+}
 
 .admin-form td input[type="text"] {
     width:200px;
