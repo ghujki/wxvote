@@ -19,14 +19,14 @@ class Account_model extends CI_Model
             return false;
         }
         $this->db->where("username",$username);
-        $this->db->where("password",$password);
+        $this->db->where("password",md5($password));
         $num = $this->db->count_all("account");
         return $num > 0;
     }
 
     public function getAccount($username,$password) {
         $this->db->where("username",$username);
-        $this->db->where("password",$password);
+        $this->db->where("password",md5($password));
         $query = $this->db->get("account");
         return $query->row_array();
     }
@@ -34,4 +34,5 @@ class Account_model extends CI_Model
     public function updateLastLogin() {
 
     }
+    
 }

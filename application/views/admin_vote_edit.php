@@ -15,7 +15,7 @@
             <td>
                 <select name="app_id">
                     <?php foreach ($numbers as $number):?>
-                    <option value="<?=$number['id']?>"><?=$number['app_name']?></option>
+                    <option value="<?=$number['id']?>" <?php if ($vote['app_id'] == $number['id']):?> selected <?php endif;?> ><?=$number['app_name']?></option>
                     <?php endforeach;?>
                 </select>
             </td>
@@ -23,7 +23,7 @@
         <tr>
             <td>报名时间</td>
             <td>
-                <input type="text"  name="signup_start_time" data-toggle="time" value="<?=$vote['signup_start_time']?>"/> ~
+                <input type="text"  name="signup_start_time" data-toggle="time" value="<?=$vote['signup_start_time']?>" /> ~
                 <input type="text"  name="signup_end_time" data-toggle="time" value="<?=$vote['signup_end_time']?>" />
             </td>
         </tr>
@@ -40,9 +40,7 @@
         <tr>
             <td colspan="2">
                 <!-- 加载编辑器的容器 -->
-                <script id="container" name="content" type="text/plain">
-                    在此输入文本
-                </script>
+                <script id="container" name="content" type="text/plain"><?php if ($vote['content']):?><?=$vote['content']?><?php else:?>在此输入文本<?php endif;?></script>
                 <!-- 配置文件 -->
                 <script type="text/javascript" src="application/third_party/uedit/ueditor.config.js"></script>
                 <!-- 编辑器源码文件 -->

@@ -16,7 +16,17 @@ class AdminVoteController extends AdminController
      */
     public function index($start = 0,$limit = 10) {
         $this->load->model("vote_model");
-        $data['list'] = $this->vote_model->getVoteList($start,$limit);
+        $list = $this->vote_model->getVoteList($start,$limit);
+        $statistic = $this->vote_model->getVoteStatistic();
+        for ($i = 0 ;$i < count($list); $i++) {
+            $list[$i]['signup_start_time'] = date('Y-m-d H:i',$list[$i]['signup_start_time']);
+            $list[$i]['signup_end_time'] = date('Y-m-d H:i',$list[$i]['signup_end_time']);
+            $list[$i]['vote_start_time'] = date('Y-m-d H:i',$list[$i]['vote_start_time']);
+            $list[$i]['vote_end_time'] = date('Y-m-d H:i',$list[$i]['vote_end_time']);
+            $list[$i]['candi_count'] = $statistic[$list[$i]['id']]['candi_count'];
+            $list[$i]['vote_count'] = $statistic[$list[$i]['id']]['vote_count'];
+        }
+        $data['list'] = $list;
         $this->render("admin_vote_list",$data);
     }
 
@@ -27,6 +37,29 @@ class AdminVoteController extends AdminController
         //get Official numbers
         $this->load->model("OfficialNumber_model","numberModel");
         $data['numbers'] = $this->numberModel->getNumbers(0,0);
+        $this->render("admin_vote_edit",$data);
+    }
+
+    public function edit() {
+        $id = $this->input->get("id");
+
+        //get vote entry from model
+        $this->load->model("Vote_model", "vote");
+        $vote = $this->vote->getVote("$id");
+        $vote['signup_start_time'] = date("Y-m-d H:i",$vote['signup_start_time']);
+        $vote['signup_end_time'] = date("Y-m-d H:i",$vote['signup_end_time']);
+        $vote['vote_start_time'] = date("Y-m-d H:i",$vote['vote_start_time']);
+        $vote['vote_end_time'] = date("Y-m-d H:i",$vote['vote_end_time']);
+        $data['vote'] = $vote;
+
+        //get official numbers from model
+        $this->load->model("OfficialNumber_model","numberModel");
+        $data['numbers'] = $this->numberModel->getNumbers(0,0);
+
+        //some other configs to load
+        $data['jspaths'] = array('application/views/js/jquery.datetimepicker.js',"application/views/js/admin_vote_edit.js");
+        $data['title'] = "修改投票设置";
+
         $this->render("admin_vote_edit",$data);
     }
 

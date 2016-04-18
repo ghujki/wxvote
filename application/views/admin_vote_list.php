@@ -22,21 +22,35 @@
                 <td>操作</td>
             </tr>
             </thead>
+            <tr>
+                <td colspan="8">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><i class="fa fa-angle-double-up"></i> 公众号：</a>
+                </td>
+            </tr>
+            <tbody id="collapseOne" class="panel-collapse collapse in">
             <?php if ($list):?>
                 <?php foreach($list as $item):?>
-                    <tr>
+                    <tr >
                         <td><input type="checkbox" value="<?=$item['id']?>"></td>
-                        <td><?=$item['vote_name']?></td>
+                        <td><a data-toggle="collapse" data-parent="#accordion" href="#collapse<?=$item['id']?>"><?=$item['vote_name']?></a></td>
                         <td><?=$item['signup_start_time']?> ~ <?=$item['signup_end_time']?></td>
                         <td><?=$item['vote_start_time']?> ~ <?=$item['vote_end_time']?></td>
-                        <td><a href="index.php/AdminOfficialNumber/edit?id=<?=$item['id']?>">配置</a><a href="">解除绑定</a></td>
+                        <td><?php if($item['status'] == 0):?>开启<?php else:?>关闭<?php endif;?></td>
+                        <td><?=$item['candi_count']?></td>
+                        <td><?=$item['vote_count']?></td>
+                        <td><a href="index.php/AdminVoteController/edit?id=<?=$item['id']?>">配置</a><a href="">解除绑定</a></td>
+                    </tr>
+                    <tr id="collapse<?=$item['id']?>" class="panel-collapse collapse">
+                        <td colspan="8">
+                            <div>
+                                <a href="index.php/VoteController/index?id=<?=$item['id']?>">查看活动首页</a><a href="#">管理报名选手</a><a href="#">查看投票记录</a>
+                                <a href="#">奖品设定</a><a href="#">获奖人员维护</a>
+                            </div>
+                        </td>
                     </tr>
                 <?php endforeach;?>
-            <?php else:?>
-                <tr>
-                    <td colspan="8">还没有投票活动记录，点击<a href="index.php/AdminVoteController/add">这里</a>添加</td>
-                </tr>
             <?php endif;?>
+            </tbody>
         </table>
     </div>
 </div>

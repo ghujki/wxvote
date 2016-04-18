@@ -5,10 +5,13 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
         <title><?=$title?></title>
         <base href="<?=base_url()?>" />
         <link rel="stylesheet" href="application/views/css/bootstrap-3.3.5.min.css">
         <link rel="stylesheet" href="application/views/css/admin.css" >
+        <link rel="stylesheet" href="application/views/css/font-awesome.min.css" >
+        <link rel="stylesheet" href="application/views/css/font-awesome-ie7.min.css">
     </head>
     <body>
         <div class="container">
@@ -18,7 +21,7 @@
                 </div>
             </header>
             <div class="row">
-                <div class="col-xs-3">
+                <div class="col-xs-12 col-lg-3">
                     <div class="admin-menu">
                         <dl>
                             <dt>公众号管理</dt>
@@ -32,7 +35,7 @@
                         </dl>
                     </div>
                 </div>
-                <div class="col-xs-9">
+                <div class="col-xs-12 col-lg-9">
                     <?=$content?>
                 </div>
             </div>

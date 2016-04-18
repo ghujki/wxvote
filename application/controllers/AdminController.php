@@ -59,7 +59,7 @@ class AdminController extends MY_Controller
                 $this->loginModel->newLogin($account['id']);
                 //session record
                 $this->session->set_userdata("user_role",AdminController::$ADMIN_ROLE);
-                redirect("VoteAdminController");
+                redirect("AdminVoteController");
             } else {
                 $this->form_validation->set_message('用户名或密码错误');
                 $this->load->view("admin_login");

@@ -5,6 +5,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
     <title>管理登陆</title>
     <base href="<?=base_url()?>" />
     <link rel="stylesheet" href="application/views/css/bootstrap-3.3.5.min.css">

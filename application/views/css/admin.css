@@ -18,6 +18,7 @@
 }
 .query-result td {
     padding:.3em;
+    font-size:smaller;
 }
 
 .query-result td a {
@@ -42,7 +43,7 @@
 }
 
 .admin-menu {
-    margin-top:1em;
+    margin-top:3em;
     font-size:small;
 }
 .admin-menu dt {
