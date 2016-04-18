@@ -5,7 +5,7 @@
     <meta content="yes" name="apple-mobile-web-app-capable">
     <meta content="black" name="apple-mobile-web-app-status-bar-style">
     <meta content="telephone=no" name="format-detection">
-    <title>{$title}</title>
+    <title><?=$vote['name']?></title>
     <base href="<?=base_url()?>" />
     <link rel="stylesheet" href="application/views/css/bootstrap-3.3.5.min.css">
     <link rel="stylesheet" href="application/views/css/index.css" >
@@ -106,6 +106,7 @@
         text-align:center;
     }
     .main-content {
+        padding:1em;
         padding-bottom:2em;
     }
 </style>
@@ -166,9 +167,10 @@
         </section>
 
         <section class="row light-green photo-box">
+            <?php foreach($list as $item):?>
             <div class="column col-xs-6 photo-item col-sm-4 col-lg-3">
                 <div class="user-num">
-                    1126
+                    <?=$item['id']?>
                 </div>
                 <table>
                     <tr>
@@ -176,8 +178,8 @@
                     </tr>
                     <tr>
                         <td width="75%"class="green">
-                            <div >测试</div>
-                            <div ><span>1</span>票</div>
+                            <div ><?=$item['name']?></div>
+                            <div ><span><?=$item['vote_count']?></span>票</div>
                         </td>
                         <td class="pink text-center">
                             <a href="" >投票</a>
@@ -185,95 +187,22 @@
                     </tr>
                 </table>
             </div>
-
-            <div class="column col-xs-6 photo-item col-sm-4 col-lg-3">
-                <div class="user-num">
-                    1126
-                </div>
-                <table>
-                    <tr>
-                        <td colspan="2"><img src="application/views/images/214833-120S11GJ543.jpg" class="img-responsive" /></td>
-                    </tr>
-                    <tr>
-                        <td width="75%"class="green">
-                            <div >测试</div>
-                            <div ><span>1</span>票</div>
-                        </td>
-                        <td class="pink text-center">
-                            <a href="" >投票</a>
-                        </td>
-                    </tr>
-                </table>
-            </div><div class="column col-xs-6 photo-item col-sm-4 col-lg-3">
-                <div class="user-num">
-                    1126
-                </div>
-                <table>
-                    <tr>
-                        <td colspan="2"><img src="application/views/images/214833-120S11GJ543.jpg" class="img-responsive" /></td>
-                    </tr>
-                    <tr>
-                        <td width="75%"class="green">
-                            <div >测试</div>
-                            <div ><span>1</span>票</div>
-                        </td>
-                        <td class="pink text-center">
-                            <a href="" >投票</a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="column col-xs-6 photo-item col-sm-4 col-lg-3">
-                <div class="user-num">
-                    1126
-                </div>
-                <table>
-                    <tr>
-                        <td colspan="2"><img src="application/views/images/214833-120S11GJ543.jpg" class="img-responsive" /></td>
-                    </tr>
-                    <tr>
-                        <td width="75%"class="green">
-                            <div >测试</div>
-                            <div ><span>1</span>票</div>
-                        </td>
-                        <td class="pink text-center">
-                            <a href="" >投票</a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <?php endforeach;?>
         </section>
 
+        <!-- pagination-->
         <section class="row light-green text-center">
             <div class="column col-xs-12 link-box">
                 <?=$links?>
             </div>
         </section>
 
+        <!-- rules content -->
         <section class="row light-green main-content">
-            <div class="column col-xs-4 green">
-                奖品设置
-            </div>
-            <div class="column col-xs-12">
-                <div>长沙地区小朋友均可参加</div>
-            </div>
-
-            <div class="column col-xs-4 green">
-                报名规则
-            </div>
-            <div class="column col-xs-12">
-                <div>长沙地区小朋友均可参加</div>
-            </div>
-
-            <div class="column col-xs-4 green">
-                报名地址
-            </div>
-            <div class="column col-xs-12">
-                <div>长沙地区小朋友均可参加</div>
-            </div>
+            <?=$vote['content']?>
         </section>
 
+        <!-- menu -->
         <div class="bottom-menu">
             <ul>
                 <li><a href="">首页</a></li>
@@ -283,10 +212,10 @@
         </div>
     </div>
 <script src="application/views/js/jquery-1.11.3.min.js"></script>
-<script src="application/views/js/jquery-1.11.3.min.js"></script>
+<script src="application/views/js/bootstrap-3.3.5.min.js"></script>
 <script type="text/javascript">
     function getRTime(){
-        var EndTime = new Date('2016/05/15 00:00:00');
+        var EndTime = new Date('<?=$vote["vote_end_time"]?>:00');
         var NowTime = new Date();
         var t = EndTime.getTime() - NowTime.getTime();
         var d = Math.floor(t/1000/60/60/24);
@@ -301,7 +230,7 @@
     }
     $(function(){
         setInterval(getRTime,1000);
-    })();
+    });
 </script>
 </body>
 </html>

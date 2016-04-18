@@ -6,7 +6,7 @@
  * Time: 22:39
  */
 
-
+defined('BASEPATH') OR exit('No direct script access allowed');
 class Vote_model extends \CI_Model
 {
     public function __construct()
@@ -41,6 +41,9 @@ class Vote_model extends \CI_Model
         }
     }
 
+    /** get the vote statistic for each vote activity
+     * @return array(vote_id=>array(candi_count,vote_count))
+     */
     public function getVoteStatistic($ids = array()) {
         $str = "select a.*,b.vote_count from 
                 (select vote_id,count(1) as candi_count from wsg_candidate group by vote_id) as a left join 
