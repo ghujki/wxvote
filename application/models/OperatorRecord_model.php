@@ -17,4 +17,10 @@ class OperatorRecord_model extends CI_Model
     public function save($data) {
         $this->db->insert("user_op_record",$data);
     }
+
+    public function getVisitCount($vote_id) {
+        $this->db->where("active_id",$vote_id);
+        $this->db->where("module","vote");
+        return $this->db->count_all_results("user_op_record");
+    }
 }

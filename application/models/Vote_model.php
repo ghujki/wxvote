@@ -45,10 +45,10 @@ class Vote_model extends \CI_Model
      * @return array(vote_id=>array(candi_count,vote_count))
      */
     public function getVoteStatistic($ids = array()) {
-        $str = "select a.*,b.vote_count from 
-                (select vote_id,count(1) as candi_count from wsg_candidate group by vote_id) as a left join 
+        $str = "select wsg_a.*,b.vote_count from 
+                (select vote_id,count(1) as candi_count from wsg_candidate group by vote_id) as wsg_a left join 
                 (select vote_id,count(1) as vote_count from wsg_voting_record group by vote_id ) as b
-                on a.vote_id = b.vote_id";
+                on wsg_a.vote_id = b.vote_id";
         if (count(ids) > 0) {
             $this->db->where_in(" a.vote_id",$ids);
         }
@@ -58,6 +58,19 @@ class Vote_model extends \CI_Model
         foreach ($list as $item) {
             $data[$item['vote_id']] = array('candi_count'=>$item['candi_count'],'vote_count'=>$item['vote_count']);
         }
+        $this->db->close();
         return $data;
+    }
+
+    public function vote($data) {
+        $this->db->insert("voting_record",$data);
+    }
+
+    public function checkedVoted($candi_id,$user_id,$vote_id) {
+        $this->db->where("candidate_id",$candi_id);
+        $this->db->where("user_id",$user_id);
+        $this->db->where("vote_id",$vote_id);
+        $num = $this->db->count_all_results("voting_record");
+        return $num > 0;
     }
 }

@@ -22,19 +22,19 @@ class FrontController extends MY_Controller
         //vote_id
         $vote_id = $this->input->get("vote_id");
         $officialNumber = $this->session->userdata("official_number");
-        $vote = $this->session->userdata("vote");
+        $s_vote_id = $this->session->userdata("vote_id");
 
-        if (($vote_id && $vote && $vote['id']!=$vote_id) || $vote_id && empty($vote)) {
+        if (($vote_id && $s_vote_id && $s_vote_id!=$vote_id) || $vote_id && empty($s_vote_id)) {
             $this->load->model("Vote_model","vote");
             $this->load->model("OfficialNumber_model","number");
             $vote = $this->vote->getVote($vote_id);
             $officialNumber = $this->number->getOfficialNumber($vote['app_id']);
 
-            $this->session->set_userdata("vote",$vote);
+            $this->session->set_userdata("vote_id",$vote_id);
             $this->session->set_userdata("official_number",$officialNumber);
 
-        } elseif (empty($vote_id ) || empty($vote) || empty($officialNumber)) {
-            die ("参数不全!");
+        } elseif (empty($vote_id )  || empty($officialNumber)) {
+            die ("error params");
         }
 
         //if open_id can delivered,we don`t need to oauth it.
@@ -65,7 +65,8 @@ class FrontController extends MY_Controller
             $user_data['app_id'] = $userInfo['app_id'];
 
             $this->load->model("User_model","user");
-            $this->user->save($user_data);
+            $user_id = $this->user->save($user_data);
+            $this->session->set_userdata("user_id",$user_id);
         }
 
         $token = $this->input->get("token");
@@ -75,7 +76,6 @@ class FrontController extends MY_Controller
             $this->session->set_userdata("token",$token);
         }
 
-        //访问记录
         $visit_record = array("open_id"=>$openId,"token"=>$token,"op_time"=>time(),"url"=>$url,"active_id"=>$vote_id,"module"=>"vote");
         $this->load->model("OperatorRecord_model","oprecord");
         $this->oprecord->save($visit_record);

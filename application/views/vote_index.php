@@ -9,107 +9,8 @@
     <base href="<?=base_url()?>" />
     <link rel="stylesheet" href="application/views/css/bootstrap-3.3.5.min.css">
     <link rel="stylesheet" href="application/views/css/index.css" >
-
 </head>
 <body>
-<style>
-    body { background-color:#4F5155; }
-    .container {
-        background-color: #fff;
-    }
-    .green {
-        background-color: #4cae4c;
-    }
-    .enroll {
-        background-color:#ce8483;
-        border-radius:0.3em;
-        font-size: large;
-        color:black;
-        padding: 0.5em 1.5em;
-    }
-    .enroll-div {
-        padding-top:1em;
-        padding-bottom:1em;
-        margin: 1em 0;
-    }
-    .active-last {
-        font-size:small;
-    }
-    .light-green {
-        background-color:#a6e1ec;
-    }
-    .search-form {
-        margin-top:1em;
-    }
-    .search-txt {
-        border-radius: 0.3em;
-        border: 0;
-        padding: 0.2em;
-        font-size: small;
-    }
-    .search-btn {
-        cursor: pointer;
-        text-decoration: none;
-    }
-    .rank-1 {
-        background-color:#1b6d85;
-    }
-    .rank-2 {
-        background-color:#2e6da4;
-    }
-    .rank-3 {
-        background-color:#8c8c8c;
-    }
-    .rank-1,.rank-2,.rank-3 {
-        padding:.5em;
-        border-radius:.3em;
-        color:#fff;
-    }
-
-    .photo-item {
-        margin-bottom:1em;
-    }
-    .rank-row {
-        padding: 1em 0;
-    }
-    .pink {background-color: pink}
-
-    .user-num {
-        color: #fff;
-        position: absolute;
-        background-color: brown;
-        border-bottom-left-radius: 1em;
-        border-bottom-right-radius: 1em;
-        padding: .1em .2em;
-        opacity: 0.7;
-        right: 1em;
-    }
-    td.green ,td.pink{
-        font-size: small;
-        padding: .5em .2em;
-        color:#fff;
-    }
-
-    .link-box a,.link-box strong{
-        padding:0 .3em;
-    }
-    .bottom-menu {
-        position:fixed;
-        bottom:0;
-        background-color:#fff;
-        width:100%;
-        left:0px;
-    }
-    .bottom-menu li {
-        float:left;
-        width:30%;
-        text-align:center;
-    }
-    .main-content {
-        padding:1em;
-        padding-bottom:2em;
-    }
-</style>
     <div class="container">
         <header>
             <div class="row">
@@ -135,20 +36,21 @@
             </div>
             <div class="column col-xs-4">
                 <div>已报名</div>
-                <div>1</div>
+                <div><?=$candi_count?></div>
             </div>
             <div class="column col-xs-4">
                 <div>投票人数</div>
-                <div>2</div>
+                <div><?=$vote_count?></div>
             </div><div class="column col-xs-4">
                 <div>访问量</div>
-                <div>57</div>
+                <div><?=$visit_count?></div>
             </div>
         </section>
         <section class="row light-green">
             <div class="column col-xs-12 text-center">
                 <form action="search" class="search-form">
-                    <input type="text" name="" placeholder="输入名字或编号" class="search-txt"/>
+                    <input type="text" name="keywords" placeholder="输入名字或编号" class="search-txt"/>
+                    <input type="hidden" name="vote_id" value="<?=$vote['id']?>" />
                     <a href="javascript:;" onclick="this.form.submit()" class="search-btn">搜索</a>
                 </form>
             </div>
@@ -182,7 +84,7 @@
                             <div ><span><?=$item['vote_count']?></span>票</div>
                         </td>
                         <td class="pink text-center">
-                            <a href="" >投票</a>
+                            <a href="javascript:;" onclick="voteFor(<?=$item['id']?>)">投票</a>
                         </td>
                     </tr>
                 </table>
@@ -211,6 +113,32 @@
             </ul>
         </div>
     </div>
+
+<div class="modal fade " id="modal2" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close" ></div>
+            <div class="modal-body" >
+                <div class="modal-text">投票成功！</div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+
+<div class="modal fade " id="modal1" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close" ></div>
+            <div class="modal-body" >
+                <img src="<?=$number['qrcode']?>" class="img-responsive">
+                <div class="text-center">
+                    长按图片，识别图中二维码关注<strong><?=$number['app_name']?></strong>，进入公众号后输入<strong class="modal-text"></strong>即可为他(她)投票。
+                </div>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+
 <script src="application/views/js/jquery-1.11.3.min.js"></script>
 <script src="application/views/js/bootstrap-3.3.5.min.js"></script>
 <script type="text/javascript">
@@ -231,6 +159,36 @@
     $(function(){
         setInterval(getRTime,1000);
     });
+
+    function voteFor(candi_id) {
+
+        $.ajax({
+            url:'index.php/voteController/vote',
+            type:'get',
+            dataType:'json',
+            data:{'id':candi_id,"vote_id":'<?=$vote['id']?>'},
+            success:function(data) {
+                if (data['error'] == 0 ) {
+                    //succeed in voting
+                    $("#modal2").modal();
+                } else if(data['error'] == 1) {
+                    //duplicating voting
+                    $("#modal2 .modal-text").text(data['info']);
+                    $("#modal2").modal();
+                } else {
+                    //vote in the account
+                    $("#modal1 .modal-text").text(data['info']);
+                    $("#modal1").modal();
+                }
+            },
+            failure:function(data) {
+                alert(data);
+            },
+            error:function(data) {
+                alert(data);
+            }
+        });
+    }
 </script>
 </body>
 </html>

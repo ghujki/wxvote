@@ -1,1 +1,97 @@
 .full {width:100%;}
+body { background-color:#4F5155; }
+.container {
+    background-color: #fff;
+}
+.green {
+    background-color: #4cae4c;
+}
+.enroll {
+    background-color:#ce8483;
+    border-radius:0.3em;
+    font-size: large;
+    color:black;
+    padding: 0.5em 1.5em;
+}
+.enroll-div {
+    padding-top:1em;
+    padding-bottom:1em;
+    margin: 1em 0;
+}
+.active-last {
+    font-size:small;
+}
+.light-green {
+    background-color:#a6e1ec;
+}
+.search-form {
+    margin-top:1em;
+}
+.search-txt {
+    border-radius: 0.3em;
+    border: 0;
+    padding: 0.2em;
+    font-size: small;
+}
+.search-btn {
+    cursor: pointer;
+    text-decoration: none;
+}
+.rank-1 {
+    background-color:#1b6d85;
+}
+.rank-2 {
+    background-color:#2e6da4;
+}
+.rank-3 {
+    background-color:#8c8c8c;
+}
+.rank-1,.rank-2,.rank-3 {
+    padding:.5em;
+    border-radius:.3em;
+    color:#fff;
+}
+
+.photo-item {
+    margin-bottom:1em;
+}
+.rank-row {
+    padding: 1em 0;
+}
+.pink {background-color: pink}
+
+.user-num {
+    color: #fff;
+    position: absolute;
+    background-color: brown;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+    padding: .1em .2em;
+    opacity: 0.7;
+    right: 1em;
+}
+td.green ,td.pink{
+    font-size: small;
+    padding: .5em .2em;
+    color:#fff;
+}
+
+.link-box a,.link-box strong{
+    padding:0 .3em;
+}
+.bottom-menu {
+    position:fixed;
+    bottom:0;
+    background-color:#fff;
+    width:100%;
+    left:0px;
+}
+.bottom-menu li {
+    float:left;
+    width:30%;
+    text-align:center;
+}
+.main-content {
+    padding:1em;
+    padding-bottom:2em;
+}
