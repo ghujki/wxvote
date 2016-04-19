@@ -34,7 +34,7 @@ class FrontController extends MY_Controller
             $this->session->set_userdata("official_number",$officialNumber);
 
         } elseif (empty($vote_id ) || empty($vote) || empty($officialNumber)) {
-            die ("参数不全!");
+            die ("error params");
         }
 
         //if open_id can delivered,we don`t need to oauth it.
@@ -75,7 +75,6 @@ class FrontController extends MY_Controller
             $this->session->set_userdata("token",$token);
         }
 
-        //访问记录
         $visit_record = array("open_id"=>$openId,"token"=>$token,"op_time"=>time(),"url"=>$url,"active_id"=>$vote_id,"module"=>"vote");
         $this->load->model("OperatorRecord_model","oprecord");
         $this->oprecord->save($visit_record);
