@@ -160,6 +160,103 @@ class VoteController extends FrontController
         $vote_id = $this->input->get("vote_id");
         $data['vote_id'] = $vote_id;
         $data['content'] = $this->load->view("vote_enroll",$data,TRUE);
+        $data['scripts'] = array("application/views/js/jquery.form.js","application/views/js/vote_enroll.js");
         $this->show($data,$vote_id);
+    }
+
+    public function upload() {
+        $vote_id = $this->input->get("vote_id");
+        $config['upload_path']      = './upload/'.$vote_id."/";
+        $config['allowed_types']    = 'gif|jpg|png|jpeg|bmp';
+        $config['max_size']     = 200;
+        $config['max_width']        = 1024;
+        $config['max_height']       = 768;
+        $config['file_name'] = time();
+
+        if (!file_exists($config['upload_path'])) {
+            mkdir($config['upload_path']);
+        }
+
+        $this->load->library('upload', $config);
+
+        $token_value = $this ->security->get_csrf_hash();
+
+        if ( ! $this->upload->do_upload('file1'))
+        {
+            $error = array('error' => $this->upload->display_errors());
+
+            echo json_encode(array("error"=>$error,"hash"=>$token_value));
+        }
+        else
+        {
+            $data = array('upload_data' => $this->upload->data());
+
+            echo json_encode(array("file"=> "/upload/$vote_id/".$data['upload_data']['file_name'],"hash"=>$token_value));
+        }
+    }
+
+    public function join() {
+        $user_id = $this->input->post("user_id");
+        $vote_id = $this->input->get("vote_id");
+        if (empty($user_id)) {
+            //需要关注后参加
+            $data['result'] = "need_like";
+        } else {
+            $captcha = $this->input->post("captcha");
+            //check validate
+            //判断captcha 和 user_id 是否匹配
+            $this->load->model("Captcha_model","captcha");
+            $user_captcha = $this->captcha->getValidCaptcha($captcha);
+            if ($user_captcha['user_id'] == $user_id) {
+                //添加进candidate和gallery
+                $candi['user_id'] = $user_id;
+                $candi['name'] = $this->input->post("name");
+                $candi['phone'] = $this->input->post("phone");
+                $candi['desc'] = $this->input->post("desc");
+
+                $this->load->model("Candidate_model","candi");
+                $candie = $this->candi->getCandidateByUser($user_id,$vote_id);
+                if ($candie['id']) {
+                    //exits
+                    //不能重复报名
+                    $data['result'] = "duplicate";
+                } else {
+                    //insert
+                    $candi_id = $this->candi->saveCandidate($candi);
+                    //save gallery
+                    if ($this->input->post("file1_path")) {
+                        $gallery[] = array("candi_id"=>$candi_id,"pic"=>$this->input->post("file1_path"));
+                    }
+                    if ($this->input->post("file2_path")) {
+                        $gallery[] = array("candi_id" => $candi_id, "pic" => $this->input->post("file2_path"));
+                    }
+                    if ($this->input->post("file3_path")) {
+                        $gallery[] = array("candi_id" => $candi_id, "pic" => $this->input->post("file3_path"));
+                    }
+                    if ($this->input->post("file4_path")) {
+                        $gallery[] = array("candi_id" => $candi_id, "pic" => $this->input->post("file4_path"));
+                    }
+                    $candie = $this->candi->saveGalleries($gallery);
+                    $data['result'] = "success";
+                }
+            } else {
+                //数据错误
+                $data['result'] = "error";
+            }
+        }
+
+        $data['content'] = $this->load->view("vote_enroll_result",$data,TRUE);
+        $this->show($data,$vote_id);
+    }
+
+    public function checkCaptcha() {
+        $captcha = $this->input->get("captcha");
+        $this->load->model("Captcha_model","captcha");
+        $user_captcha = $this->captcha->getValidCaptcha($captcha);
+        if ($user_captcha['user_id'] && $user_captcha['expire_time'] >= time()) {
+            echo json_encode(array('error'=>0,"user_id"=>$user_captcha['user_id']));
+        } else {
+            echo json_encode(array('error'=>1,"info"=>"验证码已过期或者不存在，请重新生成。"));
+        }
     }
 }

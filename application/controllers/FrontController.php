@@ -71,7 +71,7 @@ class FrontController extends MY_Controller
 
         $token = $this->input->get("token");
         if ($openId) {
-            $this->session->set_userdata("openId",$openId);
+            $this->session->set_userdata("open_id",$openId);
         } elseif ($token) {
             $this->session->set_userdata("token",$token);
         }

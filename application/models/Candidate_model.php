@@ -69,4 +69,22 @@ class Candidate_model extends CI_Model
         $q = $this->db->get("candi_gallery");
         return $q->result_array();
     }
+
+    public function getCandidateByUser($user_id,$vote_id) {
+        $this->db->where("user_id",$user_id);
+        $this->db->where("vote_id",$vote_id);
+        $q = $this->db->get("candidate");
+        return $q->row_array();
+    }
+
+    public function saveCandidate($data) {
+        $this->db->insert("candidate",$data);
+        return $this->db->insert_id();
+    }
+
+    public function saveGalleries($g) {
+        foreach ($g as $item) {
+            $this->db->insert("candi_gallery",$item);
+        }
+    }
 }

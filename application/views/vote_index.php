@@ -112,6 +112,11 @@
 
 <script src="application/views/js/jquery-1.11.3.min.js"></script>
 <script src="application/views/js/bootstrap-3.3.5.min.js"></script>
+<?php if ($scripts):?>
+<?php foreach ($scripts as $script):?>
+<script src="<?=$script?>"></script>
+<?php endforeach;?>
+<?php endif;?>
 <script type="text/javascript">
     function getRTime(){
         var EndTime = new Date('<?=$vote["vote_end_time"]?>:00');
