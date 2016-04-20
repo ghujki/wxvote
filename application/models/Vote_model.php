@@ -73,4 +73,8 @@ class Vote_model extends \CI_Model
         $num = $this->db->count_all_results("voting_record");
         return $num > 0;
     }
+
+    public function enroll() {
+        
+    }
 }

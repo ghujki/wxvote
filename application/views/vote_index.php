@@ -21,7 +21,7 @@
         </header>
         <section class="row green text-center">
             <div class="column col-xs-12 enroll-div">
-                <a href="javascript:void(0);" class="enroll">我要参赛</a>
+                <a href="index.php/VoteController/enroll?vote_id=<?=$vote['id']?>" class="enroll">我要参赛</a>
             </div>
             <div class="column col-xs-12">
                 <div class="active-last">距离活动结束还有</div>
@@ -68,36 +68,7 @@
             </div>
         </section>
 
-        <section class="row light-green photo-box">
-            <?php foreach($list as $item):?>
-            <div class="column col-xs-6 photo-item col-sm-4 col-lg-3">
-                <div class="user-num">
-                    <?=$item['id']?>
-                </div>
-                <table>
-                    <tr>
-                        <td colspan="2"><img src="application/views/images/214833-120S11GJ543.jpg" class="img-responsive" /></td>
-                    </tr>
-                    <tr>
-                        <td width="75%"class="green">
-                            <div ><?=$item['name']?></div>
-                            <div ><span><?=$item['vote_count']?></span>票</div>
-                        </td>
-                        <td class="pink text-center">
-                            <a href="javascript:;" onclick="voteFor(<?=$item['id']?>)">投票</a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-            <?php endforeach;?>
-        </section>
-
-        <!-- pagination-->
-        <section class="row light-green text-center">
-            <div class="column col-xs-12 link-box">
-                <?=$links?>
-            </div>
-        </section>
+        <?=$content?>
 
         <!-- rules content -->
         <section class="row light-green main-content">

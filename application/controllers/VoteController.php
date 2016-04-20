@@ -13,23 +13,10 @@ class VoteController extends FrontController
     public static $PAGE_SIZE = 10;
     public static $TOKEN_COUNT  = 10;
     public function index($page = 0) {
-
         $vote_id = $this->input->get("vote_id");
 
-        $this->load->model("Vote_model","vote");
         $this->load->library('pagination');
         $this->load->model("Candidate_model","candidate");
-        $this->load->model("OfficialNumber_model","number");
-
-        $vote = $this->vote->getVote($vote_id);
-        $vote['signup_start_time'] = date('Y-m-d H:i:s',$vote['signup_start_time']);
-        $vote['signup_end_time'] = date('Y-m-d H:i:s',$vote['signup_end_time']);
-        $vote['vote_start_time'] = date('Y-m-d H:i:s',$vote['vote_start_time']);
-        $vote['vote_end_time'] = date('Y-m-d H:i:s',$vote['vote_end_time']);
-        $data['vote'] = $vote;
-
-        $official_number = $this->number->getOfficialNumber($vote['app_id']);
-        $data['number'] = $official_number;
 
         $candi_list = $this->candidate->getCandidateList($vote_id,VoteController::$PAGE_SIZE * $page);
 
@@ -40,9 +27,7 @@ class VoteController extends FrontController
         }
 
         $data["list"] = $candi_list;
-        $statistic = $this->vote->getVoteStatistic($vote_id);
-        $data['candi_count'] = $statistic[$vote_id]['candi_count'];
-        $data['vote_count'] = $statistic[$vote_id]['vote_count'];
+
         //$data["list"] = $this->vote_model->getVoteList($page);
         $this->load->model("OperatorRecord_model","op");
         $data['visit_count'] = $this->op->getVisitCount($vote_id);
@@ -57,9 +42,32 @@ class VoteController extends FrontController
         $config['next_link'] = "下一页";
         $config['prev_link'] = "上一页";
 
-
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
+        $data['content'] = $this->load->view("vote_candi_list",$data,TRUE);
+        $this->show($data,$vote_id);
+    }
+
+
+    private function show($data,$vote_id) {
+        $this->load->model("OfficialNumber_model","number");
+        $this->load->model("Vote_model","vote");
+
+        $vote = $this->vote->getVote($vote_id);
+        $official_number = $this->number->getOfficialNumber($vote['app_id']);
+
+        $statistic = $this->vote->getVoteStatistic($vote_id);
+        $data['candi_count'] = $statistic[$vote_id]['candi_count'];
+        $data['vote_count'] = $statistic[$vote_id]['vote_count'];
+
+        $vote['signup_start_time'] = date('Y-m-d H:i:s',$vote['signup_start_time']);
+        $vote['signup_end_time'] = date('Y-m-d H:i:s',$vote['signup_end_time']);
+        $vote['vote_start_time'] = date('Y-m-d H:i:s',$vote['vote_start_time']);
+        $vote['vote_end_time'] = date('Y-m-d H:i:s',$vote['vote_end_time']);
+        $data['vote'] = $vote;
+
+        $data['number'] = $official_number;
+
         $this->load->view("vote_index",$data);
     }
 
@@ -134,5 +142,24 @@ class VoteController extends FrontController
             $arr = array("err"=>2,"info"=>("TP".$candidate_id));
             echo(json_encode($arr));
         }
+    }
+
+    public function view() {
+        $candi_id = $this->input->get("candi_id");
+        $this->load->model("Candidate_model","candi");
+        $candi = $this->candi->getCandidate($candi_id);
+        $candi['gallery'] = $this->candi->getGallery($candi_id);
+        $data['candi'] = $candi;
+        $data['rank'] = $this->candi->getCandiVoteRank($candi_id,$candi['vote_id']);
+        $data['content'] = $this->load->view("vote_candi_detail",$data,TRUE);
+        $this->show($data,$candi['vote_id']);
+    }
+
+    public function enroll() {
+        $this->load->helper(array('form', 'url'));
+        $vote_id = $this->input->get("vote_id");
+        $data['vote_id'] = $vote_id;
+        $data['content'] = $this->load->view("vote_enroll",$data,TRUE);
+        $this->show($data,$vote_id);
     }
 }

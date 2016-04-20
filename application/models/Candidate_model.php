@@ -44,4 +44,29 @@ class Candidate_model extends CI_Model
         }
         return $data;
     }
+
+    public function getCandidate($id) {
+        $this->db->where("id",$id);
+        $q = $this->db->get("candidate");
+        return $q->row_array();
+    }
+
+    public function getCandiVoteRank($candi_id,$vote_id) {
+        $sql = "select rank from ( ".
+               " select * ,@rownum:=@rownum+1 as rank from ( ".
+               " select cd.*,r.c,@rownum:=0 from wsg_candidate cd left join ( ".
+               " select candidate_id,count(1) as c from wsg_voting_record ".
+               " where vote_id = $vote_id group by candidate_id ) r ".
+               " on cd.id = r.candidate_id ".
+               " where cd.vote_id= $vote_id ".
+               " order by r.c desc) a ".
+               " )c where id= $candi_id ";
+        $q = $this->db->query($sql);
+        return $q->row()->rank;
+    }
+    public function getGallery($candi_id) {
+        $this->db->where("candi_id",$candi_id);
+        $q = $this->db->get("candi_gallery");
+        return $q->result_array();
+    }
 }
