@@ -1,6 +1,28 @@
 <?php
     defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+    <style>
+        .thead {
+            background-color:#8c8c8c;
+            font-weight:bold;
+            padding-top:.5em;
+        }
+        .tbody {
+            padding: .5em 0;
+            border:1px solid #ccc;
+        }
+        .panel-body {
+            border-left:1px solid #ccc;
+            border-right:1px solid #ccc;
+            border-bottom:1px solid #ccc;
+        }
+        .panel-body a {
+            margin-right:10px;
+        }
+        #accordion {
+            font-size:small;
+        }
+    </style>
     <div class="row">
         <div class="col-xs-12">
             <form class="admin-query">
@@ -8,31 +30,39 @@
                 <input type="submit" value="查询">
             </form>
         </div>
-        <div class="col-xs-12">
-            <table width="100%" border="1px" class="query-result">
-                    <thead>
-                        <tr>
-                        <td><input type="checkbox" value="">check all</td>
-                        <td>app_id</td>
-                        <td>公众号名称</td>
-                        <td>操作</td>
-                        </tr>
-                    </thead>
-                    <?php if ($numbers):?>
-                    <?php foreach($numbers as $item):?>
-                    <tr>
-                        <td><input type="checkbox" value="<?=$item['id']?>"></td>
-                        <td><?=$item['app_id']?></td>
-                        <td><?=$item['app_name']?></td>
-                        <td><a href="index.php/AdminOfficialNumber/edit?id=<?=$item['id']?>">配置</a><a href="">解除绑定</a></td>
-                    </tr>
-                    <?php endforeach;?>
-                    <?php else:?>
-                        <tr>
-                            <td colspan="4">还没有添加公众号记录，点击<a href="index.php/AdminOfficialNumber/add">这里</a>添加</td>
-                        </tr>
-                    <?php endif;?>
-            </table>
+        <div class="col-xs-12" id="accordion">
+            <div class="row thead">
+                <div class="col-xs-3"><label>app_id</label></div>
+                <div class="col-xs-3"><label>公众号名称</label></div>
+                <div class="col-xs-3"><label>关注人数</label></div>
+                <div class="col-xs-3"><label>操作</label></div>
+            </div>
+            <?php if ($numbers):?>
+            <?php foreach($numbers as $item):?>
+            <div class="row tbody">
+                <div class="col-xs-3"><a data-toggle="collapse" data-parent="#accordion" href="#collapse<?=$item['id']?>" ><?=$item['app_id']?></a></div>
+                <div class="col-xs-3"><?=$item['app_name']?></div>
+                <div class="col-xs-3"><?=$item['member_count']?><a href="javascript:;"> 同步 </div>
+                <div class="col-xs-3"><a href="index.php/AdminOfficialNumber/edit?id=<?=$item['id']?>">配置</a>&nbsp;
+                    <a href="">解除绑定</a>
+                </div>
+            </div>
+            <div id="collapse<?=$item['id']?>" class="row panel-collapse collapse">
+                <div class="panel-body">
+                    <a href="javascript:;" data-src="admin_officialnumber_menu" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">自动回复设置</a>
+                    <a href="javascript:;" data-src="" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">菜单设置</a>
+                    <hr/>
+                    <div id="subContent<?=$item['id']?>">
+
+                    </div>
+                </div>
+            </div>
+            <?php endforeach;?>
+            <?php else:?>
+                <div>还没有添加公众号记录，点击<a href="index.php/AdminOfficialNumber/add">这里</a>添加</div>
+            <?php endif;?>
+
         </div>
     </div>
+
 

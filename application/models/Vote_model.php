@@ -75,6 +75,7 @@ class Vote_model extends \CI_Model
     }
 
     public function delete($id) {
+        //
         $this->db->where("id",$id);
         $this->db->delete("vote");
     }
