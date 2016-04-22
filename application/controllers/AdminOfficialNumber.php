@@ -59,4 +59,12 @@ class AdminOfficialNumber extends AdminController
         $data['number'] = $this->model->getOfficialNumber($id);
         $this->render("admin_official_number_edit",$data);
     }
+
+    public function ajaxMenuPage() {
+        $page = $this->input->get("page");
+        $id = $this->input->get("id");
+        $data['id'] = $id;
+        $content = $this->load->view($page,$data,TRUE);
+        echo $content;
+    }
 }
