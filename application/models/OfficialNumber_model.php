@@ -46,4 +46,10 @@ class OfficialNumber_model extends CI_Model
             $this->db->update("official_number",$number);
         }
     }
+
+    public function getNumberByToken($token) {
+        $this->db->where("token",$token);
+        $q = $this->db->get("official_number");
+        return $q->row_array();
+    }
 }

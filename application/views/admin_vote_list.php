@@ -38,7 +38,7 @@
                         <td><?php if($item['status'] == 0):?>开启<?php else:?>关闭<?php endif;?></td>
                         <td><?=$item['candi_count']?></td>
                         <td><?=$item['vote_count']?></td>
-                        <td><a href="index.php/AdminVoteController/edit?id=<?=$item['id']?>">配置</a><a href="">解除绑定</a></td>
+                        <td><a href="index.php/AdminVoteController/edit?id=<?=$item['id']?>">配置</a><a href="index.php/AdminVoteController/delete?id=<?=$item['id']?>">解除绑定</a></td>
                     </tr>
                     <tr id="collapse<?=$item['id']?>" class="panel-collapse collapse">
                         <td colspan="8">

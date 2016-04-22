@@ -245,6 +245,14 @@ class VoteController extends FrontController
             }
         }
 
+        $this->load->model("Vote_model","vote");
+
+        $vote = $this->vote->getVote($vote_id);
+
+        $this->load->model("OfficialNumber_model","number");
+        $official_number = $this->number->getOfficialNumber($vote['app_id']);
+        $data['number'] = $official_number;
+
         $data['content'] = $this->load->view("vote_enroll_result",$data,TRUE);
         $this->show($data,$vote_id);
     }

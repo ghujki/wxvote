@@ -9,17 +9,20 @@ class Response extends MY_Controller {
 	
 	public function __construct() {
 		parent::__construct();
-		$this->load->config("appconfig");
-		$this->appId = $this->config->item("appid");
-		$this->secretKey = $this->config->item("secretkey");
-		$this->token = $this->config->item("token");
 	}
 	
-	public function index() {
-		if (isset($_GET['echostr'])) {
-		    $this->valid();
-		} else {
-		    $this->responseMsg();
+	public function index($token) {
+		$this->load->model("OfficialNumber_model","number");
+		$number = $this->number->getNumberByToken($token);
+		if ($number) {
+			$this->token = $token;
+			$this->appId = $number['app_id'];
+			$this->secretKey = $number['secretkey'];
+			if (isset($_GET['echostr'])) {
+				$this->valid();
+			} else {
+				$this->responseMsg();
+			}
 		}
 	}
 	

@@ -90,4 +90,11 @@ class AdminVoteController extends AdminController
             $this->index();
         }
     }
+
+    public function delete() {
+        $id = $this->input->get("id");
+        $this->load->model("Vote_model", "vote");
+        $this->vote->delete($id);
+        redirect("AdminVoteController/index");
+    }
 }

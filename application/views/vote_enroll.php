@@ -72,19 +72,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <label>上传照片</label>
             <div>
                 <label class=" file-label add" for="file1"></label>
-                <input type="file" id="file1" name="file1" onchange="fileChange(this)" />
+                <input type="file" id="file1" name="file1" onchange="fileChange(this)" disabled="disabled" />
                 <input type="hidden" name="file1_path" id="file1_path"/>
 
                 <label class=" file-label add" for="file2"></label>
-                <input type="file" id="file2" name="file1" onchange="fileChange(this)"/>
+                <input type="file" id="file2" name="file1" onchange="fileChange(this)" disabled="disabled"/>
                 <input type="hidden" name="file2_path" id="file2_path"/>
 
                 <label class=" file-label add" for="file3"></label>
-                <input type="file" id="file3" name="file1" onchange="fileChange(this)"/>
+                <input type="file" id="file3" name="file1" onchange="fileChange(this)" disabled="disabled"/>
                 <input type="hidden" name="file3_path" id="file3_path"/>
 
                 <label class=" file-label add" for="file4"></label>
-                <input type="file" id="file4" name="file1" onchange="fileChange(this)"/>
+                <input type="file" id="file4" name="file1" onchange="fileChange(this)" disabled="disabled"/>
                 <input type="hidden" name="file4_path" id="file4_path"/>
             </div>
             <p class="help-block">上传1~4张图片，至少一张。</p>
@@ -146,6 +146,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 if (data.error == 0) {
                     $(".check").removeClass("fa-spinner").addClass("fa-check");
                     $("#user_id").val(data.user_id);
+                    $("input[type=file]").prop("disabled",false);
                 } else {
                     $(".check").removeClass("fa-check").addClass("fa-spinner").hide();
                     $("#user_id").val("");
