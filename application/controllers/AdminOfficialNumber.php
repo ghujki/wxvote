@@ -15,8 +15,13 @@ class AdminOfficialNumber extends AdminController
         //account list page
         $this->load->model("OfficialNumber_model","model");
         $numbers = $this->model->getNumbers();
+        $memberCount = $this->model->getOfficialMemberCount();
+        for($i = 0;$i < count($numbers);$i++) {
+            $numbers[$i]['member_count'] = isset($memberCount[$numbers[$i]['id']]) ? $memberCount[$numbers[$i]['id']] : 0;
+        }
         $data['numbers'] = $numbers;
         $data['title'] = "公众号列表";
+        $data['jspaths'] = array("application/views/js/admin_official_embed.js");
         $this->render("official_number_list",$data);
     }
 
@@ -63,8 +68,45 @@ class AdminOfficialNumber extends AdminController
     public function ajaxMenuPage() {
         $page = $this->input->get("page");
         $id = $this->input->get("id");
+
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($id);
+        $this->load->library("wx/MpWechat");
+        $menustr = $this->mpwechat->getMenu($number['app_id'],$number['secretkey']);
+        $menu = json_decode($menustr);
         $data['id'] = $id;
+        $data['menustr'] = json_encode($menu->menu,JSON_UNESCAPED_UNICODE);
         $content = $this->load->view($page,$data,TRUE);
         echo $content;
+    }
+
+    public function ajaxUpdateMenu() {
+        $id = $this->input->get("id");
+        //$menu = $this->input->get("menu");
+        $str = $this->input->get("menu_str");
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($id);
+        $this->load->library("wx/MpWechat");
+        $result = $this->mpwechat->creatMenu($number['app_id'],$number['secretkey'],$str);
+        echo $result;
+    }
+
+    public function ajaxSyncMember() {
+        $id = $this->input->get("id");
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($id);
+        try {
+            $this->load->library("wx/MpWechat");
+            $members = $this->mpwechat->getMembers($number['app_id'], $number['secretkey']);
+            //update or insert
+            $this->load->model("User_model", "user");
+            foreach ($members as $m) {
+                $user = array("user_open_id" => $m, "app_id" => $number['id']);
+                $this->user->save($user);
+            }
+            echo count($members);
+        } catch (Exception $e) {
+            echo json_encode(array("errinfo"=>$e->getMessage()));
+        }
     }
 }

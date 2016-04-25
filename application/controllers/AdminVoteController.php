@@ -11,6 +11,11 @@ require "AdminController.php";
 class AdminVoteController extends AdminController
 {
 
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     /**
      * show the vote list
      */

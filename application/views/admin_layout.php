@@ -29,6 +29,10 @@
                             <dd><a href="index.php/AdminOfficialNumber/add">增加公众号</a></dd>
                         </dl>
                         <dl>
+                            <dt>素材管理</dt>
+                            <dd><a href="index.php/AdminMaterial">素材列表</a></dd>
+                        </dl>
+                        <dl>
                             <dt>投票活动</dt>
                             <dd><a href="index.php/AdminVoteController">活动列表</a></dd>
                             <dd><a href="index.php/AdminVoteController/add">增加活动</a></dd>
@@ -39,7 +43,11 @@
                     <?=$content?>
                 </div>
             </div>
-            <footer></footer>
+            <footer class="footer">
+                <div class="text-center">
+                    微时光微信管理系统
+                </div>
+            </footer>
         </div>
         <script src="application/views/js/jquery-1.11.3.min.js"></script>
         <script src="application/views/js/bootstrap-3.3.5.min.js"></script>
