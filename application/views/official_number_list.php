@@ -16,7 +16,7 @@
             border-right:1px solid #ccc;
             border-bottom:1px solid #ccc;
         }
-        .panel-body a {
+        .panel-body>a {
             margin-right:10px;
         }
         #accordion {
@@ -42,27 +42,23 @@
             <div class="row tbody">
                 <div class="col-xs-3"><a data-toggle="collapse" data-parent="#accordion" href="#collapse<?=$item['id']?>" ><?=$item['app_id']?></a></div>
                 <div class="col-xs-3"><?=$item['app_name']?></div>
-                <div class="col-xs-3"><?=$item['member_count']?><a href="javascript:;"> 同步 </div>
+                <div class="col-xs-3"><span><?=$item['member_count']?></span><a href="javascript:;" onclick="syncMembers(<?=$item['id']?>,this)"> 同步 </div>
                 <div class="col-xs-3"><a href="index.php/AdminOfficialNumber/edit?id=<?=$item['id']?>">配置</a>&nbsp;
                     <a href="">解除绑定</a>
                 </div>
             </div>
             <div id="collapse<?=$item['id']?>" class="row panel-collapse collapse">
                 <div class="panel-body">
-                    <a href="javascript:;" data-src="admin_officialnumber_menu" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">自动回复设置</a>
-                    <a href="javascript:;" data-src="" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">菜单设置</a>
+                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="admin_officialnumber_keyword" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">自动回复设置</a>
+                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="admin_officialnumber_menu" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">菜单设置</a>
                     <hr/>
-                    <div id="subContent<?=$item['id']?>">
-
-                    </div>
+                    <div id="subContent<?=$item['id']?>" class="panel-collapse"></div>
                 </div>
             </div>
             <?php endforeach;?>
             <?php else:?>
                 <div>还没有添加公众号记录，点击<a href="index.php/AdminOfficialNumber/add">这里</a>添加</div>
             <?php endif;?>
-
         </div>
     </div>
-
 

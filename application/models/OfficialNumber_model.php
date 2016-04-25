@@ -52,4 +52,14 @@ class OfficialNumber_model extends CI_Model
         $q = $this->db->get("official_number");
         return $q->row_array();
     }
+
+    public function getOfficialMemberCount() {
+        $q = $this->db->query("select count(1) as c,app_id from wsg_user where app_id is not null group by app_id;");
+        $rows = $q->result_array();
+        $results = array();
+        foreach($rows as $row) {
+            $results[$row['app_id']] = $row['c'];
+        }
+        return $results;
+    }
 }

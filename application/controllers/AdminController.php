@@ -16,10 +16,16 @@ class AdminController extends MY_Controller
         $this->load->library('form_validation');
 
         //auth check
-        if ($this->router->class == "AdminController" &&
-            !in_array($this->router->method,array("index","login")) &&
-            $this->checkLogin()) {
-            die("you are not allowed");
+//        if ($this->router->class == "AdminController" &&
+//            !in_array($this->router->method,array("index","login")) &&
+//            $this->checkLogin()) {
+//            die("you are not allowed");
+//        }
+        if(!$this->checkLogin() && $this->router->class == "AdminController" &&
+            !in_array($this->router->method,array("index","login"))) {
+            redirect("AdminController/index");
+            exit;
+            //die("you are not allowed");
         }
     }
 

@@ -44,7 +44,13 @@ class MpWechat {
 		$menuPostString = $menuStr;		
 		$menuPostUrl = "https://api.weixin.qq.com/cgi-bin/menu/create?access_token=".$accessToken;//POST的url
 		$menu = dataPost($menuPostString, $menuPostUrl);//将菜单结构体POST给微信服务器
-		print_r($menu);
+		return $menu;
+	}
+
+	public function getMenu($appId,$secret) {
+		$accessToken = $this->getAccessToken($appId,$secret);//获取access_token
+		$menuPostUrl = "https://api.weixin.qq.com/cgi-bin/menu/get?access_token=".$accessToken;//POST的url
+		return getCurl($menuPostUrl);
 	}
 	
 	/**
@@ -95,6 +101,61 @@ class MpWechat {
 		$accessToken = $this->getAccessToken($appId, $secretkey);
 		$str = getCurl("https://api.weixin.qq.com/cgi-bin/groups/get?access_token=".$accessToken);
 		return json_decode($str);
+	}
+
+	public function getMembers($appId,$secretkey) {
+		$accessToken = $this->getAccessToken($appId, $secretkey);
+		$str = getCurl("https://api.weixin.qq.com/cgi-bin/user/get?access_token=$accessToken&next_openid=");
+		$obj = json_decode($str,true);
+		if ($obj['errcode']) {
+			throw new Exception($obj['errmsg']);
+		}
+		$data = array();
+		array_push($data,$obj['data']['openid']);
+		if ($obj['total'] < $obj['count'] && $obj['next_openid']) {
+			$data1 = $this->getNextMembers($accessToken,$obj['next_openid']);
+			array_push($data,$data1);
+		}
+		return $data;
+	}
+
+	private function getNextMembers($accessToken,$nextOpenId) {
+		$str = getCurl("https://api.weixin.qq.com/cgi-bin/user/get?access_token=$accessToken&next_openid=".$nextOpenId);
+		$obj = json_decode($str,true);
+		if ($obj['errcode']) {
+			throw new Exception($obj['errmsg']);
+		}
+		$data = array();
+		array_push($data,$obj['data']['openid']);
+		if ($obj['total'] < $obj['count'] && !in_array($nextOpenId,$obj['data']['openid'])) {
+			$data1 = $this->getNextMembers($accessToken,$obj['next_openid']);
+			array_push($data,$data1);
+		}
+		return $data;
+	}
+
+	public function getBatchNewsMaterial($appid,$secretkey) {
+		$accessToken = $this->getAccessToken($appid, $secretkey);
+		$str = getCurl("https://api.weixin.qq.com/cgi-bin/material/get_materialcount?access_token=$accessToken");
+		$obj = json_decode($str,true);
+		//获得总数
+		$news_count = $obj['news_count'];
+		$offset =  0;
+		$count = $news_count >= 20 ? 20 :$news_count;
+		$data = array();
+		while (($offset + $count) <= $news_count && $count > 0) {
+			$d = getBatchMaterialOffset($accessToken,'news',$offset,$count);
+			array_push($data,$d);
+			$offset += 20;
+		}
+		return $data;
+	}
+
+	public function getBatchMaterialOffset($accessToken,$type,$offset,$count) {
+		$obj = array("type"=>$type,"offset"=>$offset,"count"=>$count);
+		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token=$accessToken");
+		$result = json_decode($str,true);
+		return $result['item'];
 	}
 }
 ?>
