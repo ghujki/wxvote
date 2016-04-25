@@ -68,3 +68,15 @@
     margin:1em 0;
     padding:1em;
 }
+
+.float-left {
+    float:left;
+}
+
+.float-right {
+    float:right;
+}
+
+.clearfix {
+    clear:both;
+}

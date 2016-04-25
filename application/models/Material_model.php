@@ -28,6 +28,11 @@ class Material_model extends  CI_Model
     public function getNumberMaterials($nid) {
         $this->db->where("app_id",$nid);
         $q = $this->db->get("material");
-        return $q->result_array();
+        $rows = $q->result_array();
+        $data = array();
+        foreach ($rows as $row) {
+            $data[$row['media_id']][] = $row;
+        }
+        return $data;
     }
 }

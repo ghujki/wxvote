@@ -51,6 +51,7 @@
         </div>
         <script src="application/views/js/jquery-1.11.3.min.js"></script>
         <script src="application/views/js/bootstrap-3.3.5.min.js"></script>
+        <script src="application/views/js/admin_vote_edit.js"></script>
         <?php if ($jspaths):?>
         <?php foreach ($jspaths as $path):?>
             <script type="text/javascript" src="<?=$path?>"></script>

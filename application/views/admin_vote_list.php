@@ -44,8 +44,11 @@
                     <tr id="collapse<?=$item['id']?>" class="panel-collapse collapse">
                         <td colspan="8">
                             <div>
-                                <a href="index.php/VoteController/index?vote_id=<?=$item['id']?>">查看活动首页</a><a href="#">管理报名选手</a><a href="#">查看投票记录</a>
-                                <a href="#">奖品设定</a><a href="#">获奖人员维护</a>
+                                <a href="index.php/VoteController/index?vote_id=<?=$item['id']?>">查看活动首页</a>
+                                <a href="index.php/AdminCandidateController/index?vote_id=<?=$item['id']?>">管理报名选手</a>
+                                <a href="index.php/AdminVoteController/viewVoteRecord?vote_id=<?=$item['id']?>">查看投票记录</a>
+                                <a href="#">奖品设定</a>
+                                <a href="#">获奖人员维护</a>
                             </div>
                         </td>
                     </tr>
