@@ -22,7 +22,6 @@ class AdminMaterial extends AdminController
 
         $this->load->model("material_model","m");
         $data['materials']  = $this->m->getNumberMaterials($numbers[0]['id']);
-
         $data['jspaths'] = array("application/views/js/masonry.pkgd.min.js","application/views/js/admin_material_masonry.js");
         $this->render("admin_material",$data);
     }
@@ -71,9 +70,8 @@ class AdminMaterial extends AdminController
 
         if ( ! $this->upload->do_upload('pic'))
         {
-            $error = array('error' => $this->upload->display_errors());
 
-            die(json_encode(array("error"=>$error,"hash"=>$token_value)));
+            die(json_encode(array("error"=>$this->upload->display_errors(),"hash"=>$token_value)));
         }
         else
         {

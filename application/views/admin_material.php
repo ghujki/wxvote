@@ -11,11 +11,19 @@
         margin-top:10px;
     }
     .grid-item { width: 200px;margin-bottom:10px; border:1px solid #ccc;padding:1em;}
-    .grid-item figcaption {
-        padding:.2em;
-        font-size:small;
+    .grid-item figure {
+        padding-bottom:10px;
     }
-
+    .grid-item figcaption {
+        padding: .2em;
+        font-size: small;
+        margin-top: -20px;
+        background-color: black;
+        width: 100%;
+        color: #fff;
+        opacity: .8;
+    }
+    .item-row {border-top:1px solid #ccc;padding:.5em;font-size:small}
 </style>
 <div class="row">
     <div class="col-xs-12">
@@ -37,12 +45,21 @@
     </div>
     <div class="col-xs-12">
         <div class="grid">
-            
-            <figure class="grid-item">
-                <img src="application/views/images/214833-120S11GJ543.jpg" class="img-responsive">
-                <figcaption>测试一些数据</figcaption>
-            </figure>
-
+            <div class="grid-item">
+            <?php foreach ($materials as $m) :?>
+                <?php $cover = array_shift($m);?>
+                <figure>
+                    <img src="<?=$cover['picurl']?>" class="img-responsive">
+                    <figcaption><a href="<?=$cover['url']?>" target="_blank"><?=$cover['title']?></a></figcaption>
+                </figure>
+                <?php foreach ($m as $item): ?>
+                    <div class="row item-row">
+                        <div class="col-xs-8"><a href="<?=$item['url']?>" target="_blank"><?=$item['title']?></a></div>
+                        <div class="col-xs-4"><img src="<?=$item['picurl']?>" class="img-responsive"></div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endforeach;?>
+            </div>
         </div>
     </div>
 </div>
