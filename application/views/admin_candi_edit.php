@@ -30,6 +30,23 @@
     #user-info {
         padding:1em;
     }
+
+    .wxuser-content {
+        margin-bottom:1em ;
+    }
+    .wxuser-content .wxuser_item {
+        width:100px;
+        float:left;
+        margin-right:10px;
+        font-size:smaller;
+        word-break: break-all;
+    }
+    .wxuser-content .wxuser_item img {
+        width:100px;
+    }
+    .wxuser-content .wxuser_item.checked {
+        border-color:green;
+    }
 </style>
 <div class="edit-panel">
     <?php echo validation_errors(); ?>
@@ -114,22 +131,22 @@
         <div class="col-xs-10">
             <?php if($candi['id']) {?>
             <?php if ($candi['user_id']) {?>
-                <span class="wx-related"><i class="fa fa-check"></i>微信绑定</span>&nbsp;<a href="">重新绑定</a>
-                <a href="">同步微信信息</a>
+                <span class="wx-related"><i class="fa fa-check"></i>微信绑定</span>&nbsp;
+                    <a href="javascript:;" data-target="#modal2" data-src="index.php/AdminCandidateController/ajaxSyncUsers" onclick="showWxUserPanel(this)">重新绑定</a>
             <?php }else { ?>
-                <a href="">关联微信</a>
-                <a href="">同步微信信息</a>
+                <a href="javascript:;" data-target="#modal2"
+                   data-src="index.php/AdminCandidateController/ajaxSyncUsers" onclick="showWxUserPanel(this)">关联微信</a>
             <?php };?>
             <div id="user-info">
                 <div>昵称：<?=$user_info['nickname']?></div>
-                <div>头像：<img src="<?=$user_info['headimgurl']?>" class="img-responsive"></div>
+                <div>头像：<img src="<?=$user_info['headimgurl']?>" style="width:100px;"></div>
                 <div>性别：<?=$user_info['sex']?></div>
                 <div>年龄：<?=$user_info['age']?></div>
                 <div>国家：<?=$user_info['country']?></div>
                 <div>省份：<?=$user_info['province']?></div>
                 <div>城市：<?=$user_info['city']?></div>
                 <div>地区：<?=$user_info['district']?></div>
-                <div>关注时间：<?=$user_info['subscribe_time']?></div>
+                <div>关注时间：<?php echo date('Y-m-d H:i:s',$user_info['subscribe_time']);?></div>
                 <div>openid：<?=$user_info['user_open_id']?></div>
                 <div>unionid：<?=$user_info['union_id']?></div>
             </div>
@@ -137,6 +154,16 @@
         </div>
     </div>
     </form>
+</div>
+<div class="modal fade " id="modal2" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="close" ></div>
+            <div class="modal-body" >
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
 </div>
 <link rel="stylesheet" href="application/views/css/jquery.datetimepicker.css">
 <script>
@@ -185,6 +212,23 @@
                 $("label[for='" + id + "']").removeClass("load").addClass("add");
                 alert(e.responseText);
                 $(obj).prop("disabled",false);
+            }
+        });
+    }
+
+    function showWxUserPanel(obj) {
+        var target = $(obj).attr("data-target");
+        var src = $(obj).attr("data-src");
+        $.ajax({
+            url:src,
+            dateType:"json",
+            data:{vote_id:'<?=$vote_id?>',candi_id:'<?=$candi['id']?>'},
+            success:function(data) {
+                $(target).modal();
+                $(".modal-body").html(JSON.parse(data).content);
+                $(".default-img").on("error",function(){
+                    $(this).attr("src",$(this).attr("data-src"));
+                });
             }
         });
     }

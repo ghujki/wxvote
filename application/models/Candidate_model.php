@@ -14,9 +14,19 @@ class Candidate_model extends CI_Model
         $this->load->database();
     }
 
-    public function getCandidateList($vote_id,$start =0 ,$limit = 10) {
-        $this->db->limit($start,$limit);
-        $q = $this->db->get_where("candidate","vote_id=".$vote_id);
+    public function getCandidateList($vote_id,$start =0 ,$limit = 10,$orderBy = "enroll_time",$sort = "desc") {
+        $this->db->where("vote_id",$vote_id);
+        $this->db->order_by($orderBy,$sort);
+        $this->db->limit($limit,$start);
+        $q = $this->db->get_where("candidate");
+        return $q->result_array();
+    }
+
+    public function getCandidateListOrderByCount($vote_id,$start =0 ,$limit = 10) {
+        $str = "select cd.*,(ifnull(c.c,0) + cd.priority) as count from wsg_candidate cd left join ".
+               " (select candidate_id ,count(1) as c from wsg_voting_record  where vote_id=? group by candidate_id) c ".
+               " on cd.id = c.candidate_id where vote_id = ? order by count desc limit ?,?";
+        $q = $this->db->query($str,array($vote_id,$vote_id,$start,$limit));
         return $q->result_array();
     }
 
@@ -57,17 +67,18 @@ class Candidate_model extends CI_Model
         return $q->result_array();
     }
 
+    /** @deprecated */
     public function getCandiVoteRank($candi_id,$vote_id) {
         $sql = "select rank from ( ".
                " select * ,@rownum:=@rownum+1 as rank from ( ".
                " select cd.*,(IFNULL(r.c,0) + IFNULL(cd.priority,0))  as c,@rownum:=0 from wsg_candidate cd left join ( ".
                " select candidate_id,count(1) as c from wsg_voting_record ".
-               " where vote_id = $vote_id group by candidate_id ) r ".
+               " where vote_id = ? group by candidate_id ) r ".
                " on cd.id = r.candidate_id ".
-               " where cd.vote_id= $vote_id ".
+               " where cd.vote_id= ? ".
                " order by (IFNULL(r.c,0) + IFNULL(cd.priority,0)) desc) a ".
-               " )c where id= $candi_id ";
-        $q = $this->db->query($sql);
+               " )c where id= ? ";
+        $q = $this->db->query($sql,array($vote_id,$vote_id,$candi_id));
         return $q->row()->rank;
     }
 
@@ -76,12 +87,12 @@ class Candidate_model extends CI_Model
             " select * ,@rownum:=@rownum+1 as rank from ( ".
             " select cd.*,(IFNULL(r.c,0) + IFNULL(cd.priority,0)) AS c,@rownum:=0 from wsg_candidate cd left join ( ".
             " select candidate_id,count(1) as c from wsg_voting_record ".
-            " where vote_id = $vote_id group by candidate_id ) r ".
+            " where vote_id = ? group by candidate_id ) r ".
             " on cd.id = r.candidate_id ".
-            " where cd.vote_id= $vote_id ".
+            " where cd.vote_id= ? ".
             " order by (IFNULL(r.c,0) + IFNULL(cd.priority,0)) desc) a ".
-            " )c where id in (" .implode(",",$candi_ids).")";
-        $q = $this->db->query($sql);
+            " )c where id in ?";
+        $q = $this->db->query($sql,array($vote_id,$vote_id,$candi_ids));
         $rows = $q->result_array();
         $ranks = array();
         for ($i = 0;$i < count($rows);$i++) {
@@ -90,6 +101,14 @@ class Candidate_model extends CI_Model
         return $ranks;
     }
 
+    public function searchCandidate($vote_id,$keywords,$start = 0,$limit = 10) {
+        $this->db->like("name",$keywords);
+        $this->db->or_like("id",$keywords);
+        $this->db->where("vote_id",$vote_id);
+        $this->db->limit($limit,$start);
+        $q = $this->db->get("candidate");
+        return $q->result_array();
+    }
 
 
     public function getCandidateByUser($user_id,$vote_id) {

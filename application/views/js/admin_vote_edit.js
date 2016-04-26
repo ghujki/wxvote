@@ -1,5 +1,5 @@
 $(function(){
-    if ($.datetimepicker) {
+    if ($("").datetimepicker) {
         $("*[data-toggle=time]").datetimepicker({
             lang: "ch",           //语言选择中文
             format: "Y-m-d H:i",      //格式化日期
@@ -9,4 +9,8 @@ $(function(){
             todayButton: false    //关闭选择今天按钮
         });
     }
+
+    $(".default-img").on("error",function(){
+        $(this).attr("src",$(this).attr("data-src"));
+    });
 });

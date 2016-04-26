@@ -6,6 +6,24 @@
  * Time: 0:01
  */
 ?>
+<p><button>添加新规则</button></p>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xs-9">
+            关键字：<span id="keywords"></span>
+        </div>
+        <div class="col-xs-3">
+            <a href="">增加关键字</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <button class="btn btn-default">保存</button>
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid">
     <div class="row thead">
         <div class="col-xs-3">

@@ -21,8 +21,8 @@ class AdminController extends MY_Controller
 //            $this->checkLogin()) {
 //            die("you are not allowed");
 //        }
-        if(!$this->checkLogin() && $this->router->class == "AdminController" &&
-            !in_array($this->router->method,array("index","login"))) {
+        if(!$this->checkLogin() && !($this->router->class == "AdminController" &&
+            in_array($this->router->method,array("index","login")))) {
             redirect("AdminController/index");
             exit;
             //die("you are not allowed");

@@ -111,10 +111,10 @@ class MpWechat {
 			throw new Exception($obj['errmsg']);
 		}
 		$data = array();
-		array_push($data,$obj['data']['openid']);
+		$data = array_merge($data,$obj['data']['openid']);
 		if ($obj['total'] < $obj['count'] && $obj['next_openid']) {
 			$data1 = $this->getNextMembers($accessToken,$obj['next_openid']);
-			array_push($data,$data1);
+			$data = array_merge($data,$data1);
 		}
 		return $data;
 	}
@@ -126,10 +126,10 @@ class MpWechat {
 			throw new Exception($obj['errmsg']);
 		}
 		$data = array();
-		array_push($data,$obj['data']['openid']);
+		$data = array_merge($data,$obj['data']['openid']);
 		if ($obj['total'] < $obj['count'] && !in_array($nextOpenId,$obj['data']['openid'])) {
 			$data1 = $this->getNextMembers($accessToken,$obj['next_openid']);
-			array_push($data,$data1);
+			$data = array_merge($data,$data1);
 		}
 		return $data;
 	}

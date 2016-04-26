@@ -10,12 +10,16 @@
             </div>
             <table>
                 <tr>
-                    <td colspan="2"><a href="index.php/VoteController/view?vote_id=<?=$item['vote_id']?>&candi_id=<?=$item['id']?>"><img src="application/views/images/214833-120S11GJ543.jpg" class="img-responsive" /></a></td>
+                    <td colspan="2"><a href="index.php/VoteController/view?vote_id=<?=$item['vote_id']?>&candi_id=<?=$item['id']?>">
+                            <img src="<?=$item['pic']?>" class="img-responsive" /></a></td>
                 </tr>
                 <tr>
                     <td width="75%"class="green">
                         <div ><?=$item['name']?></div>
-                        <div ><span><?=$item['vote_count']?></span>票</div>
+                        <div >
+                            <span><?=$item['vote_count']?>票</span>
+                            <span>第<?=$item['rank']?>名</span>
+                        </div>
                     </td>
                     <td class="pink text-center">
                         <a href="javascript:;" onclick="voteFor(<?=$item['id']?>)">投票</a>

@@ -30,4 +30,13 @@ class User_model extends CI_Model {
         $q = $this->db->get("user");
         return $q->row_array();
     }
+
+    public function getUsers($numberId,$start = 0,$limit = 0) {
+        $this->db->where("app_id",$numberId);
+        if ($limit > 0) {
+            $this->db->limit($start, $limit);
+        }
+        $q = $this->db->get("user");
+        return $q->result_array();
+    }
 }

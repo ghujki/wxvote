@@ -6,8 +6,8 @@
  * Date: 2016/4/26
  * Time: 22:15
  */
-require "";
-class MyPagination extends CI_Pagination{
+
+class MY_Pagination extends CI_Pagination{
     public function __construct()
     {
         parent::__construct();

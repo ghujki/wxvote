@@ -24,7 +24,7 @@ class AdminCandidateController extends AdminController
         $this->load->model("Candidate_model","candi");
 
         $candies = $this->candi->getCandidateList($vote_id,$page * AdminCandidateController::$PAGE_SIZE,AdminCandidateController::$PAGE_SIZE);
-        $candi_ids = array();
+        $candi_ids = array(0);
         for ($i = 0;$i < count($candies);$i++) {
             $candi_ids[] = $candies[$i]['id'];
             $candies[$i]['enroll_time'] = date("Y-m-d H:i:s" ,$candies[$i]['enroll_time']);
@@ -69,8 +69,8 @@ class AdminCandidateController extends AdminController
             $this->load->model("User_model","user");
             $data['user_info'] = $this->user->getUser($candi['user_id']);
         }
-
-        $data['jspaths'] = array("application/views/js/jquery.datetimepicker.js","application/views/js/jquery.form.js");
+        $data['jspaths'] = array("application/views/js/jquery.datetimepicker.js",
+            "application/views/js/jquery.form.js");
         $this->render("admin_candi_edit",$data);
     }
 
@@ -102,10 +102,27 @@ class AdminCandidateController extends AdminController
         $candi_id = $this->candi->saveOrUpdateCandidate($candi);
 
         $pics = $this->input->post("file_path");
+        $exits_gallery = $this->candi->getGallery($candi_id);
+
         foreach ($pics as $pic) {
+            $exists = false;
+            foreach ($exits_gallery as $g) {
+                if ($pic == $g['pic']) {
+                    $exists = true;
+                    break;
+                }
+            }
+            if ($exists) {
+                continue;
+            }
             $gallery[] = array('candi_id'=>$candi_id,'pic'=>$pic);
         }
+        ///before save
         $this->candi->saveGalleries($gallery);
+
+        $candi['id'] = $candi_id;
+        $candi['pic'] = $gallery[0]['pic'];
+        $this->candi->saveOrUpdateCandidate($candi);
 
         redirect("AdminCandidateController/detail/".$candi_id);
     }
@@ -117,6 +134,80 @@ class AdminCandidateController extends AdminController
         $candi = $this->candi->getCandidate($candi_id);
         $candi['priority'] += $val;
         $candi_id = $this->candi->saveOrUpdateCandidate($candi);
+        echo json_encode("ok");
+    }
+
+    public function ajaxSyncUsers() {
+        $candi_id = $this->input->get("candi_id");
+        $vote_id = $this->input->get("vote_id");
+        $page = $this->input->get("page");
+        $page  = isset($page) ? $page:0;
+        $page_size = 30;
+
+        $this->load->model("User_model","user");
+        $this->load->model('OfficialNumber_model','number');
+        $this->load->model("Vote_model","vote");
+
+        $vote = $this->vote->getVote($vote_id);
+
+        $data['users'] = $this->user->getUsers($vote['app_id'],$page * $page_size,$page_size);
+
+        $counts = $this->number->getOfficialMemberCount();
+
+        $memberTotal = $counts[$data['vote_id']] ? $counts[$data['vote_id']] : 0;
+
+        $this->load->library('pagination');
+        $config['base_url'] = 'index.php/AdminCandidateController/index/';
+        $config['total_rows'] = $memberTotal;
+        $config['per_page'] = $page_size;
+        $config['num_links'] = 5;
+        $config['reuse_query_string'] = TRUE;
+        $config['first_link'] = '第一页';
+        $config['last_link'] = '最末页';
+        $config['next_link'] = "下一页";
+        $config['prev_link'] = "上一页";
+
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_ajax_links();
+        $data['number_id'] = $vote['app_id'];
+        $data['candi_id'] = $candi_id;
+        echo json_encode(array("content"=>$this->load->view("admin_user_list",$data,true)));
+    }
+
+    public function syncWxUser() {
+        $number_id = $this->input->get("number_id");
+        $this->load->model('OfficialNumber_model','number');
+        $number = $this->number->getOfficialNumber($number_id);
+        //
+        try {
+            $this->load->library("wx/MpWechat");
+            $members = $this->mpwechat->getMembers($number['app_id'], $number['secretkey']);
+            //update or insert
+            $this->load->model("User_model", "user");
+            foreach ($members as $m) {
+                $user = $this->mpwechat->getUserInfo($number['app_id'],$number['secretkey'],$m);
+                $user['user_open_id'] = $m;
+                $user['app_id'] = $number['id'];
+                unset($user['openid']);
+                unset($user['subscribe']);
+                unset($user['remark']);
+                unset($user['accessToken']);
+                unset($user['groupid']);
+                $this->user->save($m,$number['id'],$user);
+            }
+            echo count($members);
+        } catch (Exception $e) {
+            echo json_encode(array("errinfo"=>$e->getMessage()));
+        }
+    }
+
+    public function ajaxBindUser() {
+        $candi_id = $this->input->get("candi_id");
+        $user_id = $this->input->get("user_id");
+        $this->load->model("candidate_model","candi");
+        $candi = $this->candi->getCandidate($candi_id);
+        $candi['user_id'] = $user_id;
+        $this->candi->saveOrUpdateCandidate($candi);
         echo json_encode("ok");
     }
 }

@@ -14,18 +14,36 @@ class VoteController extends FrontController
     public static $TOKEN_COUNT  = 10;
     public function index($page = 0) {
         $vote_id = $this->input->get("vote_id");
-
+        $orderBy = $this->input->get("orderby");
         $this->load->library('pagination');
         $this->load->model("Candidate_model","candidate");
 
-        $candi_list = $this->candidate->getCandidateList($vote_id,VoteController::$PAGE_SIZE * $page);
-
+        if ($orderBy == "enroll_time" || empty($orderBy)) {
+            $candi_list = $this->candidate->getCandidateList($vote_id, VoteController::$PAGE_SIZE * $page, VoteController::$PAGE_SIZE);
+        } elseif ($orderBy == "count") {
+            $candi_list = $this->candidate->getCandidateListOrderByCount($vote_id,VoteController::$PAGE_SIZE * $page, VoteController::$PAGE_SIZE);
+        } elseif ($orderBy == 'top') {
+            if (VoteController::$PAGE_SIZE * ($page + 1) < 50) {
+                $candi_list = $this->candidate->getCandidateListOrderByCount($vote_id, VoteController::$PAGE_SIZE * $page, VoteController::$PAGE_SIZE);
+            } else {
+                $size = 50 -  VoteController::$PAGE_SIZE * $page;
+                $candi_list = $this->candidate->getCandidateListOrderByCount($vote_id, VoteController::$PAGE_SIZE * $page, $size);
+            }
+        }
         $vote_count = $this->candidate->getCandidateVoteCount($vote_id);
 
-        for($i = 0; $i < count($candi_list); $i ++) {
-            $candi_list[$i]['vote_count'] = empty($vote_count[$candi_list[$i]['id']]) ? 0 : $vote_count[$candi_list[$i]['id']];
+        $candi_ids = array();
+        foreach ($candi_list as $candi) {
+            $candi_ids[] = $candi['id'];
         }
 
+        $countAndRank = $this->candidate->getCandiVoteCountAndRank($candi_ids,$vote_id);
+        for($i = 0; $i < count($candi_list); $i ++) {
+            $candi_list[$i]['vote_count'] = $countAndRank[$candi_list[$i]['id']]["c"];
+            $candi_list[$i]['rank'] = $countAndRank[$candi_list[$i]['id']]["rank"];
+        }
+
+        $data['vote_id'] = $vote_id;
         $data["list"] = $candi_list;
 
         //$data["list"] = $this->vote_model->getVoteList($page);
@@ -33,14 +51,59 @@ class VoteController extends FrontController
         $data['visit_count'] = $this->op->getVisitCount($vote_id);
 
         $config['base_url'] = 'index.php/VoteController/index/';
-        $config['total_rows'] = $data['count'];
-        $config['per_page'] = 10;
+        $config['total_rows'] = $this->candidate->getCandidateCount($vote_id);
+        $config['per_page'] = VoteController::$PAGE_SIZE;
         $config['num_links'] = 5;
         $config['reuse_query_string'] = TRUE;
         $config['first_link'] = '第一页';
         $config['last_link'] = '最末页';
         $config['next_link'] = "下一页";
         $config['prev_link'] = "上一页";
+        $config["cur_page"] = $page;
+
+
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        $data['content'] = $this->load->view("vote_candi_list",$data,TRUE);
+        $this->show($data,$vote_id);
+    }
+
+    public function search($page = 0) {
+        $keyword = $this->input->get("keywords",true);
+        $vote_id = $this->input->get("vote_id");
+        $this->load->library('pagination');
+        $this->load->model("Candidate_model","candidate");
+        $candi_list = $this->candidate->searchCandidate($vote_id,$keyword,VoteController::$PAGE_SIZE * $page, VoteController::$PAGE_SIZE);
+
+        $candi_ids = array();
+        foreach ($candi_list as $candi) {
+            $candi_ids[] = $candi['id'];
+        }
+
+        $countAndRank = $this->candidate->getCandiVoteCountAndRank($candi_ids,$vote_id);
+        for($i = 0; $i < count($candi_list); $i ++) {
+            $candi_list[$i]['vote_count'] = $countAndRank[$candi_list[$i]['id']]["c"];
+            $candi_list[$i]['rank'] = $countAndRank[$candi_list[$i]['id']]["rank"];
+        }
+
+        $data['vote_id'] = $vote_id;
+        $data["list"] = $candi_list;
+
+        //$data["list"] = $this->vote_model->getVoteList($page);
+        $this->load->model("OperatorRecord_model","op");
+        $data['visit_count'] = $this->op->getVisitCount($vote_id);
+
+        $config['base_url'] = 'index.php/VoteController/search/';
+        $config['total_rows'] = $this->candidate->getCandidateCount($vote_id);
+        $config['per_page'] = VoteController::$PAGE_SIZE;
+        $config['num_links'] = 5;
+        $config['reuse_query_string'] = TRUE;
+        $config['first_link'] = '第一页';
+        $config['last_link'] = '最末页';
+        $config['next_link'] = "下一页";
+        $config['prev_link'] = "上一页";
+        $config["cur_page"] = $page;
+
 
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_links();
@@ -67,7 +130,6 @@ class VoteController extends FrontController
         $data['vote'] = $vote;
 
         $data['number'] = $official_number;
-
         $this->load->view("vote_index",$data);
     }
 
@@ -150,7 +212,9 @@ class VoteController extends FrontController
         $candi = $this->candi->getCandidate($candi_id);
         $candi['gallery'] = $this->candi->getGallery($candi_id);
         $data['candi'] = $candi;
-        $data['rank'] = $this->candi->getCandiVoteRank($candi_id,$candi['vote_id']);
+        $countAndRank = $this->candi-> getCandiVoteCountAndRank(array($candi_id),$candi['vote_id']); //getCandiVoteRank($candi_id,$candi['vote_id']);
+        $data['count'] = $countAndRank[$candi_id]['c'];
+        $data['rank'] = $countAndRank[$candi_id]['rank'];
         $data['content'] = $this->load->view("vote_candi_detail",$data,TRUE);
         $this->show($data,$candi['vote_id']);
     }
@@ -236,7 +300,10 @@ class VoteController extends FrontController
                     if ($this->input->post("file4_path")) {
                         $gallery[] = array("candi_id" => $candi_id, "pic" => $this->input->post("file4_path"));
                     }
-                    $candie = $this->candi->saveGalleries($gallery);
+                    $this->candi->saveGalleries($gallery);
+                    $candie['id'] = $candi_id;
+                    $candie['pic'] = $gallery[0]['pic'];
+                    $this->candi->saveOrUpdateCandidate($candie);
                     $data['result'] = "success";
                 }
             } else {
@@ -266,5 +333,34 @@ class VoteController extends FrontController
         } else {
             echo json_encode(array('error'=>1,"info"=>"验证码已过期或者不存在，请重新生成。"));
         }
+    }
+
+    public function my() {
+        $user_id = $this->session->userdata("user_id");
+        $vote_id = $this->input->get("vote_id");
+        $this->load->model("Vote_model","vote");
+        if ($user_id) {
+            //if candidate
+            $this->load->model("Candidate_model","candi");
+            $candi = $this->candi->getCandidateByUser($user_id,$vote_id);
+            if ($candi['id']) {
+                //show who voted for me
+                $countAndRank = $this->candi->getCandiVoteCountAndRank(array($candi['id']),$vote_id);
+                $candi['count'] = $countAndRank[$candi['id']]['c'];
+                $candi['rank'] = $countAndRank[$candi['id']]['rank'];
+                $data['candi'] = $candi;
+
+
+                $gallery = $this->candi->getGallery($candi['id']);
+                $data['gallery'] = $gallery;
+                $data['candi_vote'] = $this->vote->getVoteFor($candi['id'],$vote_id);
+            }
+            //show who I voted for
+            $data['my_vote'] = $this->vote->getMyVoteRecord($user_id,$vote_id);
+        }
+        $data['vote_id'] = $vote_id;
+        //$data['candi'] = array(1);
+        $data['content'] = $this->load->view("vote_my",$data,TRUE);
+        $this->show($data,$vote_id);
     }
 }

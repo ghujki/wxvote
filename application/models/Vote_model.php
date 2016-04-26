@@ -79,4 +79,20 @@ class Vote_model extends \CI_Model
         $this->db->where("id",$id);
         $this->db->delete("vote");
     }
+
+    public function getVoteFor($candi_id,$vote_id) {
+        $sql = "select * from wsg_voting_record vr left join wsg_user u on vr.user_id = u.id ".
+               " where candidate_id=? and vote_id=?";
+        $q = $this->db->query($sql,array($candi_id,$vote_id));
+        return $q->result_array();
+    }
+
+    public function getMyVoteRecord($user_id,$vote_id) {
+        $sql = "select * from wsg_voting_record r left join wsg_candidate c ".
+            "on r.candidate_id = c.id and r.vote_id = c.vote_id where r.user_id = ? and r.vote_id = ?";
+
+        $q = $this->db->query($sql,array($user_id,$vote_id));
+        return $q->result_array();
+    }
+
 }
