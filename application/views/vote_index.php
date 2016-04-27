@@ -20,6 +20,16 @@
             </div>
         </header>
         <section class="row green text-center">
+
+            <?php if ($vote['signup_start_time'] > time()){ ?>
+            <div class="column col-xs-12">
+                <h2>活动还未开始</h2>
+            </div>
+            <?php } elseif($vote['vote_end_time'] < time()) {?>
+                <div class="column col-xs-12">
+                    <h2>活动已经结束</h2>
+                </div>
+            <?php } else {?>
             <div class="column col-xs-12 enroll-div">
                 <a href="index.php/VoteController/enroll?vote_id=<?=$vote['id']?>" class="enroll">我要参赛</a>
             </div>
@@ -34,6 +44,7 @@
                     <span id="t_s">00秒</span>
                 </div>
             </div>
+            <?php }?>
             <div class="column col-xs-4">
                 <div>已报名</div>
                 <div><?=$candi_count?></div>

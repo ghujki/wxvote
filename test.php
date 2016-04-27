@@ -29,3 +29,4 @@ class RandChar{
 $randCharObj = new RandChar();
 echo $randCharObj->getRandChar(32);
 */
+

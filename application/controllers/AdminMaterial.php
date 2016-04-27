@@ -16,12 +16,14 @@ class AdminMaterial extends AdminController
     }
 
     public function index() {
+        $id = $this->input->get("id");
         $this->load->model("OfficialNumber_model", "model");
         $numbers = $this->model->getNumbers(0,0);
         $data['numbers'] = $numbers;
 
         $this->load->model("material_model","m");
-        $data['materials']  = $this->m->getNumberMaterials($numbers[0]['id']);
+        $data['id'] = isset($id) ? $id :$numbers[0]['id'];
+        $data['materials']  = $this->m->getNumberMaterials($data['id']);
         $data['jspaths'] = array("application/views/js/masonry.pkgd.min.js","application/views/js/admin_material_masonry.js");
         $this->render("admin_material",$data);
     }

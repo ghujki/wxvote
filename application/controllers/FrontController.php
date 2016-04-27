@@ -62,10 +62,10 @@ class FrontController extends MY_Controller
             $user_data['subscribe_time'] = $userInfo['subscribe_time'];
             $user_data['union_id'] = $userInfo['union_id'];
             $user_data['language'] = $userInfo['language'];
-            $user_data['app_id'] = $userInfo['app_id'];
+            $user_data['app_id'] = $officialNumber['id'];
 
             $this->load->model("User_model","user");
-            $user_id = $this->user->save($user_data);
+            $user_id = $this->user->save($openId,$officialNumber['id'],$user_data);
             $this->session->set_userdata("user_id",$user_id);
         }
 

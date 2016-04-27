@@ -2,10 +2,16 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 require(APPPATH."libraries/wx/lib_msg_template.php");
 
+/**
+ * @property Keywords_model $keywords
+ * @property Material_model $material
+ * @property OfficialNumber_model $app;
+ */
 class Response extends MY_Controller {
 	private $token = "";
 	private $appId = "";
 	private $secretKey = "";
+	private $app ;
 	
 	public function __construct() {
 		parent::__construct();
@@ -15,6 +21,7 @@ class Response extends MY_Controller {
 		$this->load->model("OfficialNumber_model","number");
 		$number = $this->number->getNumberByToken($token);
 		if ($number) {
+			$this->app = $number;
 			$this->token = $token;
 			$this->appId = $number['app_id'];
 			$this->secretKey = $number['secretkey'];
@@ -65,10 +72,30 @@ class Response extends MY_Controller {
             $msgType = $postObj->MsgType;
             $this->saveUser($fromUsername, $toUsername);       
             if ($msgType == "text") {
-            	if(strpos($keyword, "#") > 0) {
-            		$keyarr = explode("#",$keyword);
-            		echo call_user_func(array($this,$keyarr[0]),$keyarr[1],$fromUsername, $toUsername, $time);
-            	} else {
+				$this->load->model("Keywords_model","keywords");
+				$this->load->model("Material_model","material");
+				$keys = $this->keywords->getKeyword($this->app['id'],$keyword);
+				//TODO:需要模糊匹配处理程序类的KEYWORD,
+				if (count($keys)) {
+					$key = $keys[0];
+					if ($key['type'] == 0){
+						//文本回复
+						echo sprintf(MSG_TEXT,$fromUsername,$toUsername,$time,sprintf($key['content'],"open_id=".$fromUsername));
+					} elseif ($key['type'] == 1) {
+						//图文回复
+						$materials = $this->material->getMaterialByMedia($keys[0]['media_id']);
+						$inner = '';
+						foreach($materials as $m) {
+							$inner .= sprintf(MSG_MULTI_PIC_TXT_INNER,$m['title'],$m['desc'],
+								'http://'.$_SERVER['HTTP_HOST'].$m['pic'],sprintf($m['url'],"open_id=".$fromUsername));
+						}
+						echo sprintf(MSG_MULTI_PIC_TXT_COVER,$fromUsername,$toUsername,$time,count($materials),$inner);
+					} elseif ($key['type'] == 2) {
+						//程序设定
+						$this->load->library($key['content'],NULL,"lib");
+						echo $this->lib->handle($keyword,$fromUsername,$toUsername);;
+					}
+				} else {
             		echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
             	}
             } elseif ($msgType == "event") {

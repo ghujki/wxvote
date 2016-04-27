@@ -46,6 +46,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     }
 </style>
 <section class="row light-green main-content">
+    <?php if ($vote['signup_start_time'] > time() || $vote['signup_end_time'] < time()){?>
+    <div>
+        对不起，现在不是报名期。
+    </div>
+    <?php } else {?>
     <?php echo form_open_multipart("VoteController/join?vote_id=$vote_id",array("id"=>"enroll_form"))?>
         <div class="form-group">
             <label for="name">姓名</label>
@@ -97,6 +102,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <input type="hidden" name="user_id" id="user_id"/>
         <button type="submit" class="btn form-control" disabled="disabled">提交</button>
     </form>
+    <?php }?>
 </section>
 <script>
     function fileChange(obj) {

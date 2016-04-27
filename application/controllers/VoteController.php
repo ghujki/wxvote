@@ -144,6 +144,11 @@ class VoteController extends FrontController
         $this->load->model("Vote_model","voteRecord");
 
         //如果有token，切没超标，则可以投票
+        //看是否在投票期
+        $vote = $this->voteRecord->getVote($vote_id);
+        if ($vote['vote_start_time'] > time() || $vote['vote_end_time'] < time()) {
+            die(json_encode(array("err"=>1,"info"=>"现在不是投票期")));
+        }
         if ($token) {
             $this->load->model("VoteToken_model","token");
             $v_token = $this->token->getToken($token);
@@ -187,7 +192,8 @@ class VoteController extends FrontController
                 $vote_record['vote_time'] = time();
                 $vote_record['vote_id'] = $vote_id;
                 $vote_record['token'] = $token;
-
+                $vote_record['ip'] = $this->input->ip_address();
+                $vote_record['source'] = $token ? 1: 0;
                 $this->voteRecord->vote($vote_record);
 
                 //增加count
@@ -222,6 +228,8 @@ class VoteController extends FrontController
     public function enroll() {
         $this->load->helper(array('form', 'url'));
         $vote_id = $this->input->get("vote_id");
+        $this->load->model("Vote_model","vote");
+        $data['vote'] = $this->vote->getVote($vote_id);
         $data['vote_id'] = $vote_id;
         $data['content'] = $this->load->view("vote_enroll",$data,TRUE);
         $data['scripts'] = array("application/views/js/jquery.form.js","application/views/js/vote_enroll.js");
@@ -345,11 +353,19 @@ class VoteController extends FrontController
             $candi = $this->candi->getCandidateByUser($user_id,$vote_id);
             if ($candi['id']) {
                 //show who voted for me
-                $countAndRank = $this->candi->getCandiVoteCountAndRank(array($candi['id']),$vote_id);
+                $countAndRank = $CI->candidate->getAllCountAndRank($vote_id);
                 $candi['count'] = $countAndRank[$candi['id']]['c'];
                 $candi['rank'] = $countAndRank[$candi['id']]['rank'];
                 $data['candi'] = $candi;
 
+                if ($candi['rank'] > 1) {
+                    foreach ($countAndRank as $vr) {
+                        if ($vr['rank'] == $candi['rank'] - 1) {
+                            $data["distance"] = ($vr['c'] - $candi['count']);
+                            break;
+                        }
+                    }
+                }
 
                 $gallery = $this->candi->getGallery($candi['id']);
                 $data['gallery'] = $gallery;

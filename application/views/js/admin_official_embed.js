@@ -5,16 +5,21 @@ $(function(){
         var src = $(a).attr("data-src");
         if (src) {
             $.ajax({
-                url: "index.php/AdminOfficialNumber/ajaxMenuPage",
+                url: src,
                 type: "get",
                 dataType: "text",
-                data: {page: src, id: id},
+                data: { id: id},
                 success: function (data) {
                     $($(a).attr("target")).html(data);
+                    $("#resp_news .grid-item").click(function() {
+                        $("#resp_news .grid-item").removeClass("checked");
+                        $(this).addClass("checked");
+                    });
                 }
             });
         }
     });
+
 });
 
 function repeat(s, count) {

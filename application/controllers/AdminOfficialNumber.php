@@ -21,7 +21,7 @@ class AdminOfficialNumber extends AdminController
         }
         $data['numbers'] = $numbers;
         $data['title'] = "公众号列表";
-        $data['jspaths'] = array("application/views/js/admin_official_embed.js");
+        $data['jspaths'] = array("application/views/js/admin_official_embed.js","application/views/js/jquery.form.js");
         $this->render("official_number_list",$data);
     }
 
@@ -66,7 +66,6 @@ class AdminOfficialNumber extends AdminController
     }
 
     public function ajaxMenuPage() {
-        $page = $this->input->get("page");
         $id = $this->input->get("id");
 
         $this->load->model("OfficialNumber_model", "model");
@@ -76,7 +75,20 @@ class AdminOfficialNumber extends AdminController
         $menu = json_decode($menustr);
         $data['id'] = $id;
         $data['menustr'] = json_encode($menu->menu,JSON_UNESCAPED_UNICODE);
-        $content = $this->load->view($page,$data,TRUE);
+        $content = $this->load->view("admin_officialnumber_menu",$data,TRUE);
+        echo $content;
+    }
+
+    public function ajaxKeywordsPage () {
+        $id = $this->input->get("id");
+        $data['id'] = $id;
+        $this->load->model("Keywords_model","key");
+        $data['keywords'] = $this->key->getAllKeywords($id);
+
+        $this->load->model("Material_model","material");
+        $data['materials'] = $this->material->getNumberMaterials($id);
+
+        $content = $this->load->view("admin_officialnumber_keyword",$data,TRUE);
         echo $content;
     }
 
@@ -108,5 +120,46 @@ class AdminOfficialNumber extends AdminController
         } catch (Exception $e) {
             echo json_encode(array("errinfo"=>$e->getMessage()));
         }
+    }
+
+    public function saveResponse() {
+        $keywords = $this->input->get("keywords");
+        $type = $this->input->get("type");
+        $content = $this->input->get("content");
+        $app_id = $this->input->get("number_id");
+
+        //check exists
+        $keywords_array = explode(",",$keywords);
+        $this->load->model("Keywords_model","key");
+        foreach ($keywords_array as $key) {
+            $exitedkeys = $this->key->getKeyword($app_id,$key);
+            if (count($exitedkeys) > 0) {
+                $data['errcode'] = "1";
+                $data['errinfo'] = "关键字".$key."已存在，请删除后再添加";
+                die(json_encode($data));
+            }
+        }
+        //save
+        $arr['keywords'] = $keywords.",";
+        $arr['app_id'] = $app_id;
+        $arr['type'] = $type;
+        $arr['content'] = ($type == 0) ? $content : NULL;
+        $arr['media_id'] = ($type == 1) ? $content : null;
+
+        if ($arr['media_id']) {
+            $this->load->model("Material_model","m");
+            $materials = $this->m->getMaterialByMedia($arr['media_id']);
+            $arr['content'] = $materials['0']['title'];
+        }
+        $arr['id'] = $this->key->saveKeywords($arr);
+        $arr['errcode'] = "ok";
+        echo json_encode($arr);
+    }
+    
+    public function removeKeywords () {
+        $id = $this->input->get("id");
+        $this->load->model("Keywords_model","key");
+        $this->key->removeKeywords($id);
+        echo json_encode("ok");
     }
 }

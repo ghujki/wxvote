@@ -101,6 +101,25 @@ class Candidate_model extends CI_Model
         return $ranks;
     }
 
+    public function getAllCountAndRank ($vote_id) {
+        $sql = "select * from ( ".
+            " select * ,@rownum:=@rownum+1 as rank from ( ".
+            " select cd.*,(IFNULL(r.c,0) + IFNULL(cd.priority,0)) AS c,@rownum:=0 from wsg_candidate cd left join ( ".
+            " select candidate_id,count(1) as c from wsg_voting_record ".
+            " where vote_id = ? group by candidate_id ) r ".
+            " on cd.id = r.candidate_id ".
+            " where cd.vote_id= ? ".
+            " order by (IFNULL(r.c,0) + IFNULL(cd.priority,0)) desc) a ".
+            " )c ";
+        $q = $this->db->query($sql,array($vote_id,$vote_id));
+        $rows = $q->result_array();
+        $ranks = array();
+        for ($i = 0;$i < count($rows);$i++) {
+            $ranks[$rows[$i]['id']] = $rows[$i];
+        }
+        return $ranks;
+    }
+
     public function searchCandidate($vote_id,$keywords,$start = 0,$limit = 10) {
         $this->db->like("name",$keywords);
         $this->db->or_like("id",$keywords);
@@ -117,6 +136,13 @@ class Candidate_model extends CI_Model
         $q = $this->db->get("candidate");
         return $q->row_array();
     }
+
+    public function getCandidateByUserId($user_id) {
+        $this->db->where("user_id",$user_id);
+        $q = $this->db->get("candidate");
+        return $q->row_array();
+    }
+
 
     public function saveOrUpdateCandidate($data) {
         if ($data['id']) {

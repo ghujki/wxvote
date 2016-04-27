@@ -7,6 +7,10 @@ $('.grid').masonry({
     gutter:10
 });
 
+$("#number_id").change(function() {
+    window.location.href = "index.php/AdminMaterial/index?id="+ $(this).val();
+});
+
 function syncNewsMessages() {
 
     var nid = $("#number_id").val();

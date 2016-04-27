@@ -8,7 +8,7 @@ $("#materialForm").submit(function() {
         dataType: "json",
         success: function (data) {
             if (data.error) {
-                alert(data.error);
+                alert(data.error.error);
             }
             $("input[name='token_wxvote']").val(data.hash);
             $(".news-current img").attr("src", data.picurl);
@@ -18,11 +18,12 @@ $("#materialForm").submit(function() {
             $("#media_id").val(data.media_id);
         },
         error:function(e) {
-            alert(e);
+            alert(e.responseText);
         }
     });
     return false;
 });
+
 
 function addNewsMessage() {
     var str = "<div class=\"row news-item news-sub-item news-current \" onclick=\"editNewsMessage(this)\"> " +

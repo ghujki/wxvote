@@ -39,4 +39,10 @@ class User_model extends CI_Model {
         $q = $this->db->get("user");
         return $q->result_array();
     }
+
+    public function getUserByOpenId($openId) {
+        $this->db->where("user_open_id",$openId);
+        $q = $this->db->get("user");
+        return $q->row_array();
+    }
 }

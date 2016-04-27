@@ -36,7 +36,7 @@
         <div class="m-head">
             <select id="number_id" class="btn">
                 <?php foreach ($numbers as $number) : ?>
-                <option value="<?=$number['id']?>"><?=$number['app_name']?></option>
+                <option value="<?=$number['id']?>" <?php if ($number['id'] == $id):?>selected<?php endif;?>><?=$number['app_name']?></option>
                 <?php endforeach;?>
             </select>
             <button class="btn btn-default" onclick="syncNewsMessages()">同步图文消息</button>
@@ -45,8 +45,9 @@
     </div>
     <div class="col-xs-12">
         <div class="grid">
-            <div class="grid-item">
+            <div class="container-fluid">
             <?php foreach ($materials as $m) :?>
+            <div class="grid-item">
                 <?php $cover = array_shift($m);?>
                 <figure>
                     <img src="<?=$cover['picurl']?>" class="img-responsive">
@@ -58,6 +59,7 @@
                         <div class="col-xs-4"><img src="<?=$item['picurl']?>" class="img-responsive"></div>
                     </div>
                 <?php endforeach; ?>
+            </div>
             <?php endforeach;?>
             </div>
         </div>

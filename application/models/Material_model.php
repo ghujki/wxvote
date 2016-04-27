@@ -35,4 +35,10 @@ class Material_model extends  CI_Model
         }
         return $data;
     }
+
+    public function getMaterialByMedia($media_id) {
+        $this->db->where("media_id",$media_id);
+        $q = $this->db->get("material");
+        return $q->result_array();
+    }
 }
