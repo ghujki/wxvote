@@ -57,5 +57,6 @@
             <script type="text/javascript" src="<?=$path?>"></script>
         <?php endforeach;?>
         <?php endif;?>
+        <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
     </body>
 </html>
