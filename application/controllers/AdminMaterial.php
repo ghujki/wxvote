@@ -45,8 +45,29 @@ class AdminMaterial extends AdminController
         $number = $this->model->getOfficialNumber($nid);
         $this->load->library("wx/MpWechat");
         $items = $this->mpwechat->getBatchNewsMaterial($number['app_id'], $number['secretkey']);
-
-        echo json_encode($items);
+        $this->load->model("Material_model","material");
+        //save
+        foreach ($items as $item) {
+            //看是否已经存在
+            $mt = $this->material->getMaterialByMedia($item['media_id']);
+            if ($mt['id']) {
+                continue;
+            }
+            //一个item是一组图文
+            $media_id = $item['media_id'];
+            foreach($item['content']['news_item'] as $news_item) {
+                $matieral['app_id'] = $nid;
+                $matieral['media_id'] = $media_id;
+                $matieral['title'] = $news_item['title'];
+                $matieral['digest'] = $news_item['digest'];
+                $matieral['desc'] = $news_item['digest'];
+                $matieral['author'] = $news_item['author'];
+                $matieral['url'] = $news_item['url'];
+                $matieral['picurl'] = $news_item['thumb_url'];
+                $this->material->save($matieral);
+            }
+        }
+        echo json_encode(count($items));
     }
 
     public function doEdit() {

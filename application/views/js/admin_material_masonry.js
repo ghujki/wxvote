@@ -21,6 +21,8 @@ function syncNewsMessages() {
             success: function (data) {
                 if (data.errcode) {
                     alert(data.errmsg);
+                } else {
+                    window.location.href = window.location.href;
                 }
             }
         }

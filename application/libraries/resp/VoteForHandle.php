@@ -7,6 +7,7 @@
  * @property Vote_model $vote
  */
 
+require "ResponseHandle.php";
 class VoteForHandle extends ResponseHandle {
 
     public function handle($keyword,$fromUserName,$appId) {
@@ -19,31 +20,11 @@ class VoteForHandle extends ResponseHandle {
             $CI->load->model("Candidate_model","candidate");
             $CI->load->model("OfficialNumber_model","number");
 
-            $app = $CI->number->getOfficialNumberByAppId($appId);
-            //查询访问者
-            $user = $CI->user->getUserByOpenId($fromUserName);
-            //如果没有保存,则保存起来
-            if (!isset($user['id'])) {
-                $CI->load->library("wx/MpWechat");
-                $userinfo = $CI->mpwechat->getUserInfo($app['app_id'],$app['secretkey'],$fromUserName);
-                if ($userinfo['errcode']) {
-                    //处理出错
-                    $result = "无法访问您的信息";
-                } else {
-                    $user['user_open_id'] = $userinfo['open_id'];
-                    $user['nickname'] = $userinfo['nickname'];
-                    $user['country'] = $userinfo['country'];
-                    $user['province'] = $userinfo['province'];
-                    $user['district'] = $userinfo['district'];
-                    $user['city'] = $userinfo['city'];
-                    $user['sex'] = $userinfo['sex'];
-                    $user['headimgurl'] = $userinfo['headimgurl'];
-                    $user['subscribe_time'] = $userinfo['subscribe_time'];
-                    $user['union_id'] = $userinfo['union_id'];
-                    $user['language'] = $userinfo['language'];
-                    $user['app_id'] = $app['id'];
-                    $user['id'] = $CI->user->save($fromUserName,$app['id'],$user);
-                }
+            $r = $this->saveUser($fromUserName,$appId);
+            if($r['result']) {
+                $result = $r['result'];
+            } else {
+                $user_id = $r['id'];
             }
 
             if (empty($result)) {
@@ -58,11 +39,11 @@ class VoteForHandle extends ResponseHandle {
                         $result = "现在不是投票期";
                     } else {
                         //判断是否已经投票
-                        $voted = $CI->vote->checkedVoted($candidate['id'],$user['id'],$vote['id']);
+                        $voted = $CI->vote->checkedVoted($candidate['id'],$user_id,$vote['id']);
                         if ($voted > 0) {
                             $result = "已经给他/她投过票了";
                         } else {
-                            $voteRecord['user_id'] = $user['id'];
+                            $voteRecord['user_id'] = $user_id;
                             $voteRecord['candidate_id'] = $candidate['id'];
                             $voteRecord['vote_time'] = $time;
                             $voteRecord['vote_id'] = $vote['vote_id'];
@@ -96,8 +77,8 @@ class VoteForHandle extends ResponseHandle {
             $result = "程序映射错误";
         }
 
-        require "../wx/lib_msg_template.php";
-        return sprintf(MSG_TEXT,$fromUserName,$app,time(),$result);
+        require ".application/libraries/wx/lib_msg_template.php";
+        return sprintf(MSG_TEXT,$fromUserName,$appId,time(),$result);
     }
 }
 ?>

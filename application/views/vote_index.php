@@ -21,11 +21,11 @@
         </header>
         <section class="row green text-center">
 
-            <?php if ($vote['signup_start_time'] > time()){ ?>
+            <?php if (strtotime($vote['signup_start_time']) > time()){ ?>
             <div class="column col-xs-12">
                 <h2>活动还未开始</h2>
             </div>
-            <?php } elseif($vote['vote_end_time'] < time()) {?>
+            <?php } elseif(strtotime($vote['vote_end_time']) < time()) {?>
                 <div class="column col-xs-12">
                     <h2>活动已经结束</h2>
                 </div>

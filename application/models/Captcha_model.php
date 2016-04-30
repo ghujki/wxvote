@@ -21,4 +21,17 @@ class Captcha_model extends CI_Model
         return $q->row_array();
     }
 
+    public function getCaptchaByUser($userId) {
+        $this->db->where("user_id",$userId);
+        $q = $this->db->get("user_captcha");
+        return $q->row_array();
+    }
+    public function saveCaptcha($data) {
+        if ($data['id']) {
+            $this->db->where("id",$data['id']);
+            $this->db->update("user_captcha",$data);
+        } else {
+            $this->db->insert("user_captcha",$data);
+        }
+    }
 }

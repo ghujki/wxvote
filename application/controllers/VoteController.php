@@ -36,11 +36,12 @@ class VoteController extends FrontController
         foreach ($candi_list as $candi) {
             $candi_ids[] = $candi['id'];
         }
-
-        $countAndRank = $this->candidate->getCandiVoteCountAndRank($candi_ids,$vote_id);
-        for($i = 0; $i < count($candi_list); $i ++) {
-            $candi_list[$i]['vote_count'] = $countAndRank[$candi_list[$i]['id']]["c"];
-            $candi_list[$i]['rank'] = $countAndRank[$candi_list[$i]['id']]["rank"];
+        if (count($candi_ids)) {
+            $countAndRank = $this->candidate->getCandiVoteCountAndRank($candi_ids, $vote_id);
+            for ($i = 0; $i < count($candi_list); $i++) {
+                $candi_list[$i]['vote_count'] = $countAndRank[$candi_list[$i]['id']]["c"];
+                $candi_list[$i]['rank'] = $countAndRank[$candi_list[$i]['id']]["rank"];
+            }
         }
 
         $data['vote_id'] = $vote_id;
@@ -255,9 +256,8 @@ class VoteController extends FrontController
 
         if ( ! $this->upload->do_upload('file1'))
         {
-            $error = array('error' => $this->upload->display_errors());
 
-            echo json_encode(array("error"=>$error,"hash"=>$token_value));
+            echo json_encode(array("error"=>$this->upload->display_errors("",""),"hash"=>$token_value));
         }
         else
         {

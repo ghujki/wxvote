@@ -370,7 +370,7 @@ $config['encryption_key'] = '';
 $config['sess_driver'] = 'files';
 $config['sess_cookie_name'] = 'wsg_wechat_session';
 $config['sess_expiration'] = 7200;
-$config['sess_save_path'] = "c:/ci_sessions";
+$config['sess_save_path'] = "/web/wxvote/ci_sessions";
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 300;
 $config['sess_regenerate_destroy'] = FALSE;
@@ -443,7 +443,7 @@ $config['csrf_token_name'] = 'token_wxvote';
 $config['csrf_cookie_name'] = 'cookie_wxvote';
 $config['csrf_expire'] = 7200;
 $config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array();
+$config['csrf_exclude_uris'] = array("Response/index/[0-9a-zA-Z]*");
 
 /*
 |--------------------------------------------------------------------------

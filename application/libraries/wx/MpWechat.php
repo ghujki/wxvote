@@ -144,8 +144,11 @@ class MpWechat {
 		$count = $news_count >= 20 ? 20 :$news_count;
 		$data = array();
 		while (($offset + $count) <= $news_count && $count > 0) {
-			$d = getBatchMaterialOffset($accessToken,'news',$offset,$count);
-			array_push($data,$d);
+			$d = $this->getBatchMaterialOffset($accessToken,'news',$offset,$count);
+			foreach ($d as $m) {
+				array_push($data,$m);
+			}
+			//array_push($data,$d);
 			$offset += 20;
 		}
 		return $data;

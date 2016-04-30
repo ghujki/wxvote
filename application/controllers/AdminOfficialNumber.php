@@ -110,11 +110,14 @@ class AdminOfficialNumber extends AdminController
         try {
             $this->load->library("wx/MpWechat");
             $members = $this->mpwechat->getMembers($number['app_id'], $number['secretkey']);
+            if ($members['errcode']) {
+                die ($members['errmsg']);
+            }
             //update or insert
             $this->load->model("User_model", "user");
             foreach ($members as $m) {
                 $user = array("user_open_id" => $m, "app_id" => $number['id']);
-                $this->user->save($user);
+                $this->user->save($m,$number['id'],$user);
             }
             echo count($members);
         } catch (Exception $e) {
@@ -140,10 +143,10 @@ class AdminOfficialNumber extends AdminController
             }
         }
         //save
-        $arr['keywords'] = $keywords.",";
+        $arr['keywords'] = ($type == 2) ?$keywords :$keywords.",";
         $arr['app_id'] = $app_id;
         $arr['type'] = $type;
-        $arr['content'] = ($type == 0) ? $content : NULL;
+        $arr['content'] =  $content ;
         $arr['media_id'] = ($type == 1) ? $content : null;
 
         if ($arr['media_id']) {
