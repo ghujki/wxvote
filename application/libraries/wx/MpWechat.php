@@ -7,20 +7,30 @@ require 'WeChatTool.php';
  *
  */
 class MpWechat {
+
 	public function getAccessToken($appId,$secretkey) //获取access_token
 	{
-		if (isset($_SERVER['ACCESS_TOKEN'])) {
-			$expire = $_SERVER['ACCESS_TOKEN_EXPIRE'];
-			if (time() < $expire + 7200) {
-				return $_SERVER['ACCESS_TOKEN'];
-			} //未超时 
+		$ci =& get_instance();
+		$ci->load->model("OfficialNumber_model","num");
+		$officialNumber = $ci->num->getOfficialNumberByAppId($appId);
+		if ($officialNumber['id'] && $officialNumber['access_token'] && $officialNumber['expire_time'] > time()) {
+			return $officialNumber['access_token'];
 		}
-		$_SERVER['ACCESS_TOKEN_EXPIRE'] = time();
+
 		$url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appId."&secret=".$secretkey;
 		$data = getCurl($url);//通过自定义函数getCurl得到https的内容
 		$resultArr = json_decode($data, true);//转为数组
-		$_SERVER['ACCESS_TOKEN'] = $resultArr['access_token'];
-		return $_SERVER['ACCESS_TOKEN'];//获取access_token
+		if ($resultArr['errcode']) {
+			error_log($resultArr['errmsg']);
+			return null;
+		}
+		$accessToken = $resultArr['access_token'];
+		if ($officialNumber['id']) {
+			$officialNumber['access_token'] = $accessToken;
+			$officialNumber['expire_time'] = time() + 7000;
+			$ci->num->save($officialNumber);
+		}
+		return $accessToken;
 	}
 
 	/**
@@ -72,12 +82,23 @@ class MpWechat {
 	}
 	
 	public function getWebTicket($appId, $secretkey) {
+		$ci =& get_instance();
+		$ci->load->model("OfficialNumber_model","num");
+		$officialNumber = $ci->num->getOfficialNumberByAppId($appId);
+		if ($officialNumber['id'] && $officialNumber['ticket'] && $officialNumber['ticket_expire'] > time()) {
+			return $officialNumber['ticket'];
+		}
+
 		$accessToken = $this->getAccessToken($appId, $secretkey);
 		$url = "https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token=".$accessToken."&type=jsapi";
 		$resp = getCurl($url);
-		//print_r($resp);
 		$result = json_decode($resp, true);
-		return $result['ticket'];
+		$ticket = $result['ticket'];
+		if ($officialNumber['id']) {
+			$officialNumber['ticket'] = $ticket;
+			$officialNumber['ticket_expire'] = time() + 7000;
+		}
+		return $ticket;
 	}
 	
 	/**
@@ -159,6 +180,38 @@ class MpWechat {
 		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token=$accessToken");
 		$result = json_decode($str,true);
 		return $result['item'];
+	}
+
+	public function getSignPackage($appid,$secretkey,$appendUrl = "") {
+		$jsapiTicket = $this->getWebTicket($appid,$secretkey);
+		$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
+		$url = "$protocol$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]$appendUrl";
+
+		$timestamp = time();
+		$nonceStr = $this->createNonceStr();
+
+		$string = "jsapi_ticket=$jsapiTicket&noncestr=$nonceStr&timestamp=$timestamp&url=$url";
+
+		$signature = sha1($string);
+
+		$signPackage = array(
+			"appId"     => $appid,
+			"nonceStr"  => $nonceStr,
+			"timestamp" => $timestamp,
+			"url"       => $url,
+			"signature" => $signature,
+			"rawString" => $string
+		);
+		return $signPackage;
+	}
+
+	private function createNonceStr($length = 16) {
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+		$str = "";
+		for ($i = 0; $i < $length; $i++) {
+			$str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+		}
+		return $str;
 	}
 }
 ?>

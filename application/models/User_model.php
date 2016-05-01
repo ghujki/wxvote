@@ -17,7 +17,8 @@ class User_model extends CI_Model {
         if($num > 1) {
             throw new Exception("duplicated data: open_id=".$openid);
         } elseif ($num > 0) {
-            $this->db->update("user",array("user_open_id"=>$openid,"app_id"=>$appid));
+            $this->db->where("id",$row['id']);
+            $this->db->update("user",$data);
             return $row['id'];
         } else {
             $this->db->insert("user",$data);

@@ -61,7 +61,6 @@ class Response extends MY_Controller {
 	
 	public function responseMsg () {
 		$postStr = $this->input->raw_input_stream;//file_get_contents("php://input");
-		//error_log("input:".$postStr);
         if (!empty($postStr)){
 
             $postObj = simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -77,7 +76,6 @@ class Response extends MY_Controller {
 				$ap = $this->app;
 				$keys = $this->keywords->getKeyword($ap['id'],$keyword);
 				//TODO:需要模糊匹配处理程序类的KEYWORD,
-				error_log("get keys".count($keys));
 				if (count($keys)) {
 					$key = $keys[0];
 					if ($key['type'] == 0){
@@ -89,9 +87,11 @@ class Response extends MY_Controller {
 						$inner = '';
 						foreach($materials as $m) {
 							$inner .= sprintf(MSG_MULTI_PIC_TXT_INNER,$m['title'],$m['desc'],
-								'http://'.$_SERVER['HTTP_HOST'].$m['pic'],sprintf($m['url'],"open_id=".$fromUsername));
+								'http://'.$_SERVER['HTTP_HOST'].$m['picurl'],sprintf($m['url'],"open_id=".$fromUsername));
 						}
-						echo sprintf(MSG_MULTI_PIC_TXT_COVER,$fromUsername,$toUsername,$time,count($materials),$inner);
+						$feedback = sprintf(MSG_MULTI_PIC_TXT_COVER,$fromUsername,$toUsername,$time,count($materials),$inner);
+						//error_log($feedback);
+						echo $feedback;
 					} elseif ($key['type'] == 2) {
 						//程序设定
 						$this->load->library($key['content'],NULL,"lib");

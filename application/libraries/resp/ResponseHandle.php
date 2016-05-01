@@ -10,38 +10,43 @@ abstract class ResponseHandle
 {
     abstract function handle($keyword,$fromUserName,$toUserName);
 
-    protected function saveUser($open_id,$appId) {
+    protected function saveUser($fromUserName,$toUserName) {
+
         $CI =& get_instance();
         $CI->load->model("User_model","user");
         $CI->load->model("OfficialNumber_model","number");
-        $app = $CI->number->getOfficialNumberByAppId($appId);
-        //查询访问者
-        $user = $CI->user->getUserByOpenId($open_id);
-        //如果没有保存,则保存起来
-        if (!isset($user['id'])) {
-            $CI->load->library("wx/MpWechat");
-            $userinfo = $CI->mpwechat->getUserInfo($app['app_id'],$app['secretkey'],$open_id);
-            //error_log("userinfo".json_encode($userinfo));
-            if ($userinfo['errcode']) {
-                //处理出错
-                $result = "无法访问您的信息";
-            } else {
-                $user['user_open_id'] = $userinfo['open_id'];
-                $user['nickname'] = $userinfo['nickname'];
-                $user['country'] = $userinfo['country'];
-                $user['province'] = $userinfo['province'];
-                $user['district'] = $userinfo['district'];
-                $user['city'] = $userinfo['city'];
-                $user['sex'] = $userinfo['sex'];
-                $user['headimgurl'] = $userinfo['headimgurl'];
-                $user['subscribe_time'] = $userinfo['subscribe_time'];
-                $user['union_id'] = $userinfo['union_id'];
-                $user['language'] = $userinfo['language'];
-                $user['app_id'] = $app['id'];
-                $user['id'] = $CI->user->save($open_id,$app['id'],$user);
-            }
+
+        $app = $CI->number->getOfficialNumberByAppId($toUserName);
+
+        if (!$app['app_id'] || !$app['secretkey']) {
+            throw new Exception("the official number is not set up correctly!");
         }
-        $r = array('result'=>$result,'id'=>$user['id']);
+        //查询访问者
+        $user = $CI->user->getUserByOpenId($fromUserName);
+
+        //如果没有保存,则保存起来
+        $CI->load->library("wx/MpWechat");
+        $userinfo = $CI->mpwechat->getUserInfo($app['app_id'],$app['secretkey'],$fromUserName);
+        if ($userinfo['errcode']) {
+            //处理出错
+            error_log($userinfo['errmsg']);
+        } else {
+            $user['user_open_id'] = $fromUserName;
+            $user['nickname'] = $userinfo['nickname'];
+            $user['country'] = $userinfo['country'];
+            $user['province'] = $userinfo['province'];
+            $user['district'] = $userinfo['district'];
+            $user['city'] = $userinfo['city'];
+            $user['sex'] = $userinfo['sex'];
+            $user['headimgurl'] = $userinfo['headimgurl'];
+            $user['subscribe_time'] = $userinfo['subscribe_time'];
+            $user['union_id'] = $userinfo['union_id'];
+            $user['language'] = $userinfo['language'];
+            $user['app_id'] = $app['id'];
+            $user['id'] = $CI->user->save($fromUserName,$app['id'],$user);
+        }
+        
+        $r = array('id'=>$user['id']);
         return $r;
     }
 }

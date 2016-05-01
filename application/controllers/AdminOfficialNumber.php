@@ -36,19 +36,41 @@ class AdminOfficialNumber extends AdminController
         $this->form_validation->set_rules('secretkey', 'secretkey', 'required');
         $this->form_validation->set_rules('token', 'token', 'required');
 
-        if ($this->form_validation->run() == FALSE)
-        {
+        if ($this->form_validation->run() == FALSE) {
             $this->render("admin_official_number_edit");
-        }
-        else {
+        } else {
             $data['app_name'] = $this->input->post("app_name");
             $data['app_id'] = $this->input->post("app_id");
             $data['secretkey'] = $this->input->post("secretkey");
             $data['app_type'] = $this->input->post("app_type");
             $data['token'] = $this->input->post("token");
             $data['authorized'] = $this->input->post("authorized");
+            $data['original_id'] = $this->input->post("original_id");
             $data['id'] = $this->input->post("id");
-            //check password is right or wrong
+
+
+                $config['upload_path']      = "./upload/wx/";
+                $config['allowed_types']    = 'gif|jpg|png|jpeg|bmp';
+                $config['max_size']     = 200;
+                $config['file_name'] = time();
+
+                $this->load->library('upload', $config);
+                if (!file_exists($config['upload_path'])) {
+                    mkdir($config['upload_path']);
+                }
+
+                $this->load->library('upload', $config);
+
+                $token_value = $this ->security->get_csrf_hash();
+
+                if (!$this->upload->do_upload('qrcode')) {
+                    die(json_encode(array("error" => $this->upload->display_errors("", ""), "hash" => $token_value)));
+                } else {
+                    $data1 = array('upload_data' => $this->upload->data());
+                    $path = "/upload/wx/" . $data1['upload_data']['file_name'];
+                    $data['qrcode'] = $path;
+                }
+
             $this->load->model("OfficialNumber_model", "model");
             $this->model->save($data);
             $this->index();
@@ -119,7 +141,7 @@ class AdminOfficialNumber extends AdminController
                 $user = array("user_open_id" => $m, "app_id" => $number['id']);
                 $this->user->save($m,$number['id'],$user);
             }
-            echo count($members);
+            echo json_encode(count($members));
         } catch (Exception $e) {
             echo json_encode(array("errinfo"=>$e->getMessage()));
         }

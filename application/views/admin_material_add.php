@@ -57,10 +57,26 @@
 
                 <div class="col-xs-4">
                    <p>图文列表</p>
-                    <figure class="news-item news-cover news-current" data-content-id="" onclick="editNewsMessage(this)">
-                        <img src="application/views/images/picture.jpg" class="img-responsive" />
-                        <figcaption class="title">标题</figcaption>
-                    </figure>
+
+                    <?php $cover = array_shift($news_materials);?>
+                    <?php if ($cover) {?>
+                        <figure class="news-item news-cover news-current" data-content-id="<?=$cover['id']?>" onclick="editNewsMessage(this)">
+                            <img src="<?=$cover['picurl']?>" class="img-responsive" />
+                            <figcaption class="title"><?=$cover['title']?></figcaption>
+                        </figure>
+                    <?php } else {?>
+                        <figure class="news-item news-cover news-current" data-content-id="" onclick="editNewsMessage(this)">
+                            <img src="application/views/images/picture.jpg" class="img-responsive" />
+                            <figcaption class="title">标题</figcaption>
+                        </figure>
+                    <?php }?>
+
+                    <?php foreach($news_materials as $material):?>
+                    <div class="row news-item news-sub-item" onclick="editNewsMessage(this)">
+                        <div class="col-xs-8 title"><?=$material['title']?></div>
+                    <div class="col-xs-4"><img src="<?=$material['picurl']?>" class="img-responsive"></div>
+                    </div>
+                    <?php endforeach;?>
 
                     <div class="news-item news-add text-center">
                         <a href="javascript:;" onclick="addNewsMessage()">+</a>
@@ -72,28 +88,28 @@
                         <?php echo form_open_multipart("AdminMaterial/doEdit",array("id"=>"materialForm"));?>
                             <div class="form-group">
                                 <label>标题</label>
-                                <input type="text" class="form-control" name="title" />
+                                <input type="text" class="form-control" name="title" value="<?=$cover['title']?>"/>
                             </div>
                             <div class="form-group">
                                 <label>描述</label>
-                                <input type="text" class="form-control" name="desc" />
+                                <input type="text" class="form-control" name="desc" value="<?=$cover['desc']?>"/>
                             </div>
 
                             <div class="form-group">
                                 <label>图片</label>
-                                <input type="file" name="pic"/>
+                                <input type="file" name="pic" />
                             </div>
 
                             <div class="form-group">
                                 <label>url</label>
-                                <input type="text" class="form-control" name="url" />
+                                <input type="text" class="form-control" name="url" value="<?=$cover['url']?>"/>
                             </div>
 
                             <div class="form-group">
 
                                 <input type="hidden" name="number_id" value="<?=$number['id']?>" id="number_id"/>
-                                <input type="hidden" name="material_id" id="material_id"/>
-                                <input type="hidden" name="media_id" id="media_id"/>
+                                <input type="hidden" name="material_id" id="material_id" value="<?=$cover['id']?>"/>
+                                <input type="hidden" name="media_id" id="media_id" value="<?=$cover['media_id']?>"/>
                                 <button class="btn btn-default" >提交</button>
                             </div>
                         </form>

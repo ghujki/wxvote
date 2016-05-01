@@ -18,4 +18,8 @@ class TestController extends MY_Controller
         $this->load->model("Keywords_model","keyword");
         echo json_encode($this->keyword->getKeyword(2,$keyword));
     }
+
+    public function clean() {
+        $this->session->sess_destroy();
+    }
 }

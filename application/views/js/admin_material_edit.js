@@ -8,7 +8,7 @@ $("#materialForm").submit(function() {
         dataType: "json",
         success: function (data) {
             if (data.error) {
-                alert(data.error.error);
+                alert(data.error);
             }
             $("input[name='token_wxvote']").val(data.hash);
             $(".news-current img").attr("src", data.picurl);

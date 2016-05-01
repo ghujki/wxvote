@@ -7,6 +7,7 @@ $('.grid').masonry({
     gutter:10
 });
 
+
 $("#number_id").change(function() {
     window.location.href = "index.php/AdminMaterial/index?id="+ $(this).val();
 });
@@ -29,8 +30,15 @@ function syncNewsMessages() {
     );
 }
 
+function editNewsMessage(nid,id) {
+    window.location.href = "index.php/AdminMaterial/edit?number_id=" + nid + "&media_id=" + id;
+}
 function addNewsMessages() {
     var nid = $("#number_id").val();
     window.location.href = "index.php/AdminMaterial/add?number_id=" + nid;
 }
 
+$("#material_container .grid-item").click(function(){
+    $("#material_container .grid-item").removeClass("checked");
+    $(this).addClass("checked");
+});

@@ -3,7 +3,7 @@
 ?>
 <div>
     <?php echo validation_errors(); ?>
-    <?php echo form_open('AdminOfficialNumber/save'); ?>
+    <?php echo form_open_multipart('AdminOfficialNumber/save'); ?>
     <table width="100%" border="1px" class="admin-form">
         <tr>
             <td width="30%">公众号名称</td>
@@ -29,10 +29,24 @@
             </td>
         </tr>
         <tr>
+            <td>原始ID</td>
+            <td><input type="text" required name="original_id" placeholder="原始ID" id="original_id" value="<?=$number['original_id']?>"/>
+             </td>
+        </tr>
+        <tr>
             <td>token</td>
             <td><input type="text" required name="token" placeholder="token,自动生成一个32位字符串" id="token" value="<?=$number['token']?>"/>
                 <a herf="javascript:;" onclick="generateRandomString()">自动生成</a></td>
         </tr>
+
+        <tr>
+            <td>二维码</td>
+            <td>
+                <img src="<?=$number['qrcode']?>" class="img-responsive">
+                <input type="file" name="qrcode" class="form-control" />
+            </td>
+        </tr>
+
         <tr>
             <td colspan="2">
                 <input type="hidden" name="id" value="<?=$number['id']?>" />

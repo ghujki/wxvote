@@ -129,9 +129,39 @@ class VoteController extends FrontController
         $vote['vote_start_time'] = date('Y-m-d H:i:s',$vote['vote_start_time']);
         $vote['vote_end_time'] = date('Y-m-d H:i:s',$vote['vote_end_time']);
         $data['vote'] = $vote;
-
+        $data['vote_id'] = $vote_id;
         $data['number'] = $official_number;
+
+        $this->load->library("wx/MpWechat",null,"wechat");
+        $token = $this->session->userdata("share_token");
+        if (empty($token)) {
+            $token = $this->getRandChar(5);
+            $this->session->set_userdata("share_token",$token);
+        }
+        if (strpos($_SERVER["REQUEST_URI"],"?") == false) {
+            $append_url = "?token=$token";
+        } else {
+            $append_url = "&token=$token";
+        }
+
+        $data['signPackage'] = $this->wechat->getSignPackage($official_number['app_id'],$official_number['secretkey'],$append_url);
         $this->load->view("vote_index",$data);
+    }
+
+    public function share_success ($token) {
+
+    }
+
+    private function getRandChar($length){
+        $str = null;
+        $strPol = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
+        $max = strlen($strPol)-1;
+
+        for($i=0;$i<$length;$i++){
+            $str.=$strPol[mt_rand(0,$max)];//rand($min,$max)生成介于min和max两个数之间的一个随机整数
+        }
+
+        return $str;
     }
 
     public function vote() {
@@ -168,7 +198,7 @@ class VoteController extends FrontController
                 $this->token->addCount($token);
 
                 //返回成功信息;
-                $arr = array("err"=>0,"info"=>"");
+                $arr = array("err"=>0,"info"=>"投票成功");
                 echo (json_encode($arr));
 
             } else {
@@ -179,6 +209,7 @@ class VoteController extends FrontController
         } elseif($open_id) {
             //判断是否已经给当前用户投过票
             $user_id = $this->session->userdata("user_id");
+            error_log("open_id".$open_id .",user_id".$user_id);
             $voted = $this->voteRecord->checkVoted($candidate_id,$user_id,$vote_id);
 
             if ($voted) {
@@ -198,10 +229,10 @@ class VoteController extends FrontController
                 $this->voteRecord->vote($vote_record);
 
                 //增加count
-                $this->token->addCount($token);
+                //$this->token->addCount($token);
 
                 //返回成功信息;
-                $arr = array("err"=>0,"info"=>"");
+                $arr = array("err"=>0,"info"=>"投票成功");
                 echo(json_encode($arr));
             }
 
@@ -222,6 +253,7 @@ class VoteController extends FrontController
         $countAndRank = $this->candi-> getCandiVoteCountAndRank(array($candi_id),$candi['vote_id']); //getCandiVoteRank($candi_id,$candi['vote_id']);
         $data['count'] = $countAndRank[$candi_id]['c'];
         $data['rank'] = $countAndRank[$candi_id]['rank'];
+        $data['vote_id'] = $this->input->get("vote_id");
         $data['content'] = $this->load->view("vote_candi_detail",$data,TRUE);
         $this->show($data,$candi['vote_id']);
     }
@@ -242,8 +274,6 @@ class VoteController extends FrontController
         $config['upload_path']      = './upload/'.$vote_id."/";
         $config['allowed_types']    = 'gif|jpg|png|jpeg|bmp';
         $config['max_size']     = 200;
-        $config['max_width']        = 1024;
-        $config['max_height']       = 768;
         $config['file_name'] = time();
 
         if (!file_exists($config['upload_path'])) {
@@ -311,6 +341,8 @@ class VoteController extends FrontController
                     $this->candi->saveGalleries($gallery);
                     $candie['id'] = $candi_id;
                     $candie['pic'] = $gallery[0]['pic'];
+                    $candie['vote_id'] = $vote_id;
+                    $candie['enroll_time'] = time();
                     $this->candi->saveOrUpdateCandidate($candie);
                     $data['result'] = "success";
                 }
@@ -327,7 +359,7 @@ class VoteController extends FrontController
         $this->load->model("OfficialNumber_model","number");
         $official_number = $this->number->getOfficialNumber($vote['app_id']);
         $data['number'] = $official_number;
-
+        $data['vote_id'] = $vote_id;
         $data['content'] = $this->load->view("vote_enroll_result",$data,TRUE);
         $this->show($data,$vote_id);
     }
@@ -353,7 +385,7 @@ class VoteController extends FrontController
             $candi = $this->candi->getCandidateByUser($user_id,$vote_id);
             if ($candi['id']) {
                 //show who voted for me
-                $countAndRank = $CI->candidate->getAllCountAndRank($vote_id);
+                $countAndRank = $this->candi->getAllCountAndRank($vote_id);
                 $candi['count'] = $countAndRank[$candi['id']]['c'];
                 $candi['rank'] = $countAndRank[$candi['id']]['rank'];
                 $data['candi'] = $candi;

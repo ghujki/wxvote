@@ -28,7 +28,7 @@ class VoteForHandle extends ResponseHandle {
             }
 
             if (empty($result)) {
-                $candidate = $CI->candidate->getCandidateByUserId($id);
+                $candidate = $CI->candidate->getCandidate($id);
                 //可能不存在
                 if ($candidate['id']) {
                     //查询vote
@@ -39,16 +39,16 @@ class VoteForHandle extends ResponseHandle {
                         $result = "现在不是投票期";
                     } else {
                         //判断是否已经投票
-                        $voted = $CI->vote->checkedVoted($candidate['id'],$user_id,$vote['id']);
+                        $voted = $CI->vote->checkVoted($candidate['id'],$user_id,$vote['id']);
                         if ($voted > 0) {
                             $result = "已经给他/她投过票了";
                         } else {
                             $voteRecord['user_id'] = $user_id;
                             $voteRecord['candidate_id'] = $candidate['id'];
                             $voteRecord['vote_time'] = $time;
-                            $voteRecord['vote_id'] = $vote['vote_id'];
+                            $voteRecord['vote_id'] = $vote['id'];
                             $voteRecord['ip'] = $CI->input->ip_address();
-                            $voteRecord['from'] = 2;
+                            $voteRecord['source'] = 2;
 
                             $CI->vote->vote($voteRecord);
 
@@ -56,7 +56,7 @@ class VoteForHandle extends ResponseHandle {
                             $c = $voteandranks[$candidate['id']]['c'];
                             $r = $voteandranks[$candidate['id']]['rank'];
 
-                            $result = "给" . $id . "投票成功!" . "\n 截止到目前他/她的总票数" . $c
+                            $result = "给" . $id . "号投票成功!" . "\n 截止到目前他/她的总票数" . $c
                                 . ",排名第" . $r;
 
                             if ($r > 1) {
@@ -77,7 +77,7 @@ class VoteForHandle extends ResponseHandle {
             $result = "程序映射错误";
         }
 
-        require ".application/libraries/wx/lib_msg_template.php";
+        require "application/libraries/wx/lib_msg_template.php";
         return sprintf(MSG_TEXT,$fromUserName,$appId,time(),$result);
     }
 }

@@ -51,7 +51,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         对不起，现在不是报名期。
     </div>
     <?php } else {?>
-    <?php echo form_open_multipart("VoteController/join?vote_id=$vote_id",array("id"=>"enroll_form"))?>
+    <?php echo form_open_multipart("VoteController/join?vote_id=<?=$vote_id?>",array("id"=>"enroll_form"))?>
         <div class="form-group">
             <label for="name">姓名</label>
             <input type="text" class="form-control" id="name" name="name"
@@ -99,7 +99,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <label for="desc">描述</label>
             <input type="text" id="desc" name="desc" class="form-control"  multiple>
         </div>
-        <input type="hidden" name="user_id" id="user_id"/>
+        <input type="hidden" name="vote_id" id="user_id"/>
         <button type="submit" class="btn form-control" disabled="disabled">提交</button>
     </form>
     <?php }?>

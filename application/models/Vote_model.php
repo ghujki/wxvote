@@ -66,7 +66,7 @@ class Vote_model extends \CI_Model
         $this->db->insert("voting_record",$data);
     }
 
-    public function checkedVoted($candi_id,$user_id,$vote_id) {
+    public function checkVoted($candi_id,$user_id,$vote_id) {
         $this->db->where("candidate_id",$candi_id);
         $this->db->where("user_id",$user_id);
         $this->db->where("vote_id",$vote_id);

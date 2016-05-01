@@ -41,17 +41,21 @@ class FrontController extends MY_Controller
         $openId = $this->input->get("open_id");
         //if exists CODE,get the openid.
         $code = $this->input->get("code");
+        $this->load->library("wx/MpWechat",null, "wechat");
+
         if ($code && empty($openId)) {
-            $this->load->library("wx/MpWechat","wechat");
-            $arr = $this->wechat->getWebToken($officialNumber['app_id'],$officialNumber['secretkey'],$code);
+            $arr = $this->wechat->getWebToken($officialNumber['app_id'], $officialNumber['secretkey'], $code);
             $openId = $arr['open_id'];
+        }
 
+        $token = $this->input->get("token");
+        $user_id = $this->session->userdata("user_id");
+        if ($openId && empty($user_id)) {
             //get_user_info and save
-
             $userInfo = $this->wechat->getUserInfo($officialNumber['app_id'],$officialNumber['secretkey'],$openId);
             $user_data = array();
 
-            $user_data['user_open_id'] = $userInfo['open_id'];
+            $user_data['user_open_id'] = $openId;
             $user_data['nickname'] = $userInfo['nickname'];
             $user_data['country'] = $userInfo['country'];
             $user_data['province'] = $userInfo['province'];
@@ -67,10 +71,7 @@ class FrontController extends MY_Controller
             $this->load->model("User_model","user");
             $user_id = $this->user->save($openId,$officialNumber['id'],$user_data);
             $this->session->set_userdata("user_id",$user_id);
-        }
 
-        $token = $this->input->get("token");
-        if ($openId) {
             $this->session->set_userdata("open_id",$openId);
         } elseif ($token) {
             $this->session->set_userdata("token",$token);

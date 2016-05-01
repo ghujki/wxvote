@@ -101,6 +101,8 @@ function syncMembers(id,obj) {
         success:function(data) {
             if (data['errinfo']) {
                 alert(data['errinfo']);
+            } else {
+                $(obj).parent().children("span").text(data);
             }
         }
     });

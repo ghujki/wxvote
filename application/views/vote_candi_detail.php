@@ -11,6 +11,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?=$candi['desc']?>
         </div>
     </div>
+    <div class="column col-xs-12">
+        <a href="javascript:;" onclick="voteFor(<?=$candi['id']?>)">为他/她投票</a>
+    </div>
     <?php foreach($candi['gallery'] as $gallery):?>
     <figure class="col-xs-12 col-md-6 album-item">
         <img src="<?=$gallery['pic']?>" class="img-responsive">

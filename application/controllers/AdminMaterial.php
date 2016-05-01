@@ -39,6 +39,21 @@ class AdminMaterial extends AdminController
         $this->render("admin_material_add",$data);
     }
 
+    public function edit() {
+        $nid = $this->input->get("number_id");
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($nid);
+        $data['number'] = $number;
+
+        $media_id = $this->input->get("media_id");
+        $this->load->model("Material_model","material");
+        $mt = $this->material->getMaterialByMedia($media_id);
+        //todo:编辑消息逻辑实现
+        $data['news_materials'] = $mt;
+        $data['jspaths'] = array("application/views/js/jquery.form.js","application/views/js/admin_material_edit.js");
+        $this->render("admin_material_add",$data);
+    }
+
     public function ajaxSync() {
         $nid = $this->input->get("number_id");
         $this->load->model("OfficialNumber_model", "model");
@@ -79,8 +94,6 @@ class AdminMaterial extends AdminController
         $config['upload_path']      = "./upload/wx/$nid/";
         $config['allowed_types']    = 'gif|jpg|png|jpeg|bmp';
         $config['max_size']     = 200;
-        $config['max_width']        = 1024;
-        $config['max_height']       = 768;
         $config['file_name'] = time();
 
         if (!file_exists($config['upload_path'])) {
@@ -91,22 +104,20 @@ class AdminMaterial extends AdminController
 
         $token_value = $this ->security->get_csrf_hash();
 
-        if ( ! $this->upload->do_upload('pic'))
-        {
+        if (!isset($mt_id) && $this->input->post('pic')) {
+            if (!$this->upload->do_upload('pic')) {
 
-            die(json_encode(array("error"=>$this->upload->display_errors(),"hash"=>$token_value)));
+                die(json_encode(array("error" => $this->upload->display_errors("", ""), "hash" => $token_value)));
+            } else {
+                $data1 = array('upload_data' => $this->upload->data());
+                $path = "/upload/wx/$nid/" . $data1['upload_data']['file_name'];
+                $data['picurl'] = $path;
+            }
         }
-        else
-        {
-            $data1 = array('upload_data' => $this->upload->data());
-            $path = "/upload/wx/$nid/".$data1['upload_data']['file_name'];
-        }
-
         $data['app_id'] = $nid;
         $data['id'] = $mt_id;
         $data['media_id'] = empty($md_id)? time() : $md_id;
         $data['type'] = 'news';
-        $data['picurl'] = $path;
         $data['title'] = $this->input->post("title");
         $data['desc'] = $this->input->post("desc");
         $data['url'] = $this->input->post("url");

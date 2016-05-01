@@ -148,17 +148,17 @@
     });
 
     function voteFor(candi_id) {
-
         $.ajax({
             url:'index.php/voteController/vote',
             type:'get',
             dataType:'json',
             data:{'id':candi_id,"vote_id":'<?=$vote['id']?>'},
             success:function(data) {
-                if (data['error'] == 0 ) {
+                if (data['err'] == 0 ) {
                     //succeed in voting
+                    $("#modal2 .modal-text").text(data['info']);
                     $("#modal2").modal();
-                } else if(data['error'] == 1) {
+                } else if(data['err'] == 1) {
                     //duplicating voting
                     $("#modal2 .modal-text").text(data['info']);
                     $("#modal2").modal();
@@ -176,6 +176,40 @@
             }
         });
     }
+</script>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.1.0.js" />
+<script>
+    wx.config({
+        debug: true,
+        appId: '<?php echo $signPackage["appId"];?>',
+        timestamp: <?php echo $signPackage["timestamp"];?>,
+        nonceStr: '<?php echo $signPackage["nonceStr"];?>',
+        signature: '<?php echo $signPackage["signature"];?>',
+        jsApiList: [
+            // 所有要调用的 API 都要加到这个列表中
+            "onMenuShareTimeline",
+            "onMenuShareAppMessage",
+            "onMenuShareQQ",
+            "onMenuShareWeibo",
+            "onMenuShareQZone"
+        ]
+    });
+    wx.ready(function () {
+        wx.onMenuShareTimeline({
+            title: 'abc', // 分享标题
+            link: '', // 分享链接
+            imgUrl: '', // 分享图标
+            success: function () {
+                // 用户确认分享后执行的回调函数
+                $.ajax({
+                    url:"index.php/VoteController/"
+                });
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+    });
 </script>
 </body>
 </html>

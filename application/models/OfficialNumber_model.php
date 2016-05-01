@@ -25,6 +25,13 @@ class OfficialNumber_model extends CI_Model
 
     public function getOfficialNumberByAppId ($appId) {
         $this->db->where("app_id",$appId);
+        $this->db->or_where("original_id",$appId);
+        $query = $this->db->get("official_number");
+        return $query->row_array();
+    }
+
+    public function getOfficialNumberByOriginalId($id) {
+        $this->db->where("original_id",$id);
         $query = $this->db->get("official_number");
         return $query->row_array();
     }

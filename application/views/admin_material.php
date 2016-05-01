@@ -11,6 +11,7 @@
         margin-top:10px;
     }
     .grid-item { width: 200px;margin-bottom:10px; border:1px solid #ccc;padding:1em;}
+    .grid-item.checked {border-color:green;}
     .grid-item figure {
         padding-bottom:10px;
     }
@@ -41,13 +42,14 @@
             </select>
             <button class="btn btn-default" onclick="syncNewsMessages()">同步图文消息</button>
             <button class="btn btn-default" onclick="addNewsMessages()">新建图文消息</button>
+            <button class="btn btn-default" onclick="editNewsMessage('<?=$number['id']?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
         </div>
     </div>
     <div class="col-xs-12">
         <div class="grid">
-            <div class="container-fluid">
+            <div class="container-fluid" id="material_container">
             <?php foreach ($materials as $m) :?>
-            <div class="grid-item">
+            <div class="grid-item" data-id="<?=$m[0]['media_id']?>">
                 <?php $cover = array_shift($m);?>
                 <figure>
                     <img src="<?=$cover['picurl']?>" class="img-responsive">
