@@ -32,6 +32,9 @@ class AdminVoteController extends AdminController
             $list[$i]['vote_count'] = $statistic[$list[$i]['id']]['vote_count'];
         }
         $data['list'] = $list;
+        $this->load->model("VoteConfig_model","voteConfig");
+        $data['jspaths'] = array('application/views/js/jquery.form.js');
+        $data['property_groups'] = $this->voteConfig->getPropertyGroups();
         $this->render("admin_vote_list",$data);
     }
 
@@ -101,5 +104,89 @@ class AdminVoteController extends AdminController
         $this->load->model("Vote_model", "vote");
         $this->vote->delete($id);
         redirect("AdminVoteController/index");
+    }
+
+    public function configPage() {
+        $group = $this->input->get("group");
+        $vote_id = $this->input->get("vote_id");
+        $this->load->model("VoteConfig_model","vc");
+        $properties = $this->vc->getPropertiesByGroup($group);
+        $config = $this->vc->getVoteConfig($vote_id);
+        for($i = 0;$i < count($properties);$i ++) {
+            $code = $properties[$i]['property_code'];
+            foreach($config as $c) {
+                if ($c['item_code'] == $code) {
+                    $properties[$i]['default_value'] = $c['item_value'];
+                    break;
+                }
+            }
+
+        }
+        $data['properties'] = $properties;
+        $data['vote_id'] = $vote_id;
+        $data['group'] = $group;
+        $data['content'] = $this->load->view("admin_vote_config",$data,true);
+        echo json_encode($data);
+    }
+
+    public function saveConfig() {
+        $vote_id = $this->input->post("vote_id");
+        $group = $this->input->post("group");
+
+        $this->load->model("VoteConfig_model","vc");
+        $properties = $this->vc->getPropertiesByGroup($group);
+        $configs = $this->vc->getVoteConfig($vote_id);
+        $converted_configs = array();
+        foreach ($configs as $config) {
+            $converted_configs[$config['item_code']] = $config;
+        }
+
+        foreach ($properties as $property) {
+            $conf = $converted_configs[$property['property_code']];
+            if (empty($conf)) {
+                $conf['vote_id'] = $vote_id;
+                $conf['item_code'] = $property['property_code'];
+                $conf['item_name'] = $property['property_name'];
+            }
+
+            if ($property['value_type'] == 0 || $property['value_type'] == 1) {
+                $conf['item_value'] = $this->input->post($property['property_code']);
+                $this->vc->saveConfig($conf);
+            } elseif ($property['value_type'] == 2) {
+                $config1['upload_path']      = "./upload/vc/";
+                $config1['allowed_types']    = 'gif|jpg|png|jpeg|bmp';
+                $config1['max_size']     = 200;
+                $config1['file_name'] = time();
+
+                $this->load->library('upload', $config1);
+                if (!file_exists($config1['upload_path'])) {
+                    mkdir($config1['upload_path']);
+                }
+
+                $this->load->library('upload', $config1);
+
+                $token_value = $this ->security->get_csrf_hash();
+
+                if (!$this->upload->do_upload($property['property_code'])) {
+                    //die(json_encode(array("error" => $this->upload->display_errors("", ""), "hash" => $token_value)));
+                    continue;
+                } else {
+                    $data1 = array('upload_data' => $this->upload->data());
+                    $path = "/upload/vc/" . $data1['upload_data']['file_name'];
+                    if ($conf['item_value']) {
+                        @unlink($conf['item_value']);
+                        //删除先
+                    }
+                    $conf['item_value'] = $path;
+                    $this->vc->saveConfig($conf);
+                }
+            } elseif ($property['value_type'] == 3) {
+                $v = $this->input->post($property['property_code']);
+                $conf['item_value'] = strtotime($v);
+                $this->vc->saveConfig($conf);
+            }
+        }
+
+
     }
 }

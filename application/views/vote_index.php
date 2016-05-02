@@ -196,13 +196,12 @@
     });
     wx.ready(function () {
         wx.onMenuShareTimeline({
-            title: 'abc', // 分享标题
-            link: '', // 分享链接
-            imgUrl: '', // 分享图标
+            title: "<?=$config['share_title']?>", // 分享标题
+            link: "<?=$config['url']?>", // 分享链接
+            imgUrl: "<?=$config['share_picurl']?>", // 分享图标
             success: function () {
-                // 用户确认分享后执行的回调函数
                 $.ajax({
-                    url:"index.php/VoteController/"
+                    url:"index.php/VoteController/shareSuccess"
                 });
             },
             cancel: function () {

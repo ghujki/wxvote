@@ -13,4 +13,19 @@ $(function(){
     $(".default-img").on("error",function(){
         $(this).attr("src",$(this).attr("data-src"));
     });
+
+    $(".config").click(function(){
+        var content = $(this).attr("data-content");
+        var id = $(this).attr("data-id");
+        $.ajax({
+            url:"index.php/AdminVoteController/configPage",
+            dataType:"json",
+            data:{"group":content,"vote_id":id},
+            success:function(data) {
+                if (data['error'] == null) {
+                    $("#sub_content").html(data["content"]);
+                }
+            }
+        });
+    });
 });

@@ -25,4 +25,15 @@ class VoteToken_model extends CI_Model
         $this->db->query("update vote_token set count = count + 1 ");
         $this->db->close();
     }
+
+    public function save($data) {
+        $this->db->where("token",$data['token']);
+        $this->db->where("candi_id",$data['candi_id']);
+        $q = $this->db->get("vote_token");
+        $candi = $q->row_array();
+        if (empty($candi['id'])) {
+            $data['count'] = 0;
+            $this->db->insert("vote_token",$data);
+        }
+    }
 }

@@ -138,18 +138,36 @@ class VoteController extends FrontController
             $token = $this->getRandChar(5);
             $this->session->set_userdata("share_token",$token);
         }
-        if (strpos($_SERVER["REQUEST_URI"],"?") == false) {
+
+        $this->load->model("VoteConfig_mode","vc");
+        $configs = $this->vc->getVoteConfig($vote_id);
+
+        $url = $configs['url'];
+        if (strpos($url,"?") == false) {
             $append_url = "?token=$token";
         } else {
             $append_url = "&token=$token";
         }
 
-        $data['signPackage'] = $this->wechat->getSignPackage($official_number['app_id'],$official_number['secretkey'],$append_url);
+        $data['signPackage'] = $this->wechat->getSignPackage($official_number['app_id'],
+            $official_number['secretkey'],$url.$append_url);
+        $data['config'] = $configs;
         $this->load->view("vote_index",$data);
     }
 
-    public function share_success ($token) {
-
+    public function shareSuccess ($token) {
+        $user_id = $this->session->userdata("user_id");
+        $token = $this->session->userdata("share_token");
+        $this->load->model("Candidate_model","candi");
+        if (isset($user_id)) {
+            $candi = $this->candi->getCandidateByUserId($user_id);
+            if ($candi['id']) {
+                $this->load->model("VoteToken_model","vt");
+                $data['candi_id'] = $candi['id'];
+                $data['token'] = $token;
+                $this->vt->save($data);
+            }
+        }
     }
 
     private function getRandChar($length){

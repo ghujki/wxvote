@@ -49,6 +49,13 @@
                                 <a href="index.php/AdminVoteController/viewVoteRecord?vote_id=<?=$item['id']?>">查看投票记录</a>
                                 <a href="#">奖品设定</a>
                                 <a href="#">获奖人员维护</a>
+                                <?php foreach($property_groups as $g):?>
+                                    <a href="#sub_content" data-toggle="collapse" class="config" data-content="<?=$g['property_group']?>"
+                                       data-id="<?=$item['id']?>"><?=$g['property_group']?></a>
+                                <?php endforeach;?>
+                            </div>
+                            <div class="panel-collapse collapse" id="sub_content">
+
                             </div>
                         </td>
                     </tr>
