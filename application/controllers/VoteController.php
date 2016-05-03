@@ -10,7 +10,7 @@ require "FrontController.php";
 
 class VoteController extends FrontController
 {
-    public static $PAGE_SIZE = 10;
+    public static $PAGE_SIZE = 12;
     public static $TOKEN_COUNT  = 10;
     public function index($page = 0) {
         $vote_id = $this->input->get("vote_id");
@@ -30,7 +30,7 @@ class VoteController extends FrontController
                 $candi_list = $this->candidate->getCandidateListOrderByCount($vote_id, VoteController::$PAGE_SIZE * $page, $size);
             }
         }
-        $vote_count = $this->candidate->getCandidateVoteCount($vote_id);
+        $vote_count = $this->candidate->getCandidateCount($vote_id);
 
         $candi_ids = array();
         foreach ($candi_list as $candi) {
@@ -52,7 +52,7 @@ class VoteController extends FrontController
         $data['visit_count'] = $this->op->getVisitCount($vote_id);
 
         $config['base_url'] = 'index.php/VoteController/index/';
-        $config['total_rows'] = $this->candidate->getCandidateCount($vote_id);
+        $config['total_rows'] = $vote_count;
         $config['per_page'] = VoteController::$PAGE_SIZE;
         $config['num_links'] = 5;
         $config['reuse_query_string'] = TRUE;
@@ -139,25 +139,31 @@ class VoteController extends FrontController
             $this->session->set_userdata("share_token",$token);
         }
 
-        $this->load->model("VoteConfig_mode","vc");
-        $configs = $this->vc->getVoteConfig($vote_id);
+        $data['user_id'] = $this->session->userdata("user_id");
+        $data['token'] = $token;
 
-        $url = $configs['url'];
-        if (strpos($url,"?") == false) {
-            $append_url = "?token=$token";
-        } else {
-            $append_url = "&token=$token";
+        $this->load->model("VoteConfig_model","vc");
+        $configs = $this->vc->getVoteConfig($vote_id);
+        $share_conf = array();
+        foreach($configs as $conf) {
+            $share_conf[$conf['item_code']] = $conf['item_value'];
         }
+        //$url = sprintf($share_conf['url'],"&token=$token");
+        $url = "";
+        $share_conf['url'] = sprintf($share_conf['url'],"&token=$token");
+        $share_conf['share_picurl'] = base_url().$share_conf['share_picurl'];
 
         $data['signPackage'] = $this->wechat->getSignPackage($official_number['app_id'],
-            $official_number['secretkey'],$url.$append_url);
-        $data['config'] = $configs;
+            $official_number['secretkey'],$url);
+        $data['config'] = $share_conf;
         $this->load->view("vote_index",$data);
     }
 
-    public function shareSuccess ($token) {
-        $user_id = $this->session->userdata("user_id");
-        $token = $this->session->userdata("share_token");
+    public function shareSuccess () {
+
+        $user_id = $this->input->get("user_id");
+        $token = $this->input->get("token");
+        error_log("hello:".$user_id.",".$token);
         $this->load->model("Candidate_model","candi");
         if (isset($user_id)) {
             $candi = $this->candi->getCandidateByUserId($user_id);
@@ -168,6 +174,7 @@ class VoteController extends FrontController
                 $this->vt->save($data);
             }
         }
+        echo json_encode("ok");
     }
 
     private function getRandChar($length){

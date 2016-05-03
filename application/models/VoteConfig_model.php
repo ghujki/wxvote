@@ -6,7 +6,8 @@
  * Date: 2016/5/2
  * Time: 18:26
  */
-class VoteConfig_model extends CI_Model
+defined('BASEPATH') OR exit('No direct script access allowed');
+class VoteConfig_model extends \CI_Model
 {
     public function __construct()
     {

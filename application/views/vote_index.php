@@ -177,10 +177,10 @@
         });
     }
 </script>
-<script src="http://res.wx.qq.com/open/js/jweixin-1.1.0.js" />
+<script src="http://res.wx.qq.com/open/js/jweixin-1.1.0.js" ></script>s
 <script>
     wx.config({
-        debug: true,
+        debug: false,
         appId: '<?php echo $signPackage["appId"];?>',
         timestamp: <?php echo $signPackage["timestamp"];?>,
         nonceStr: '<?php echo $signPackage["nonceStr"];?>',
@@ -201,7 +201,112 @@
             imgUrl: "<?=$config['share_picurl']?>", // 分享图标
             success: function () {
                 $.ajax({
-                    url:"index.php/VoteController/shareSuccess"
+                    url:"index.php/VoteController/shareSuccess",
+                    type:"get",
+                    dataType:'json',
+                    data:{'vote_id':<?=$vote_id?>,'user_id':'<?=$user_id?>','token':'<?=$token?>'},
+                    success:function(data) {
+                        var a = data;
+                    },
+                    error:function(data) {
+                        alert(data.responseText);
+                    }
+                });
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+        wx.onMenuShareAppMessage({
+            title: "<?=$config['share_title']?>", // 分享标题
+            desc: '<?=$config['share_desc']?>', // 分享描述
+            link: '<?=$config['url']?>', // 分享链接
+            imgUrl: '<?=$config['share_picurl']?>', // 分享图标
+            type: 'link', // 分享类型,music、video或link，不填默认为link
+            dataUrl: '', // 如果type是music或video，则要提供数据链接，默认为空
+            success: function () {
+                $.ajax({
+                    url:"index.php/VoteController/shareSuccess",
+                    type:"get",
+                    dataType:'json',
+                    data:{'vote_id':<?=$vote_id?>,'user_id':'<?=$user_id?>','token':'<?=$token?>'},
+                    success:function(data) {
+                        var a = data;
+                    },
+                    error:function(data) {
+                        alert(data.responseText);
+                    }
+                });
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+        wx.onMenuShareWeibo({
+            title: '<?=$config['share_title']?>', // 分享标题
+            desc: '<?=$config['share_desc']?>', // 分享描述
+            link: '<?=$config['url']?>', // 分享链接
+            imgUrl: '<?=$config['share_picurl']?>', // 分享图标
+            success: function () {
+                $.ajax({
+                    url:"index.php/VoteController/shareSuccess",
+                    type:"get",
+                    dataType:'json',
+                    data:{'vote_id':<?=$vote_id?>,'user_id':'<?=$user_id?>','token':'<?=$token?>'},
+                    success:function(data) {
+                        var a = data;
+                    },
+                    error:function(data) {
+                        alert(data.responseText);
+                    }
+                });
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+
+        wx.onMenuShareQQ({
+            title: '<?=$config['share_title']?>', // 分享标题
+            desc: '<?=$config['share_desc']?>', // 分享描述
+            link: '<?=$config['url']?>', // 分享链接
+            imgUrl: '<?=$config['share_picurl']?>', // 分享图标
+            success: function () {
+                $.ajax({
+                    url:"index.php/VoteController/shareSuccess",
+                    type:"get",
+                    dataType:'json',
+                    data:{'vote_id':<?=$vote_id?>,'user_id':'<?=$user_id?>','token':'<?=$token?>'},
+                    success:function(data) {
+                        var a = data;
+                    },
+                    error:function(data) {
+                        alert(data.responseText);
+                    }
+                });
+            },
+            cancel: function () {
+                // 用户取消分享后执行的回调函数
+            }
+        });
+
+        wx.onMenuShareQZone({
+            title: '<?=$config['share_title']?>', // 分享标题
+            desc: '<?=$config['share_desc']?>', // 分享描述
+            link: '<?=$config['url']?>', // 分享链接
+            imgUrl: '<?=$config['share_picurl']?>', // 分享图标
+            success: function () {
+                $.ajax({
+                    url:"index.php/VoteController/shareSuccess",
+                    type:"get",
+                    dataType:'json',
+                    data:{'vote_id':<?=$vote_id?>,'user_id':'<?=$user_id?>','token':'<?=$token?>'},
+                    success:function(data) {
+                        var a = data;
+                    },
+                    error:function(data) {
+                        alert(data.responseText);
+                    }
                 });
             },
             cancel: function () {

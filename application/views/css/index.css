@@ -87,6 +87,7 @@ td.green ,td.pink{
     left:0px;
 }
 .bottom-menu li {
+    list-style:none;
     float:left;
     width:30%;
     text-align:center;

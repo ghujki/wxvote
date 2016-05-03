@@ -11,7 +11,7 @@ class VoteToken_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
-        $this->load->model();
+        $this->load->database();
     }
 
     public function getToken($token) {
@@ -33,6 +33,7 @@ class VoteToken_model extends CI_Model
         $candi = $q->row_array();
         if (empty($candi['id'])) {
             $data['count'] = 0;
+            $data['build_time'] = time();
             $this->db->insert("vote_token",$data);
         }
     }
