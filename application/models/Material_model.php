@@ -41,4 +41,9 @@ class Material_model extends  CI_Model
         $q = $this->db->get("material");
         return $q->result_array();
     }
+
+    public function remove($media_id) {
+        $this->db->where("media_id",$media_id);
+        $this->db->delete("material");
+    }
 }

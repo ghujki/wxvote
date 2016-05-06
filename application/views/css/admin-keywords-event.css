@@ -1,0 +1,51 @@
+.resp-ul {list-style:none;    padding-left: 0px;}
+.resp-ul>li {
+    float:left;
+    border: 1px solid #ccc;
+    padding: 1em 2em;
+}
+.resp-ul>li a {
+    text-decoration: none;
+}
+.resp-ul>li.checked {
+    border-color:green;
+}
+.grid {
+    margin-top:10px;
+}
+.grid-item { width: 200px;margin-bottom:10px; border:1px solid #ccc;padding:1em;cursor:pointer;float:left;margin-right:10px;}
+.grid-item.checked { border-color:green;}
+.grid-item figure {
+    padding-bottom:10px;
+}
+.grid-item figcaption {
+    padding: .2em;
+    font-size: small;
+    margin-top: -20px;
+    background-color: black;
+    width: 100%;
+    color: #fff;
+    opacity: .8;
+}
+.item-row {border-top:1px solid #ccc;padding:.5em;font-size:small}
+ul.event-type-list {
+    list-style: none;
+    padding-left: 0px;
+}
+ul.event-type-list li {
+    float: left;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding: 5px 10px 0px 10px;
+}
+ul.event-type-list li.checked {
+    color:green;
+    border-color:green;
+}
+ul.event-type-list li>label {
+    cursor:pointer;
+}
+ul.event-type-list li input {
+    display: none;
+}

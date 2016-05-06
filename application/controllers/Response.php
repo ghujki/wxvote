@@ -69,82 +69,113 @@ class Response extends MY_Controller {
             $keyword = trim($postObj->Content);
             $time = time();
             $msgType = $postObj->MsgType;
-			//error_log($fromUsername.",".$toUsername.",".$keyword.",".$msgType);
-            if ($msgType == "text") {
-				$this->load->model("Keywords_model","keywords");
-				$this->load->model("Material_model","material");
-				$ap = $this->app;
-				$keys = $this->keywords->getKeyword($ap['id'],$keyword);
-				//TODO:需要模糊匹配处理程序类的KEYWORD,
-				if (count($keys)) {
-					$key = $keys[0];
-					if ($key['type'] == 0){
-						//文本回复
-						echo sprintf(MSG_TEXT,$fromUsername,$toUsername,$time,sprintf($key['content'],"open_id=".$fromUsername));
-					} elseif ($key['type'] == 1) {
-						//图文回复
-						$materials = $this->material->getMaterialByMedia($keys[0]['media_id']);
-						$inner = '';
-						foreach($materials as $m) {
-							$inner .= sprintf(MSG_MULTI_PIC_TXT_INNER,$m['title'],$m['desc'],
-								'http://'.$_SERVER['HTTP_HOST'].$m['picurl'],sprintf($m['url'],"open_id=".$fromUsername));
-						}
-						$feedback = sprintf(MSG_MULTI_PIC_TXT_COVER,$fromUsername,$toUsername,$time,count($materials),$inner);
-						//error_log($feedback);
-						echo $feedback;
-					} elseif ($key['type'] == 2) {
-						//程序设定
-						$this->load->library($key['content'],NULL,"lib");
-						echo $this->lib->handle($keyword,$fromUsername,$toUsername);;
-					}
-				} else {
-            		echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
-            	}
-            } elseif ($msgType == "event") {
-            	$msgEvent = $postObj->Event;
+			$msgEvent = $postObj->Event;
+			$event = $msgType;
+			if ($msgType == 'event') {
+				$event = $msgEvent;
+			}
 
-            	if ($msgEvent=='CLICK')  {
-            		$eventKey = $postObj->EventKey;
-            		$keyarr = explode("_",$eventKey);
-            		//echo sprintf(MSG_TEXT, $fromUsername, $toUsername, $time, $keyarr[0].",".$keyarr[1]);
-            		//return;
-            		if ($keyarr[0] == "subject") {
-            			$result = $this->get_subject($keyarr[1], $fromUsername, $toUsername, $time);
-            			die($result);
-            		} elseif ($keyarr[0] == "act") {
-            			echo call_user_func(array($this,$keyarr[1]),$fromUsername, $toUsername, $time);
-            		} else {
-            			echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
-            		}
-            	} elseif ($msgEvent == 'subscribe') {
-            		echo $this->get_subscribe($fromUsername, $toUsername, $time);
-            	} elseif ($msgEvent == 'LOCATION') {
-            		$lat = $postObj->Latitude;
-            		$lng = $postObj->Longitude;
-            	
-            		$this->handleAddress($fromUsername,$lat,$lng);
-            	
-            	} else {
-            		echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
-            	}
-            } elseif ($msgType == 'location') {
-            	$locationX = $postObj->Location_X;
-            	$locationY = $postObj->Location_Y;
-            	$scale =  $postObj->Scale;
-            	$address = $postObj->Label;
-            	
-            	$this->handleAddress($fromUsername,$locationX,$locationY,$scale,$address);
-            }
+			$this->load->model("Keywords_model","keywords");
+			$this->load->model("Material_model","material");
+			$ap = $this->app;
+			$keys = $this->keywords->getKeyword($ap['id'],$keyword,$event);
+
+			if (count($keys)) {
+				$key = $keys[0];
+				if ($key['type'] == 0){
+					//文本回复
+					echo sprintf(MSG_TEXT,$fromUsername,$toUsername,$time,sprintf($key['content'],"open_id=".$fromUsername));
+				} elseif ($key['type'] == 1) {
+					//图文回复
+					$materials = $this->material->getMaterialByMedia($keys[0]['media_id']);
+					$inner = '';
+					foreach($materials as $m) {
+						$inner .= sprintf(MSG_MULTI_PIC_TXT_INNER,$m['title'],$m['desc'],
+							'http://'.$_SERVER['HTTP_HOST'].$m['picurl'],sprintf($m['url'],"open_id=".$fromUsername));
+					}
+					$feedback = sprintf(MSG_MULTI_PIC_TXT_COVER,$fromUsername,$toUsername,$time,count($materials),$inner);
+					//error_log($feedback);
+					echo $feedback;
+				} elseif ($key['type'] == 2) {
+					//程序设定
+					$this->load->library($key['content'],NULL,"lib");
+					echo $this->lib->handle($keyword,$fromUsername,$toUsername);;
+				}
+			} else {
+				echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
+			}
+
+//
+//            if ($msgType == "text") {
+//				$this->load->model("Keywords_model","keywords");
+//				$this->load->model("Material_model","material");
+//				$ap = $this->app;
+//				$keys = $this->keywords->getKeyword($ap['id'],$keyword,"text");
+//				//TODO:需要模糊匹配处理程序类的KEYWORD,
+//				if (count($keys)) {
+//					$key = $keys[0];
+//					if ($key['type'] == 0){
+//						//文本回复
+//						echo sprintf(MSG_TEXT,$fromUsername,$toUsername,$time,sprintf($key['content'],"open_id=".$fromUsername));
+//					} elseif ($key['type'] == 1) {
+//						//图文回复
+//						$materials = $this->material->getMaterialByMedia($keys[0]['media_id']);
+//						$inner = '';
+//						foreach($materials as $m) {
+//							$inner .= sprintf(MSG_MULTI_PIC_TXT_INNER,$m['title'],$m['desc'],
+//								'http://'.$_SERVER['HTTP_HOST'].$m['picurl'],sprintf($m['url'],"open_id=".$fromUsername));
+//						}
+//						$feedback = sprintf(MSG_MULTI_PIC_TXT_COVER,$fromUsername,$toUsername,$time,count($materials),$inner);
+//						//error_log($feedback);
+//						echo $feedback;
+//					} elseif ($key['type'] == 2) {
+//						//程序设定
+//						$this->load->library($key['content'],NULL,"lib");
+//						echo $this->lib->handle($keyword,$fromUsername,$toUsername);;
+//					}
+//				} else {
+//            		echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
+//            	}
+//            } elseif ($msgType == "event") {
+//            	$msgEvent = $postObj->Event;
+//
+//            	if ($msgEvent=='CLICK')  {
+//            		$eventKey = $postObj->EventKey;
+//            		$keyarr = explode("_",$eventKey);
+//            		//echo sprintf(MSG_TEXT, $fromUsername, $toUsername, $time, $keyarr[0].",".$keyarr[1]);
+//            		//return;
+//            		if ($keyarr[0] == "subject") {
+//            			$result = $this->get_subject($keyarr[1], $fromUsername, $toUsername, $time);
+//            			die($result);
+//            		} elseif ($keyarr[0] == "act") {
+//            			echo call_user_func(array($this,$keyarr[1]),$fromUsername, $toUsername, $time);
+//            		} else {
+//            			echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
+//            		}
+//            	} elseif ($msgEvent == 'subscribe') {
+//            		echo $this->get_subscribe($fromUsername, $toUsername, $time);
+//            	} elseif ($msgEvent == 'LOCATION') {
+//            		$lat = $postObj->Latitude;
+//            		$lng = $postObj->Longitude;
+//
+//            		$this->handleAddress($fromUsername,$lat,$lng);
+//
+//            	} else {
+//            		echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
+//            	}
+//            } elseif ($msgType == 'location') {
+//            	$locationX = $postObj->Location_X;
+//            	$locationY = $postObj->Location_Y;
+//            	$scale =  $postObj->Scale;
+//            	$address = $postObj->Label;
+//
+//            	$this->handleAddress($fromUsername,$locationX,$locationY,$scale,$address);
+//            }
         } else{
-            //echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);;
             error_log(date('Y-m-d H:i:s') . 'wx debugger:empty input');
             exit;
         }
 	}
-	
-
-    
-
     
 	function handleAddress($fromUsername,$lat,$lng) {
 		$this->load->model("WxUser",'wxuser');

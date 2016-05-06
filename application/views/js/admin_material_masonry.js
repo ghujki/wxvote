@@ -33,6 +33,23 @@ function syncNewsMessages() {
 function editNewsMessage(nid,id) {
     window.location.href = "index.php/AdminMaterial/edit?number_id=" + nid + "&media_id=" + id;
 }
+
+function deleteMessage(id) {
+    if (confirm('确认要删除这条消息吗?')) {
+        $.ajax({
+            url:"index.php/AdminMaterial/ajaxRemove",
+            dataType:"json",
+            data:{media_id:id},
+            success:function(data) {
+                $('#material_container .grid-item.checked').remove();
+            },
+            error:function(data) {
+                alert(data.responseText);
+            }
+        });
+    }
+}
+
 function addNewsMessages() {
     var nid = $("#number_id").val();
     window.location.href = "index.php/AdminMaterial/add?number_id=" + nid;

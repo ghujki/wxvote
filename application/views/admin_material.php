@@ -43,6 +43,7 @@
             <button class="btn btn-default" onclick="syncNewsMessages()">同步图文消息</button>
             <button class="btn btn-default" onclick="addNewsMessages()">新建图文消息</button>
             <button class="btn btn-default" onclick="editNewsMessage('<?=$number['id']?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
+            <button class="btn btn-default" onclick="deleteMessage($('#material_container .grid-item.checked').attr('data-id'))">删除图文</button>
         </div>
     </div>
     <div class="col-xs-12">

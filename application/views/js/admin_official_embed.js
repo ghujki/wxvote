@@ -15,6 +15,12 @@ $(function(){
                         $("#resp_news .grid-item").removeClass("checked");
                         $(this).addClass("checked");
                     });
+
+
+                    $("ul.event-type-list li input").change(function() {
+                        $("ul.event-type-list li").removeClass("checked");
+                        $(this).parents("li").addClass("checked");
+                    });
                 }
             });
         }

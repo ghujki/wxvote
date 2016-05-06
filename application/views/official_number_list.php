@@ -52,7 +52,7 @@
                     <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxKeywordsPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">自动回复设置</a>
                     <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxMenuPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">菜单设置</a>
                     <a href="javascript:alert('即将推出');" >查看粉丝</a>
-                    <a href="javascript:alert('即将推出');" >事件配置</a>
+                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxEventPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">事件配置</a>
                     <hr/>
                     <div id="subContent<?=$item['id']?>" class="panel-collapse"></div>
                 </div>

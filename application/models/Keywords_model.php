@@ -14,9 +14,12 @@ class Keywords_model extends CI_Model
         $this->load->database();
     }
 
-    public function getKeyword($appid,$keyword) {
-        $sql = "select * from wsg_keywords where app_id=$appid 
-                and ((keywords like '%$keyword,%' and type < 2 ) || ('$keyword' like keywords and type=2)) ";
+    public function getKeyword($appid,$keyword,$event) {
+        $sql = "select * from wsg_keywords where app_id=$appid ";
+        if ($keyword) {
+            $sql .= " and ((keywords like '%$keyword,%' and type < 2 ) || ('$keyword' like keywords and type=2)) ";
+        }
+        $sql .=   " and event='$event'";
         $q = $this->db->query($sql);
         return $q->result_array();
     }

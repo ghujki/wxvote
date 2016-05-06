@@ -64,12 +64,12 @@ class AdminMaterial extends AdminController
         //save
         foreach ($items as $item) {
             //看是否已经存在
-            $mt = $this->material->getMaterialByMedia($item['media_id']);
-            if ($mt['id']) {
+            $media_id = $item['media_id'];
+            $mt = $this->material->getMaterialByMedia($media_id);
+            if (count($mt) > 0) {
                 continue;
             }
             //一个item是一组图文
-            $media_id = $item['media_id'];
             foreach($item['content']['news_item'] as $news_item) {
                 $matieral['app_id'] = $nid;
                 $matieral['media_id'] = $media_id;
@@ -83,6 +83,13 @@ class AdminMaterial extends AdminController
             }
         }
         echo json_encode(count($items));
+    }
+
+    public function ajaxRemove() {
+        $md_id = $this->input->get("media_id");
+        $this->load->model("Material_model","material");
+        $this->material->remove($md_id);
+        echo json_encode("ok");
     }
 
     public function doEdit() {

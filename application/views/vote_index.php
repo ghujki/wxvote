@@ -130,7 +130,7 @@
 <?php endif;?>
 <script type="text/javascript">
     function getRTime(){
-        var EndTime = new Date('<?=$vote["vote_end_time"]?>:00');
+        var EndTime = new Date('<?php echo date('m/d/Y H:i:s',strtotime($vote["vote_end_time"]));?>');
         var NowTime = new Date();
         var t = EndTime.getTime() - NowTime.getTime();
         var d = Math.floor(t/1000/60/60/24);
@@ -169,10 +169,10 @@
                 }
             },
             failure:function(data) {
-                alert(data);
+                alert(data.responseText);
             },
             error:function(data) {
-                alert(data);
+                alert(data.responseText);
             }
         });
     }

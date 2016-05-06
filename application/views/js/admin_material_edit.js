@@ -40,3 +40,4 @@ function editNewsMessage(obj) {
     $(".news-current").removeClass("news-current");
     $(obj).addClass("news-current");
 }
+

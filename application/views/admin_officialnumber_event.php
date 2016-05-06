@@ -1,35 +1,39 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: ghujk
- * Date: 2016/4/23
- * Time: 0:01
- */
 ?>
 <link rel="stylesheet" href="application/views/css/admin-keywords-event.css" >
 <p><button data-target="#rule_panel" data-toggle="collapse">添加新规则</button></p>
 <div class="container-fluid">
     <form class="form-horizontal" role="form" id="resp_form">
-    <div id="rule_panel" class="row panel-collapse collapse">
+        <div id="rule_panel" class="row panel-collapse collapse">
             <div class="form-group">
                 <label class="col-sm-2 control-label">类型</label>
                 <div class="col-sm-10">
                     <ul class="event-type-list">
                         <li>
-                            <label for="text">关键字回复</label>
-                            <input type="radio" id="text" name="event" value="text" />
+                            <label for="subscribe">新用户关注</label>
+                            <input type="radio" id="subscribe" name="event" value="subscribe" />
                         </li>
                         <li>
-                            <label for="click">按钮点击</label>
-                            <input type="radio" id="click" name="event" value="click" />
+                            <label for="unsubscribe">用户取消关注</label>
+                            <input type="radio" id="unsubscribe" name="event" value="unsubscribe" />
+                        </li>
+                        <li>
+                            <label for="location">用户发送地理位置</label>
+                            <input type="radio" id="location" name="event" value="location" />
+                        </li>
+                        <li>
+                            <label for="image">用户发送图片</label>
+                            <input type="radio" id="image" name="event" value="image" />
+                        </li>
+                        <li>
+                            <label for="voice">用户发送语音</label>
+                            <input type="radio" id="voice" name="event" value="voice" />
+                        </li>
+                        <li>
+                            <label for="video">用户发送视频</label>
+                            <input type="radio" id="video" name="event" value="video" />
                         </li>
                     </ul>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="keywords" class="col-sm-2 control-label">关键字</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="keywords" name="keywords" placeholder="请输入关键字，用英文逗号隔开">
                 </div>
             </div>
             <div class="form-group">
@@ -48,7 +52,7 @@
                 <input type="hidden" name="number_id" value="<?=$id?>" />
                 <input type="button" class="btn btn-default" value="保存" onclick="saveResponse()"/>
             </div>
-    </div>
+        </div>
     </form>
 </div>
 <div class="modal fade" id="resp_text" tabindex="-1" role="dialog" aria-hidden="true">
@@ -77,7 +81,7 @@
                     <p>选择回复素材</p>
                     <div class="grid clearfix">
                         <?php foreach ($materials as $m) :?>
-                        <div class="grid-item" data-id="<?=$m[0]['media_id']?>">
+                            <div class="grid-item" data-id="<?=$m[0]['media_id']?>">
                                 <?php $cover = array_shift($m);?>
                                 <figure>
                                     <img src="<?=$cover['picurl']?>" class="img-responsive">
@@ -89,7 +93,7 @@
                                         <div class="col-xs-4"><img src="<?=$item['picurl']?>" class="img-responsive"></div>
                                     </div>
                                 <?php endforeach; ?>
-                        </div>
+                            </div>
                         <?php endforeach;?>
                     </div>
                 </div>
@@ -135,18 +139,18 @@
     </div>
     <div class="row tbody">
         <?php foreach($keywords as $k):?>
-        <div class="col-xs-3" data-id="<?=$k['id']?>">
-            <?=$k['keywords']?>
-        </div>
-        <div class="col-xs-3" data-id="<?=$k['id']?>">
-            <?php if ($k['type'] == 0) {echo "文本回复";} elseif ($k["type"] == '1') {echo "图文回复";} elseif ($k['type'] == '2') {echo "程序处理";}?>
-        </div>
-        <div class="col-xs-3" data-id="<?=$k['id']?>">
-            <?=$k['content']?>
-        </div>
-        <div class="col-xs-3" data-id="<?=$k['id']?>">
-            <a href="javascript:;" onclick="removeResp('<?=$k['id']?>',this)">删除</a>
-        </div>
+            <div class="col-xs-3" data-id="<?=$k['id']?>">
+                <?=$k['event']?>
+            </div>
+            <div class="col-xs-3" data-id="<?=$k['id']?>">
+                <?php if ($k['type'] == 0) {echo "文本回复";} elseif ($k["type"] == '1') {echo "图文回复";} elseif ($k['type'] == '2') {echo "程序处理";}?>
+            </div>
+            <div class="col-xs-3" data-id="<?=$k['id']?>">
+                <?=$k['content']?>
+            </div>
+            <div class="col-xs-3" data-id="<?=$k['id']?>">
+                <a href="javascript:;" onclick="removeResp('<?=$k['id']?>',this)">删除</a>
+            </div>
         <?php endforeach;?>
     </div>
 </div>
@@ -175,10 +179,10 @@
                         type = "程序处理";
                     };
                     var str = "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + data.keywords + "</div> " +
-                     "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + type + "</div> " +
-                     "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + data.content + "</div> " +
-                     "<div class=\"col-xs-3\" data-id=\"" + data.id + "\"> " +
-                     "<a href=\"javascript:;\" onclick=\"removeResp(" + data.id + ",this)\">删除</a> ";
+                        "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + type + "</div> " +
+                        "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + data.content + "</div> " +
+                        "<div class=\"col-xs-3\" data-id=\"" + data.id + "\"> " +
+                        "<a href=\"javascript:;\" onclick=\"removeResp(" + data.id + ",this)\">删除</a> ";
                     $("#resp-tbl .tbody").append(str);
                 } else {
                     alert(data.errinfo);

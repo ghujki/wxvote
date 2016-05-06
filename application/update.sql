@@ -28,3 +28,8 @@ insert into wsg_vote_properties(property_name, property_code, value_type, proper
 values('分享图标','share_picurl',2,"活动分享设置");
 insert into wsg_vote_properties(property_name, property_code, value_type, property_group)
 values('链接地址','url',1,"活动分享设置");
+
+#2016/5/5
+alter table wsg_keywords add event varchar(16)  null;
+update wsg_keywords set event = 'text';
+

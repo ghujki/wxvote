@@ -114,6 +114,19 @@ class AdminOfficialNumber extends AdminController
         echo $content;
     }
 
+    public function ajaxEventPage() {
+        $id = $this->input->get("id");
+        $data['id'] = $id;
+        $this->load->model("Keywords_model","key");
+        $data['keywords'] = $this->key->getAllKeywords($id);
+
+        $this->load->model("Material_model","material");
+        $data['materials'] = $this->material->getNumberMaterials($id);
+
+        $content = $this->load->view("admin_officialnumber_event",$data,TRUE);
+        echo $content;
+    }
+
     public function ajaxUpdateMenu() {
         $id = $this->input->get("id");
         //$menu = $this->input->get("menu");
@@ -152,12 +165,13 @@ class AdminOfficialNumber extends AdminController
         $type = $this->input->get("type");
         $content = $this->input->get("content");
         $app_id = $this->input->get("number_id");
+        $event = $this->input->get("event");
 
         //check exists
         $keywords_array = explode(",",$keywords);
         $this->load->model("Keywords_model","key");
         foreach ($keywords_array as $key) {
-            $exitedkeys = $this->key->getKeyword($app_id,$key);
+            $exitedkeys = $this->key->getKeyword($app_id,$key,$event);
             if (count($exitedkeys) > 0) {
                 $data['errcode'] = "1";
                 $data['errinfo'] = "关键字".$key."已存在，请删除后再添加";
@@ -165,9 +179,13 @@ class AdminOfficialNumber extends AdminController
             }
         }
         //save
-        $arr['keywords'] = ($type == 2) ?$keywords :$keywords.",";
+        if ($keywords) {
+            $arr['keywords'] = ($type == 2) ? $keywords : $keywords . ",";
+        }
+        
         $arr['app_id'] = $app_id;
         $arr['type'] = $type;
+        $arr['event'] = $event;
         $arr['content'] =  $content ;
         $arr['media_id'] = ($type == 1) ? $content : null;
 
