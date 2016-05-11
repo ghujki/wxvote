@@ -22,6 +22,22 @@
         #accordion {
             font-size:small;
         }
+        .wxuser-content {
+            margin-bottom:1em ;
+        }
+        .wxuser-content .wxuser_item {
+            width:100px;
+            float:left;
+            margin-right:10px;
+            font-size:smaller;
+            word-break: break-all;
+        }
+        .wxuser-content .wxuser_item img {
+            width:100px;
+        }
+        .wxuser-content .wxuser_item.checked {
+            border-color:green;
+        }
     </style>
     <div class="row">
         <div class="col-xs-12">
@@ -51,7 +67,7 @@
                 <div class="panel-body">
                     <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxKeywordsPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">自动回复设置</a>
                     <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxMenuPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">菜单设置</a>
-                    <a href="javascript:alert('即将推出');" >查看粉丝</a>
+                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxShowUsers" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">查看粉丝</a>
                     <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxEventPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">事件配置</a>
                     <hr/>
                     <div id="subContent<?=$item['id']?>" class="panel-collapse"></div>

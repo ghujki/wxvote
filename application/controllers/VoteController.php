@@ -81,14 +81,17 @@ class VoteController extends FrontController
             $candi_ids[] = $candi['id'];
         }
 
-        $countAndRank = $this->candidate->getCandiVoteCountAndRank($candi_ids,$vote_id);
-        for($i = 0; $i < count($candi_list); $i ++) {
-            $candi_list[$i]['vote_count'] = $countAndRank[$candi_list[$i]['id']]["c"];
-            $candi_list[$i]['rank'] = $countAndRank[$candi_list[$i]['id']]["rank"];
+        if (count($candi_ids) > 0 ) {
+            $countAndRank = $this->candidate->getCandiVoteCountAndRank($candi_ids, $vote_id);
+            for ($i = 0; $i < count($candi_list); $i++) {
+                $candi_list[$i]['vote_count'] = $countAndRank[$candi_list[$i]['id']]["c"];
+                $candi_list[$i]['rank'] = $countAndRank[$candi_list[$i]['id']]["rank"];
+            }
         }
 
         $data['vote_id'] = $vote_id;
         $data["list"] = $candi_list;
+        $data['keywords'] = $keyword;
 
         //$data["list"] = $this->vote_model->getVoteList($page);
         $this->load->model("OperatorRecord_model","op");
@@ -216,6 +219,8 @@ class VoteController extends FrontController
                 $vote_record['vote_time'] = time();
                 $vote_record['vote_id'] = $vote_id;
                 $vote_record['token'] = $token;
+                $vote_record['ip'] = $this->input->ip_address();
+                $vote_record['source'] = 0;
 
                 $this->voteRecord->vote($vote_record);
 
@@ -287,7 +292,25 @@ class VoteController extends FrontController
         $this->load->helper(array('form', 'url'));
         $vote_id = $this->input->get("vote_id");
         $this->load->model("Vote_model","vote");
-        $data['vote'] = $this->vote->getVote($vote_id);
+        $user_id = $this->session->userdata("user_id");
+
+        $this->load->model("OperatorRecord_model","op");
+        $data['visit_count'] = $this->op->getVisitCount($vote_id);
+        //是否已经报名
+        if ($user_id) {
+            $this->load->model("Candidate_model","candi");
+            $candi = $this->candi->getCandidateByUser($user_id,$vote_id);
+            if ($candi) {
+                //已经报名了
+                $data['error'] = "您已经报过名了";
+            }
+        }
+
+        $vote = $this->vote->getVote($vote_id);
+        if (($vote['signup_start_time'] > time() || $vote['signup_end_time'] < time()) && empty($data['error'])) {
+            $data['error'] = "对不起,现在不是报名期!";
+        }
+        $data['vote'] = $vote;
         $data['vote_id'] = $vote_id;
         $data['content'] = $this->load->view("vote_enroll",$data,TRUE);
         $data['scripts'] = array("application/views/js/jquery.form.js","application/views/js/vote_enroll.js");
@@ -404,6 +427,8 @@ class VoteController extends FrontController
         $user_id = $this->session->userdata("user_id");
         $vote_id = $this->input->get("vote_id");
         $this->load->model("Vote_model","vote");
+        $this->load->model("OperatorRecord_model","op");
+        $data['visit_count'] = $this->op->getVisitCount($vote_id);
         if ($user_id) {
             //if candidate
             $this->load->model("Candidate_model","candi");

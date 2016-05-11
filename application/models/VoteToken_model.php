@@ -21,8 +21,8 @@ class VoteToken_model extends CI_Model
     }
 
     public function addCount($token) {
-        $this->db->where("token",$token);
-        $this->db->query("update vote_token set count = count + 1 ");
+        //$this->db->where("token",$token);
+        $this->db->query("update wsg_vote_token set count = count + 1 where token='$token'");
         $this->db->close();
     }
 

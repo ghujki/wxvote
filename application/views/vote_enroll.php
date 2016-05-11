@@ -46,9 +46,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     }
 </style>
 <section class="row light-green main-content">
-    <?php if ($vote['signup_start_time'] > time() || $vote['signup_end_time'] < time()){?>
+    <?php if ($error){?>
     <div>
-        对不起，现在不是报名期。
+        <?=$error?>
     </div>
     <?php } else {?>
     <?php echo form_open_multipart("VoteController/join?vote_id=<?=$vote_id?>",array("id"=>"enroll_form"))?>

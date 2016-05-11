@@ -33,3 +33,5 @@ values('链接地址','url',1,"活动分享设置");
 alter table wsg_keywords add event varchar(16)  null;
 update wsg_keywords set event = 'text';
 
+#2016/05/11
+alter table wsg_candidate add status tinyint(1) default 0 comment '0:正常,1:冻结';

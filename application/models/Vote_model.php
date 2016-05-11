@@ -95,4 +95,37 @@ class Vote_model extends \CI_Model
         return $q->result_array();
     }
 
+    public function getVoteRecord($vote_id,$start_time,$end_time,$keywords,$start,$pageSize)
+    {
+        $sql_where = "from wsg_voting_record vr left join wsg_candidate candi 
+                on vr.candidate_id= candi.id 
+                left join wsg_user  u on vr.user_id = u.id
+                where 1=1 ";
+        if ($vote_id) {
+            $sql_where .= " and vr.vote_id = $vote_id";
+        }
+        if ($start_time) {
+            $sql_where .= " and vr.vote_time >=".strtotime($start_time);
+        }
+        if ($end_time) {
+            $sql_where .= " and vr.vote_time <=".strtotime($end_time);
+        }
+        if ($keywords) {
+
+            $sql_where .= " and (vr.ip like '%$keywords%'  
+                or candi.name like '%$keywords%'
+                or u.nickname like '%$keywords%')";
+        }
+        $sql_select = "select vr.*,candi.name as candi_name,u.nickname ";
+        $sql_count = "select count(1) as c ";
+        $sql_limit = " limit ".$start.",".$pageSize;
+
+        $q1 = $this->db->query($sql_count.$sql_where);
+        $q2 = $this->db->query($sql_select.$sql_where.$sql_limit);
+        $d = $q1->row_array();
+        $data['row_count'] =$d['c'];
+        $data['data'] = $q2->result_array();
+
+        return $data;
+    }
 }

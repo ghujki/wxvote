@@ -21,7 +21,7 @@ class AdminOfficialNumber extends AdminController
         }
         $data['numbers'] = $numbers;
         $data['title'] = "公众号列表";
-        $data['jspaths'] = array("application/views/js/admin_official_embed.js","application/views/js/jquery.form.js");
+        $data['jspaths'] = array("application/views/js/admin_official_embed.js","application/views/js/jquery.form.js","application/views/js/masonry.pkgd.min.js");
         $this->render("official_number_list",$data);
     }
 
@@ -136,6 +136,38 @@ class AdminOfficialNumber extends AdminController
         $this->load->library("wx/MpWechat");
         $result = $this->mpwechat->creatMenu($number['app_id'],$number['secretkey'],$str);
         echo $result;
+    }
+
+    public function ajaxShowUsers() {
+        $id = $this->input->get("id");
+        $keywords = $this->input->get("keywords");
+        $start = $this->input->get("start");
+
+        $page_size = 30;
+//        $this->load->model("OfficialNumber_model", "model");
+//        $number = $this->model->getOfficialNumber($id);
+        $this->load->model("User_model","user");
+        $users = $this->user->getUsers($id,$keywords,$start,$page_size);
+        $data['users'] = $users;
+        $data['number_id'] = $id;
+
+        $this->load->library('pagination');
+        $config['base_url'] = 'index.php/AdminVoteController/viewVoteRecord/';
+        $config['total_rows'] = $this->user->getUserCount($id,$keywords);
+
+        $config['per_page'] = $page_size;
+        $config['num_links'] = 5;
+        $config['reuse_query_string'] = TRUE;
+        $config['first_link'] = '第一页';
+        $config['last_link'] = '最末页';
+        $config['next_link'] = "下一页";
+        $config['prev_link'] = "上一页";
+        $config['cur_page'] = $start ;
+
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_ajax_links();
+
+        echo $this->load->view("admin_user_list",$data,TRUE);
     }
 
     public function ajaxSyncMember() {

@@ -7,7 +7,7 @@
         <div class="float-right" >已选：<span id="selected"></span><input type="hidden" id="selectedId"></div>
     </div>
     <?php if($users) :?>
-        <div class="row">
+        <div class="row wxuser-list">
         <?php foreach ($users as $user) {?>
         <div class="thumbnail wxuser_item" onclick="checkThis('<?=$user['id']?>',this)">
             <img src="<?=$user['headimgurl']?>" alt="没有图片">
@@ -18,7 +18,7 @@
         <?php } ?>
         </div>
     <?php endif;?>
-    <p></p>
+    <p><?=$links?></p>
 </div>
 <button class="btn btn-default" onclick="bindUser()">确定</button>
 <script>
@@ -50,6 +50,22 @@
                 if (data == 'ok'){
                     window.location.href = window.location.href;
                 }
+            }
+        });
+    }
+
+    function ajax_page(start) {
+        $.ajax({
+            url:"index.php/AdminOfficialNumber/ajaxShowUsers",
+            dataType:"text",
+            data: {'id':'<?=$number_id?>',start:start},
+            success:function(data) {
+                $("#subContent<?=$number_id?>").html(data);
+                window.setTimeout(function(){
+                    $(".wxuser-list").masonry({
+                        itemSelector : '.wxuser_item'
+                    });
+                },500);
             }
         });
     }

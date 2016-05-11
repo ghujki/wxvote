@@ -1,6 +1,9 @@
 $(function(){
     $(".panel-body a").click(function() {
         var a = this;
+        if ($("").datetimepicker) {
+            $("*[data-toggle=time]").datetimepicker('destroy');
+        }
         var id = $(a).attr('data-id');
         var src = $(a).attr("data-src");
         if (src) {
@@ -21,10 +24,29 @@ $(function(){
                         $("ul.event-type-list li").removeClass("checked");
                         $(this).parents("li").addClass("checked");
                     });
+
+                    if ($("").datetimepicker) {
+                        $("*[data-toggle=time]").datetimepicker({
+                            lang: "ch",           //语言选择中文
+                            format: "Y-m-d H:i",      //格式化日期
+                            timepicker: true,    //关闭时间选项
+                            yearStart: 2000,     //设置最小年份
+                            yearEnd: 2050,        //设置最大年份
+                            todayButton: true    //关闭选择今天按钮
+                        });
+                    }
+
+                    window.setTimeout(function(){
+                        $(".wxuser-list").masonry({
+                            itemSelector : '.wxuser_item'
+                        });
+                    },500);
                 }
             });
         }
     });
+
+
 
 });
 

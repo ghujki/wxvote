@@ -132,7 +132,7 @@
             <?php if($candi['id']) {?>
             <?php if ($candi['user_id']) {?>
                 <span class="wx-related"><i class="fa fa-check"></i>微信绑定</span>&nbsp;
-                    <a href="javascript:;" data-target="#modal2" data-src="index.php/AdminCandidateController/ajaxSyncUsers" onclick="showWxUserPanel(this)">重新绑定</a>
+                    <a href="javascript:;" data-target="#modal2" data-src="index.php/AdminOfficialNumber/ajaxShowUsers" onclick="showWxUserPanel(this)">重新绑定</a>
             <?php }else { ?>
                 <a href="javascript:;" data-target="#modal2"
                    data-src="index.php/AdminCandidateController/ajaxSyncUsers" onclick="showWxUserPanel(this)">关联微信</a>

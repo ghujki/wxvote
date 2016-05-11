@@ -33,7 +33,7 @@ class AdminVoteController extends AdminController
         }
         $data['list'] = $list;
         $this->load->model("VoteConfig_model","voteConfig");
-        $data['jspaths'] = array('application/views/js/jquery.form.js');
+        $data['jspaths'] = array('application/views/js/jquery.form.js',"application/views/js/admin_official_embed.js");
         $data['property_groups'] = $this->voteConfig->getPropertyGroups();
         $this->render("admin_vote_list",$data);
     }
@@ -188,5 +188,43 @@ class AdminVoteController extends AdminController
         }
 
 
+    }
+
+    public function viewVoteRecord($start = 0) {
+        $page_size = 20;
+        $vote_id = $this->input->get("vote_id");
+        $start_time = $this->input->get("start_time");
+        $end_time = $this->input->get("end_time");
+        $keywords = $this->input->get("keywords");
+
+        $data['vote_id'] = $vote_id;
+        $data['start_time'] = $start_time;
+        $data['end_time'] = $end_time;
+        $data['keywords'] = $keywords;
+
+        $this->load->model("Vote_model","vote");
+        $d = $this->vote->getVoteRecord($vote_id,$start_time,$end_time,$keywords,$start,$page_size);
+        $votes = $this->vote->getVoteList();
+        $data['votes'] = $votes;
+
+        $this->load->library('pagination');
+        $config['base_url'] = 'index.php/AdminVoteController/viewVoteRecord/';
+        $config['total_rows'] = $d['row_count'];
+        $config['per_page'] = $page_size;
+        $config['num_links'] = 5;
+        $config['reuse_query_string'] = TRUE;
+        $config['first_link'] = '第一页';
+        $config['last_link'] = '最末页';
+        $config['next_link'] = "下一页";
+        $config['prev_link'] = "上一页";
+        $config['cur_page'] = $start ;
+
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_ajax_links();
+
+        $data['record'] = $d['data'];
+//        $data['jspaths'] = array("application/views/js/jquery.datetimepicker.js");
+        //$data['content'] = ;
+        echo $this->load->view("admin_vote_record",$data,true);
     }
 }

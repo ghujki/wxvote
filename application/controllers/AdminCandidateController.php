@@ -51,9 +51,9 @@ class AdminCandidateController extends AdminController
         $config['prev_link'] = "上一页";
 
         $this->pagination->initialize($config);
-        $data['links'] = $this->pagination->create_links();
+        $data['links'] = $this->pagination->create_ajax_links();
 
-        $this->render("admin_candi_list",$data);
+        echo $this->load->view("admin_candi_list",$data,true);
     }
 
     public function detail($candi_id) {
@@ -188,11 +188,15 @@ class AdminCandidateController extends AdminController
                 $user = $this->mpwechat->getUserInfo($number['app_id'],$number['secretkey'],$m);
                 $user['user_open_id'] = $m;
                 $user['app_id'] = $number['id'];
+                $user['union_id'] = $user['unionid'];
+
                 unset($user['openid']);
                 unset($user['subscribe']);
                 unset($user['remark']);
                 unset($user['accessToken']);
                 unset($user['groupid']);
+                unset($user['tagid_list']);
+                unset($user['unionid']);
                 $this->user->save($m,$number['id'],$user);
             }
             echo count($members);

@@ -59,10 +59,10 @@
         </section>
         <section class="row light-green">
             <div class="column col-xs-12 text-center">
-                <form action="index.php/VoteController/search" class="search-form">
-                    <input type="text" name="keywords" placeholder="输入名字或编号" class="search-txt"/>
+                <form action="index.php/VoteController/search" class="search-form" id="qform">
+                    <input type="text" name="keywords" placeholder="输入名字或编号" class="search-txt" value="<?=$keywords?>"/>
                     <input type="hidden" name="vote_id" value="<?=$vote['id']?>" />
-                    <a href="javascript:;" onclick="this.form.submit()" class="search-btn">搜索</a>
+                    <a href="javascript:;" onclick="document.getElementById('qform').submit()" class="search-btn">搜索</a>
                 </form>
             </div>
         </section>

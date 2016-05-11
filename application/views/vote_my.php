@@ -30,7 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <ul>
                 <?php foreach($candi_vote as $item):?>
                 <li>
-                    <img src="<?=$item['pic']?>" class="img-responsive"/> <?php if ($item['nickname']){echo $item['nickname'];} else {echo "有人";}?>给我投了一票 <?php echo date('Y-m-d H:i:s',$time['vote_time']);?>
+                    <img src="<?=$item['pic']?>" class="img-responsive"/> <?php if ($item['nickname']){echo $item['nickname'];} else {echo "有人";}?>给我投了一票 <?php echo date('Y-m-d H:i:s',$item['vote_time']);?>
                 </li>
                 <?php endforeach;?>
             </ul>

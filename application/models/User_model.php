@@ -32,10 +32,19 @@ class User_model extends CI_Model {
         return $q->row_array();
     }
 
-    public function getUsers($numberId,$start = 0,$limit = 0) {
+    public function getUserCount($number_id,$keywords) {
+        $this->db->where("app_id",$number_id);
+        $this->db->like("nickname",$keywords);
+        return $this->db->count_all_results("user");
+    }
+
+    public function getUsers($numberId,$keywords,$start = 0,$limit = 0) {
         $this->db->where("app_id",$numberId);
+        if ($keywords) {
+            $this->db->like("nickname",$keywords);
+        }
         if ($limit > 0) {
-            $this->db->limit($start, $limit);
+            $this->db->limit($limit, $start);
         }
         $q = $this->db->get("user");
         return $q->result_array();

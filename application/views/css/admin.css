@@ -30,7 +30,8 @@
     padding:.5em;
 }
 
-.admin-form tr td:first-child {
+.admin-form tr td:first-
+child {
     text-align:right;
 }
 .admin-form tr td:last-child {
