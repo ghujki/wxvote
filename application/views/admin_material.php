@@ -26,6 +26,7 @@
     }
     .item-row {border-top:1px solid #ccc;padding:.5em;font-size:small}
 </style>
+<link  rel="stylesheet" href="application/views/css/jquery.datetimepicker.css" />
 <div class="row">
     <div class="col-xs-12">
         <form class="admin-query">
@@ -40,10 +41,12 @@
                 <option value="<?=$number['id']?>" <?php if ($number['id'] == $id):?>selected<?php endif;?>><?=$number['app_name']?></option>
                 <?php endforeach;?>
             </select>
+            <button class="btn btn-default" onclick="postNewsMessages('<?=$number['id']?>',$('#material_container .grid-item.checked').attr('data-id'))">推送图文消息</button>
             <button class="btn btn-default" onclick="syncNewsMessages()">同步图文消息</button>
-            <button class="btn btn-default" onclick="addNewsMessages()">新建图文消息</button>
-            <button class="btn btn-default" onclick="editNewsMessage('<?=$number['id']?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
+            <button class="btn btn-default " disabled onclick="addNewsMessages()">新建图文消息</button>
+            <button class="btn btn-default" disabled onclick="editNewsMessage('<?=$number['id']?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
             <button class="btn btn-default" onclick="deleteMessage($('#material_container .grid-item.checked').attr('data-id'))">删除图文</button>
+            <button class="btn btn-default" id="job_btn" disabled data-toggle="modal" data-target="#jobModal">加入到推送任务</button>
         </div>
     </div>
     <div class="col-xs-12">
@@ -67,4 +70,29 @@
             </div>
         </div>
     </div>
+</div>
+<div class="modal fade" id="jobModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    设置推送时间
+                </h4>
+            </div>
+            <div class="modal-body">
+                推送时间：<input type="text" id="job_time" data-toggle="microtime" >
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="postNewsJob()">
+                    提交
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
 </div>

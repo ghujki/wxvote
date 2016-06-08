@@ -10,7 +10,7 @@ require "ResponseHandle.php";
 class CapterHandle extends ResponseHandle
 {
 
-    function handle($keyword, $fromUserName, $toUserName)
+    function handle($keyword, $fromUserName, $toUserName,$postObj)
     {
         $result = "";
         if ($keyword == "验证码") {

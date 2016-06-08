@@ -22,4 +22,50 @@ class TestController extends MY_Controller
     public function clean() {
         $this->session->sess_destroy();
     }
+
+    public function test_upload_img () {
+        $number_id = "3";
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($number_id);
+        $pic = "/upload/image_driver/1465195994.jpg";
+
+        $this->load->library("wx/MpWechat");
+
+        $res = $this->mpwechat->postPic($number['app_id'],$number['secretkey'],$pic);
+        echo json_encode($res);
+    }
+
+    public function test_get_media() {
+        $media_id = "J3hfnibVmqbnID8y6n9GAtL8kTErxooJAOVBYq7fqBOiauRrEiah6AIe7bx4B2ZLC0KPrgm7s85Q63PnrU5IxALow";
+        $number_id = "3";
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($number_id);
+        $this->load->library("wx/MpWechat");
+        $res = $this->mpwechat->getMaterial($number['app_id'],$number['secretkey'],$media_id);
+        echo json_encode($res);
+    }
+
+    public function test_realpath () {
+        $pic = APPPATH."../upload/image_driver/1465195994.jpg";
+        echo realpath($pic);
+    }
+
+    public function test_format () {
+        $time2 =  date("s i G j m N Y",time());
+        echo $time2;
+    }
+
+    public function test_update () {
+        $this->load->database();
+        $this->db->query("insert into wsg_test (t) values(" . mt_rand() . ")");
+    }
+
+    public function test_param () {
+        $media_id = $this->input->get("media_id");
+        echo "$media_id<br>";
+        if (strpos($media_id,"#") > 0) {
+            $media_id = trim(explode("#",$media_id)[0]);
+        }
+        echo "$media_id";
+    }
 }

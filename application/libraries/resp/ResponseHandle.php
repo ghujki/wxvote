@@ -8,7 +8,8 @@
  */
 abstract class ResponseHandle
 {
-    abstract function handle($keyword,$fromUserName,$toUserName);
+    
+    abstract function handle($keyword,$fromUserName,$toUserName,$postObj);
 
     protected function saveUser($fromUserName,$toUserName) {
 

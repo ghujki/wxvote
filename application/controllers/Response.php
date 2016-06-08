@@ -73,36 +73,93 @@ class Response extends MY_Controller {
 			$event = $msgType;
 			if ($msgType == 'event') {
 				$event = $msgEvent;
+				$keyword = $postObj->EventKey;
 			}
-
+			//error_log($postStr);
 			$this->load->model("Keywords_model","keywords");
 			$this->load->model("Material_model","material");
 			$ap = $this->app;
-			$keys = $this->keywords->getKeyword($ap['id'],$keyword,$event);
+			if (in_array($event,array('text','image',"voice","video","shortvideo","location"))) {
+				$temp_key = 'chat';
+				$keys = $this->keywords->getKeyword($ap['id'],null,$temp_key,$fromUsername);
+			}
+
+			if (count($keys) == 0) {
+				$keys = $this->keywords->getKeyword($ap['id'],$keyword,$event);
+			}
+			//保存
+			$message = array();
+			$message['fromusername'] = $fromUsername;
+			$message['tousername'] = $toUsername;
+			$message['event'] = $event;
+			$message['content'] = $keyword;
+			$message['msg_time'] = $time;
+			$message['original_content'] = $postStr;
+			$this->load->model("Wx_message_model","message");
+			$this->message->saveMessage($message);
 
 			if (count($keys)) {
 				$key = $keys[0];
 				if ($key['type'] == 0){
 					//文本回复
-					echo sprintf(MSG_TEXT,$fromUsername,$toUsername,$time,sprintf($key['content'],"open_id=".$fromUsername));
+					$feedback = sprintf(MSG_TEXT,$fromUsername,$toUsername,$time,sprintf($key['content'],"open_id=".$fromUsername));
+
+					$message = array();
+					$message['fromusername'] = $toUsername;
+					$message['tousername'] = $fromUsername;
+					$message['event'] = "msg_text";
+					$message['content'] = sprintf($key['content'],"open_id=".$fromUsername);
+					$message['msg_time'] = $time;
+					$message['original_content'] = $feedback;
+					$this->load->model("Wx_message_model","message");
+					$this->message->saveMessage($message);
+
+					echo $feedback;
+
 				} elseif ($key['type'] == 1) {
 					//图文回复
 					$materials = $this->material->getMaterialByMedia($keys[0]['media_id']);
 					$inner = '';
+					if (count($materials)) {
+						$title = $materials[0]['title'];
+					}
 					foreach($materials as $m) {
 						$inner .= sprintf(MSG_MULTI_PIC_TXT_INNER,$m['title'],$m['desc'],
 							'http://'.$_SERVER['HTTP_HOST'].$m['picurl'],sprintf($m['url'],"open_id=".$fromUsername));
 					}
 					$feedback = sprintf(MSG_MULTI_PIC_TXT_COVER,$fromUsername,$toUsername,$time,count($materials),$inner);
-					//error_log($feedback);
+
+					$message = array();
+					$message['fromusername'] = $toUsername;
+					$message['tousername'] = $fromUsername;
+					$message['event'] = "msg_news";
+					$message['content'] = $title;
+					$message['msg_time'] = $time;
+					$message['original_content'] = $feedback;
+					$this->load->model("Wx_message_model","message");
+					$this->message->saveMessage($message);
+
 					echo $feedback;
 				} elseif ($key['type'] == 2) {
 					//程序设定
 					$this->load->library($key['content'],NULL,"lib");
-					echo $this->lib->handle($keyword,$fromUsername,$toUsername);;
+					$feedback =  $this->lib->handle($keyword,$fromUsername,$toUsername,$postObj);
+
+					$message = array();
+					$message['fromusername'] = $toUsername;
+					$message['tousername'] = $fromUsername;
+					$message['event'] = "msg_handler";
+					$message['content'] = "";
+					$message['msg_time'] = $time;
+					$message['original_content'] = $feedback;
+					$this->load->model("Wx_message_model","message");
+					$this->message->saveMessage($message);
+
+					echo $feedback;
 				}
 			} else {
-				echo sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
+				$feedback = sprintf(MSG_SERVICER,$fromUsername,$toUsername,$time);
+				echo $feedback;
 			}
 
 //

@@ -214,4 +214,19 @@ class AdminCandidateController extends AdminController
         $this->candi->saveOrUpdateCandidate($candi);
         echo json_encode("ok");
     }
+
+    public function ajaxChangeStatus() {
+        $candi_id = $this->input->get("id");
+        $this->load->model("candidate_model","candi");
+        $candi = $this->candi->getCandidate($candi_id);
+        if ($candi) {
+            $candi['status'] = !$candi['status'];
+            $this->candi->saveOrUpdateCandidate($candi);
+            echo json_encode(array("errcode"=>"ok",
+                "status"=>($candi['status'] == 0 ? "正常":"冻结")));
+        } else {
+            echo json_encode(array("errcode"=>"ok"));
+        }
+    }
+    
 }

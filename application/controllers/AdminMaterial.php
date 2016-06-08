@@ -24,7 +24,7 @@ class AdminMaterial extends AdminController
         $this->load->model("material_model","m");
         $data['id'] = isset($id) ? $id :$numbers[0]['id'];
         $data['materials']  = $this->m->getNumberMaterials($data['id']);
-        $data['jspaths'] = array("application/views/js/masonry.pkgd.min.js","application/views/js/admin_material_masonry.js");
+        $data['jspaths'] = array("application/views/js/masonry.pkgd.min.js","application/views/js/admin_material_masonry.js","application/views/js/jquery.datetimepicker.js");
         $this->render("admin_material",$data);
     }
 
@@ -38,7 +38,6 @@ class AdminMaterial extends AdminController
         $data['jspaths'] = array("application/views/js/jquery.form.js","application/views/js/admin_material_edit.js");
         $this->render("admin_material_add",$data);
     }
-
     public function edit() {
         $nid = $this->input->get("number_id");
         $this->load->model("OfficialNumber_model", "model");
@@ -52,6 +51,24 @@ class AdminMaterial extends AdminController
         $data['news_materials'] = $mt;
         $data['jspaths'] = array("application/views/js/jquery.form.js","application/views/js/admin_material_edit.js");
         $this->render("admin_material_add",$data);
+    }
+
+
+
+    public function addJob() {
+        $number_id = $this->input->get("number_id");
+        $media_id = $this->input->get("media_id");
+        $time = $this->input->get("time");
+
+        $time = strtotime($time);
+        $time2 =  date("i G j n *",$time);
+
+        $this->load->library("cron/CrontabManager");
+        $job = $this->crontabmanager->newJob();
+        $job->on($time2)->doJob("curl http://rtzmy.com/index.php/RunJobController/post?number_id=$number_id\&media_id=$media_id");
+        $this->crontabmanager->add($job);
+        $this->crontabmanager->save();
+        echo json_encode("ok");
     }
 
     public function ajaxSync() {
@@ -79,6 +96,8 @@ class AdminMaterial extends AdminController
                 $matieral['author'] = $news_item['author'];
                 $matieral['url'] = $news_item['url'];
                 $matieral['picurl'] = $news_item['thumb_url'];
+                $matieral['synchronized'] = 1;
+                $material['content'] = $news_item['content'];
                 $this->material->save($matieral);
             }
         }

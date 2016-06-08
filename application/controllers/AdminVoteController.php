@@ -227,4 +227,6 @@ class AdminVoteController extends AdminController
         //$data['content'] = ;
         echo $this->load->view("admin_vote_record",$data,true);
     }
+
+    
 }

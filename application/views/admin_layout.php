@@ -37,6 +37,11 @@
                             <dd><a href="index.php/AdminVoteController">活动列表</a></dd>
                             <dd><a href="index.php/AdminVoteController/add">增加活动</a></dd>
                         </dl>
+
+                        <dl>
+                            <dt>任务管理</dt>
+                            <dd><a href="index.php/AdminJobController/listJobs">任务列表</a></dd>
+                        </dl>
                     </div>
                 </div>
                 <div class="col-xs-12 col-lg-9">

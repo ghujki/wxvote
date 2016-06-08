@@ -47,8 +47,6 @@
                                 <a href="index.php/VoteController/index?vote_id=<?=$item['id']?>" target="_blank">查看活动首页</a>
                                 <a data-src="index.php/AdminCandidateController/index?vote_id=<?=$item['id']?>" data-id="<?=$item['id']?>" target="#sub_content" data-toggle="collapse" href="#sub_content">管理报名选手</a>
                                 <a data-src="index.php/AdminVoteController/viewVoteRecord?vote_id=<?=$item['id']?>" data-id="<?=$item['id']?>" target="#sub_content" data-toggle="collapse" href="#sub_content">查看投票记录</a>
-                                <a href="#">奖品设定</a>
-                                <a href="#">获奖人员维护</a>
                                 <?php foreach($property_groups as $g):?>
                                     <a href="#sub_content" data-toggle="collapse" class="config" data-content="<?=$g['property_group']?>"
                                        data-id="<?=$item['id']?>"><?=$g['property_group']?></a>

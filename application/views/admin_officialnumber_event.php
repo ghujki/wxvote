@@ -177,7 +177,7 @@
                         type = "图文回复";
                     }else if (data.type == 2) {
                         type = "程序处理";
-                    };
+                    }
                     var str = "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + data.keywords + "</div> " +
                         "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + type + "</div> " +
                         "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + data.content + "</div> " +

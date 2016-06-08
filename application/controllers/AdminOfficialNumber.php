@@ -48,10 +48,10 @@ class AdminOfficialNumber extends AdminController
             $data['original_id'] = $this->input->post("original_id");
             $data['id'] = $this->input->post("id");
 
-
-                $config['upload_path']      = "./upload/wx/";
-                $config['allowed_types']    = 'gif|jpg|png|jpeg|bmp';
-                $config['max_size']     = 200;
+            if ($this->input->post("qrcode")) {
+                $config['upload_path'] = "./upload/wx/";
+                $config['allowed_types'] = 'gif|jpg|png|jpeg|bmp';
+                $config['max_size'] = 200;
                 $config['file_name'] = time();
 
                 $this->load->library('upload', $config);
@@ -61,7 +61,7 @@ class AdminOfficialNumber extends AdminController
 
                 $this->load->library('upload', $config);
 
-                $token_value = $this ->security->get_csrf_hash();
+                $token_value = $this->security->get_csrf_hash();
 
                 if (!$this->upload->do_upload('qrcode')) {
                     die(json_encode(array("error" => $this->upload->display_errors("", ""), "hash" => $token_value)));
@@ -70,7 +70,7 @@ class AdminOfficialNumber extends AdminController
                     $path = "/upload/wx/" . $data1['upload_data']['file_name'];
                     $data['qrcode'] = $path;
                 }
-
+            }
             $this->load->model("OfficialNumber_model", "model");
             $this->model->save($data);
             $this->index();
@@ -236,5 +236,15 @@ class AdminOfficialNumber extends AdminController
         $this->load->model("Keywords_model","key");
         $this->key->removeKeywords($id);
         echo json_encode("ok");
+    }
+
+    public function chatWith($id) {
+        $this->load->model("User_model","user");
+        $user = $this->user->getUser($id);
+        $this->load->model("Wx_message_model","message");
+        $messages = $this->message->getMessages($user['user_open_id']);
+        $data['user'] = $user;
+        $data['messages'] = $messages;
+        $this->render("admin_wx_message",$data);
     }
 }

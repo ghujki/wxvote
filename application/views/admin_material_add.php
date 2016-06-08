@@ -58,7 +58,7 @@
                 <div class="col-xs-4">
                    <p>图文列表</p>
 
-                    <?php $cover = array_shift($news_materials);?>
+                    <?php $cover = $news_materials ? array_shift($news_materials) : null;?>
                     <?php if ($cover) {?>
                         <figure class="news-item news-cover news-current" data-content-id="<?=$cover['id']?>" onclick="editNewsMessage(this)">
                             <img src="<?=$cover['picurl']?>" class="img-responsive" />
@@ -71,12 +71,14 @@
                         </figure>
                     <?php }?>
 
+                    <?php if ($news_materials) :?>
                     <?php foreach($news_materials as $material):?>
                     <div class="row news-item news-sub-item" onclick="editNewsMessage(this)">
                         <div class="col-xs-8 title"><?=$material['title']?></div>
                     <div class="col-xs-4"><img src="<?=$material['picurl']?>" class="img-responsive"></div>
                     </div>
                     <?php endforeach;?>
+                    <?php endif;?>
 
                     <div class="news-item news-add text-center">
                         <a href="javascript:;" onclick="addNewsMessage()">+</a>

@@ -10,27 +10,27 @@ class MpWechat {
 
 	public function getAccessToken($appId,$secretkey) //获取access_token
 	{
-//		$ci =& get_instance();
-//		$ci->load->model("OfficialNumber_model","num");
-//		$officialNumber = $ci->num->getOfficialNumberByAppId($appId);
-//		if ($officialNumber['id'] && $officialNumber['access_token'] && $officialNumber['expire_time'] > time()) {
-//			return $officialNumber['access_token'];
-//		}
+		$ci =& get_instance();
+		$ci->load->model("OfficialNumber_model","num");
+		$officialNumber = $ci->num->getOfficialNumberByAppId($appId);
+		if ($officialNumber['id'] && $officialNumber['access_token'] && $officialNumber['expire_time'] > time()) {
+			return trim($officialNumber['access_token']);
+		}
 
 		$url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".$appId."&secret=".$secretkey;
-		$data = getCurl($url);//通过自定义函数getCurl得到https的内容
+		$data = file_get_contents($url);//通过自定义函数getCurl得到https的内容
 		$resultArr = json_decode($data, true);//转为数组
 		if ($resultArr['errcode']) {
-			error_log($resultArr['errmsg']);
+			error_log($data);
 			return null;
 		}
+
 		$accessToken = $resultArr['access_token'];
-//		if ($officialNumber['id']) {
-//			error_log("to save official number".json_encode($officialNumber));
-//			$officialNumber['access_token'] = $accessToken;
-//			$officialNumber['expire_time'] = time() + 60;
-//			$ci->num->save($officialNumber);
-//		}
+		if (isset($officialNumber['id'])) {
+			$officialNumber['access_token'] = $accessToken;
+			$officialNumber['expire_time'] = time() + 7000;
+			$ci->num->save($officialNumber);
+		}
 		return $accessToken;
 	}
 
@@ -186,6 +186,68 @@ class MpWechat {
 		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token=$accessToken");
 		$result = json_decode($str,true);
 		return $result['item'];
+	}
+
+	public function getMaterial($appid,$secretkey,$media_id) {
+		$accessToken  = $this->getAccessToken($appid,$secretkey);
+		if ($accessToken == null) {
+			return array("errcode"=>"1","errmsg"=>"获得accesstoken出错");
+		}
+		$obj = array("media_id"=>$media_id);
+		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=$accessToken");
+		return json_decode($str,true);
+	}
+
+	public function postMedia ($appid,$secretkey,$file,$type) {
+		$accessToken  = $this->getAccessToken($appid,$secretkey);
+		if ($accessToken == null) {
+			return array("errcode"=>"1","errmsg"=>"获得accesstoken出错");
+		}
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_VERBOSE, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
+		curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=$accessToken&type=$type");
+		curl_setopt($ch, CURLOPT_POST, true);
+		// same as <input type="file" name="file_box">\
+		$cfile = new CURLFile(realpath(APPPATH."..".$file));
+		$post = array(
+			"media"=> $cfile //"@".APPPATH."..".$file
+		);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+		$response = curl_exec($ch);
+		return json_decode($response,true);
+	}
+
+	public function postNews($appid,$secretkey,$articles) {
+		$accessToken = $this->getAccessToken($appid,$secretkey);
+		if ($accessToken == null) {
+			return array("errcode"=>"1","errmsg"=>"获得accesstoken出错");
+		}
+		$obj = array();
+		foreach ($articles as $article) {
+			$item = array("thumb_media_id"=>$article['thumb_media_id'],
+				"author"=>$article["author"],
+				"title"=>$article["title"],
+				"content_source_url"=>$article["content_source_url"],
+				"content"=>$article["content"],
+				"digest"=>$article['digest'],
+				"show_cover_pic"=>$article['show_cover_pic']);
+			$obj["articles"][] = $item;
+		}
+		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=$accessToken");
+		return json_decode($str);
+	}
+
+	public function sendNewsMessage ($appid,$secretkey,$media_id) {
+		$accessToken = $this->getAccessToken($appid,$secretkey);
+		if ($accessToken == null) {
+			return array("errcode"=>"1","errmsg"=>"获得accesstoken出错");
+		}
+		$obj = array("filter"=>array("is_to_all"=>true),"mpnews"=>array("media_id"=>$media_id),"msgtype"=>"mpnews");
+		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/message/mass/sendall?access_token=$accessToken");
+		return json_decode($str);
 	}
 
 	public function getSignPackage($appid,$secretkey,$url = "") {

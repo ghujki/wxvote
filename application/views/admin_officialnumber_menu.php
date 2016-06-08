@@ -113,7 +113,7 @@
                      " <a class=\"dropdown-toggle\"  aria-expanded=\"true\">" + btn.name +
                      " </a> " ;
             if (btn.sub_button && btn.sub_button.length > 0) {
-                 li += "<ul class=\"dropdown-menu\">"
+                 li += "<ul class=\"dropdown-menu\">";
                  for (var j = 0; j < btn.sub_button.length; j++) {
                      var sub = btn.sub_button[j];
                      li += "<li><span>" + sub.name + "</span></li>";
