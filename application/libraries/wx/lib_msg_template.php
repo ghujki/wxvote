@@ -64,7 +64,22 @@ define("MSG_SERVICER", "<xml>
 </xml>");
 
 define("kf_txt_msg",json_encode(array("touser"=>'%s',"msgtype"=>"text","text"=>array("content"=>"%s"))));
-
+define("kf_txt_image",json_encode(array("touser"=>'%s',"msgtype"=>"image","image"=>array("media_id"=>"%s"))));
+define("kf_txt_voice",json_encode(array("touser"=>'%s',"msgtype"=>"voice","voice"=>array("media_id"=>"%s"))));
+define("kf_txt_video",json_encode(array("touser"=>'%s',"msgtype"=>"video","video"=>array("media_id"=>"%s","thumb_media_id"=>"%s","title"=>"%s","description"=>"%s"))));
+define("kf_txt_news",'
+{
+    "touser":"%s",
+    "msgtype":"news",
+    "news":{
+        "articles": [
+         {
+             "title":"我在这里",
+             "description":"%s",
+             "url":"%s",
+             "picurl":"%s"
+		 }]}
+}');
 define("kf_template_msg", json_encode(array("touser"=>"%s",
            "template_id"=>"%s",
            "url"=>"%s",

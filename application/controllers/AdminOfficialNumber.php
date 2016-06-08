@@ -46,12 +46,13 @@ class AdminOfficialNumber extends AdminController
             $data['token'] = $this->input->post("token");
             $data['authorized'] = $this->input->post("authorized");
             $data['original_id'] = $this->input->post("original_id");
+            $data['alias_name'] = $this->input->post("alias_name");
             $data['id'] = $this->input->post("id");
 
-
-                $config['upload_path']      = "./upload/wx/";
-                $config['allowed_types']    = 'gif|jpg|png|jpeg|bmp';
-                $config['max_size']     = 200;
+            if ($this->input->post("qrcode")) {
+                $config['upload_path'] = "./upload/wx/";
+                $config['allowed_types'] = 'gif|jpg|png|jpeg|bmp';
+                $config['max_size'] = 200;
                 $config['file_name'] = time();
 
                 $this->load->library('upload', $config);
@@ -61,7 +62,7 @@ class AdminOfficialNumber extends AdminController
 
                 $this->load->library('upload', $config);
 
-                $token_value = $this ->security->get_csrf_hash();
+                $token_value = $this->security->get_csrf_hash();
 
                 if (!$this->upload->do_upload('qrcode')) {
                     die(json_encode(array("error" => $this->upload->display_errors("", ""), "hash" => $token_value)));
@@ -70,7 +71,7 @@ class AdminOfficialNumber extends AdminController
                     $path = "/upload/wx/" . $data1['upload_data']['file_name'];
                     $data['qrcode'] = $path;
                 }
-
+            }
             $this->load->model("OfficialNumber_model", "model");
             $this->model->save($data);
             $this->index();
@@ -87,6 +88,13 @@ class AdminOfficialNumber extends AdminController
         $this->render("admin_official_number_edit",$data);
     }
 
+    public function remove ($id) {
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($id);
+        $this->model->removeNumber($id);
+        redirect("AdminOfficialNumber/index");
+    }
+
     public function ajaxMenuPage() {
         $id = $this->input->get("id");
 
@@ -101,16 +109,60 @@ class AdminOfficialNumber extends AdminController
         echo $content;
     }
 
-    public function ajaxKeywordsPage () {
+    public function ajaxKeywordsPage ($page=0) {
+        $page_size = 10;
         $id = $this->input->get("id");
         $data['id'] = $id;
         $this->load->model("Keywords_model","key");
-        $data['keywords'] = $this->key->getAllKeywords($id);
+        $data['keywords'] = $this->key->getAllKeywords($id,true);
 
         $this->load->model("Material_model","material");
-        $data['materials'] = $this->material->getNumberMaterials($id);
+        $materials = $this->material->getNumberMaterials($id,$page,$page_size);
+        $data['materials'] = $materials['data'];
 
+        $this->load->library('pagination');
+        $config['base_url'] = 'index.php/AdminOfficialNumber/ajaxKeywordsPage/';
+        $config['total_rows'] = $materials['count'];
+        $config['per_page'] = $page_size;
+        $config['num_links'] = 5;
+        $config['reuse_query_string'] = TRUE;
+        $config['first_link'] = '第一页';
+        $config['last_link'] = '最末页';
+        $config['next_link'] = "下一页";
+        $config['prev_link'] = "上一页";
+        $config['cur_page'] = $page ;
+
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_ajax_links();
+        $data['id'] = $id;
         $content = $this->load->view("admin_officialnumber_keyword",$data,TRUE);
+        echo $content;
+    }
+
+    public function ajaxNewsMaterial($page = 0) {
+        $page_size = 10;
+        $id = $this->input->get("id");
+        $this->load->model("Material_model","material");
+        $materials = $this->material->getNumberMaterials($id,$page,$page_size);
+        $data['materials'] = $materials['data'];
+
+        $this->load->library('pagination');
+        $config['base_url'] = 'index.php/AdminOfficialNumber/ajaxKeywordsPage/';
+        $config['total_rows'] = $materials['count'];
+        $config['per_page'] = $page_size;
+        $config['num_links'] = 5;
+        $config['reuse_query_string'] = TRUE;
+        $config['first_link'] = '第一页';
+        $config['last_link'] = '最末页';
+        $config['next_link'] = "下一页";
+        $config['prev_link'] = "上一页";
+        $config['cur_page'] = $page ;
+
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_ajax_links();
+
+
+        $content = $this->load->view("admin_material_pager",$data,TRUE);
         echo $content;
     }
 
@@ -236,5 +288,15 @@ class AdminOfficialNumber extends AdminController
         $this->load->model("Keywords_model","key");
         $this->key->removeKeywords($id);
         echo json_encode("ok");
+    }
+
+    public function chatWith($id) {
+        $this->load->model("User_model","user");
+        $user = $this->user->getUser($id);
+        $this->load->model("Wx_message_model","message");
+        $messages = $this->message->getMessages($user['user_open_id']);
+        $data['user'] = $user;
+        $data['messages'] = $messages;
+        $this->render("admin_wx_message",$data);
     }
 }

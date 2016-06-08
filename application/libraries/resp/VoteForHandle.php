@@ -10,8 +10,13 @@
 require "ResponseHandle.php";
 class VoteForHandle extends ResponseHandle {
 
-    public function handle($keyword,$fromUserName,$appId) {
-        $result = "";
+    public function handle($keyword,$fromUserName,$appId,$postObj) {
+        $result = $this->getResult($keyword,$fromUserName,$appId);
+        require "application/libraries/wx/lib_msg_template.php";
+        return sprintf(MSG_TEXT,$fromUserName,$appId,time(),$result);
+    }
+
+    private function getResult($keyword,$fromUserName,$appId) {
         if (strpos($keyword,"TP",0) === 0) {
             $id  = str_replace("TP","",$keyword);
             $CI =& get_instance();
@@ -22,63 +27,64 @@ class VoteForHandle extends ResponseHandle {
 
             $r = $this->saveUser($fromUserName,$appId);
             if($r['result']) {
-                $result = $r['result'];
+                return $r['result'];
             } else {
                 $user_id = $r['id'];
             }
 
-            if (empty($result)) {
-                $candidate = $CI->candidate->getCandidate($id);
-                //可能不存在
-                if ($candidate['id']) {
-                    //查询vote
-                    $vote = $CI->vote->getVote($candidate['vote_id']);
-                    //是否过期
-                    $time = time();
-                    if ($time < $vote['vote_start_time'] || $time > $vote['vote_end_time']) {
-                        $result = "现在不是投票期";
-                    } else {
-                        //判断是否已经投票
-                        $voted = $CI->vote->checkVoted($candidate['id'],$user_id,$vote['id']);
-                        if ($voted > 0) {
-                            $result = "已经给他/她投过票了";
-                        } else {
-                            $voteRecord['user_id'] = $user_id;
-                            $voteRecord['candidate_id'] = $candidate['id'];
-                            $voteRecord['vote_time'] = $time;
-                            $voteRecord['vote_id'] = $vote['id'];
-                            $voteRecord['ip'] = $CI->input->ip_address();
-                            $voteRecord['source'] = 2;
+            $candidate = $CI->candidate->getCandidate($id);
+            //可能不存在
+            if (empty($candidate['id'])) {
+                return "您投票的选手编号".$id."不存在";
+            }
 
-                            $CI->vote->vote($voteRecord);
+            //查询vote
+            $vote = $CI->vote->getVote($candidate['vote_id']);
+            //是否过期
+            $time = time();
+            if ($time < $vote['vote_start_time'] || $time > $vote['vote_end_time']) {
+                return "现在不是投票期";
+            }
 
-                            $voteandranks = $CI->candidate->getAllCountAndRank($vote['id']);
-                            $c = $voteandranks[$candidate['id']]['c'];
-                            $r = $voteandranks[$candidate['id']]['rank'];
+            //判断状态
+            if ($candidate['status']) {
+                return "该用户已经被冻结,暂时不能投票.如有异议请联系客服.";
+            }
 
-                            $result = "给" . $id . "号投票成功!" . "\n 截止到目前他/她的总票数" . $c
-                                . ",排名第" . $r;
+            //判断是否已经投票
+            $voted = $CI->vote->checkVoted($candidate['id'],$user_id,$vote['id']);
+            if ($voted > 0) {
+                return "已经给他/她投过票了";
+            }
+            $voteRecord['user_id'] = $user_id;
+            $voteRecord['candidate_id'] = $candidate['id'];
+            $voteRecord['vote_time'] = $time;
+            $voteRecord['vote_id'] = $vote['id'];
+            $voteRecord['ip'] = $CI->input->ip_address();
+            $voteRecord['source'] = 2;
 
-                            if ($r > 1) {
-                                foreach ($voteandranks as $vr) {
-                                    if ($vr['rank'] == $r - 1) {
-                                        $result .= ",比上一名差" . ($vr['c'] - $c) . "票";
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+            $CI->vote->vote($voteRecord);
+
+            $voteandranks = $CI->candidate->getAllCountAndRank($vote['id']);
+            $c = $voteandranks[$candidate['id']]['c'];
+            $r = $voteandranks[$candidate['id']]['rank'];
+
+            $result = "给" . $id . "号投票成功!" . "\n 截止到目前他/她的总票数" . $c
+                . ",排名第" . $r;
+
+            if ($r > 1) {
+                foreach ($voteandranks as $vr) {
+                    if ($vr['rank'] == $r - 1) {
+                        $result .= ",比上一名差" . ($vr['c'] - $c) . "票";
+                        break;
                     }
-                } else {
-                    $result = "您投票的选手编号".$id."不存在";
                 }
             }
-        } else {
-            $result = "程序映射错误";
-        }
+            return $result;
 
-        require "application/libraries/wx/lib_msg_template.php";
-        return sprintf(MSG_TEXT,$fromUserName,$appId,time(),$result);
+        } else {
+            return "程序映射错误";
+        }
     }
 }
 ?>

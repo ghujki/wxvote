@@ -36,5 +36,9 @@
     </div>
 </body>
 <script src="application/views/js/jquery-1.11.3.min.js"></script>
-<script src="application/views/js/jquery-1.11.3.min.js"></script>
+<script>
+    window.onload = function() {
+        $("#username").focus();
+    }
+</script>
 </html>

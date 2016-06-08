@@ -25,15 +25,30 @@ class Material_model extends  CI_Model
         }
     }
 
-    public function getNumberMaterials($nid) {
-        $this->db->where("app_id",$nid);
-        $q = $this->db->get("material");
+    public function getNumberMaterials($nid,$page = 0,$page_size = 20) {
+
+        $q = $this->db->query("select count(1) as c from (select distinct media_id from wsg_material where app_id=$nid) d");
+        $count = $q->row_array()['c'];
+
+        $sql = "select m.*  from wsg_material m , (select distinct media_id from wsg_material where app_id=$nid 
+                order by id asc limit $page,$page_size) d where m.media_id=d.media_id order by m.id asc";
+
+        $q = $this->db->query($sql);
         $rows = $q->result_array();
         $data = array();
         foreach ($rows as $row) {
             $data[$row['media_id']][] = $row;
         }
-        return $data;
+
+        $result['count'] = $count;
+        $result['data'] = $data;
+        return $result;
+    }
+
+
+    public function getMeterialCount($nid) {
+        $this->db->where("app_id",$nid);
+        return $this->db->count_all("material");
     }
 
     public function getMaterialByMedia($media_id) {

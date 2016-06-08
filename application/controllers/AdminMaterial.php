@@ -15,16 +15,35 @@ class AdminMaterial extends AdminController
         parent::__construct();
     }
 
-    public function index() {
+    public function index($start = 0) {
         $id = $this->input->get("id");
+        $page_size = 10;
         $this->load->model("OfficialNumber_model", "model");
         $numbers = $this->model->getNumbers(0,0);
         $data['numbers'] = $numbers;
 
         $this->load->model("material_model","m");
         $data['id'] = isset($id) ? $id :$numbers[0]['id'];
-        $data['materials']  = $this->m->getNumberMaterials($data['id']);
-        $data['jspaths'] = array("application/views/js/masonry.pkgd.min.js","application/views/js/admin_material_masonry.js");
+        $materials = $this->m->getNumberMaterials($data['id'],$start,$page_size);
+        $count = $materials['count'];
+        $data['materials']  = $materials['data'];
+
+        $this->load->library('pagination');
+        $config['base_url'] = 'index.php/AdminMaterial/index/';
+        $config['total_rows'] = $count;
+        $config['per_page'] = $page_size;
+        $config['num_links'] = 5;
+        $config['reuse_query_string'] = TRUE;
+        $config['first_link'] = '第一页';
+        $config['last_link'] = '最末页';
+        $config['next_link'] = "下一页";
+        $config['prev_link'] = "上一页";
+        $config['cur_page'] = $start ;
+
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+
+        $data['jspaths'] = array("application/views/js/masonry.pkgd.min.js","application/views/js/admin_material_masonry.js","application/views/js/jquery.datetimepicker.js");
         $this->render("admin_material",$data);
     }
 
@@ -38,7 +57,6 @@ class AdminMaterial extends AdminController
         $data['jspaths'] = array("application/views/js/jquery.form.js","application/views/js/admin_material_edit.js");
         $this->render("admin_material_add",$data);
     }
-
     public function edit() {
         $nid = $this->input->get("number_id");
         $this->load->model("OfficialNumber_model", "model");
@@ -54,13 +72,40 @@ class AdminMaterial extends AdminController
         $this->render("admin_material_add",$data);
     }
 
+
+
+    public function addJob() {
+        $number_id = $this->input->get("number_id");
+        $media_id = $this->input->get("media_id");
+        $time = $this->input->get("time");
+
+        $time = strtotime($time);
+        $time2 =  date("i G j n *",$time);
+
+        $this->load->library("cron/CrontabManager");
+        $job = $this->crontabmanager->newJob();
+        $job->on($time2)->doJob("curl http://rtzmy.com/index.php/RunJobController/post?number_id=$number_id\&media_id=$media_id");
+        $this->crontabmanager->add($job);
+        $this->crontabmanager->save();
+        echo json_encode("ok");
+    }
+
     public function ajaxSync() {
         $nid = $this->input->get("number_id");
         $this->load->model("OfficialNumber_model", "model");
         $number = $this->model->getOfficialNumber($nid);
         $this->load->library("wx/MpWechat");
-        $items = $this->mpwechat->getBatchNewsMaterial($number['app_id'], $number['secretkey']);
+        //看本地已经有多少图文
         $this->load->model("Material_model","material");
+        $local_number = $this->material->getMeterialCount(nid);
+        $remove_number = $this->mpwechat->getNewsCount($number['app_id'], $number['secretkey']);
+
+        if ($remove_number > $local_number) {
+            $offset = $remove_number - $local_number;
+        } else {
+            die(json_encode(0));
+        }
+        $items = $this->mpwechat->getBatchNewsMaterial($number['app_id'], $number['secretkey'],$offset);
         //save
         foreach ($items as $item) {
             //看是否已经存在
@@ -79,6 +124,8 @@ class AdminMaterial extends AdminController
                 $matieral['author'] = $news_item['author'];
                 $matieral['url'] = $news_item['url'];
                 $matieral['picurl'] = $news_item['thumb_url'];
+                $matieral['synchronized'] = 1;
+                $material['content'] = $news_item['content'];
                 $this->material->save($matieral);
             }
         }

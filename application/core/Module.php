@@ -69,6 +69,12 @@ class CI_Module {
 
 		log_message('debug', "$class_name Module Class Initialized");
 	}
+
+	public function render($file,$data = array()) {
+		$content = $this->load->view($file,$data,TRUE);
+		$data['content'] = $content;
+		$this->load->view("admin_layout",$data);
+	}
 }
 
 // END Module Class

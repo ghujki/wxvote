@@ -10,6 +10,10 @@
             <td width="70%"><input type="text" required name="app_name" placeholder="输入公众号名称" value="<?=$number['app_name']?>"/> </td>
         </tr>
         <tr>
+            <td width="30%">微信号</td>
+            <td width="70%"><input type="text" required name="alias_name" placeholder="输入微信号" value="<?=$number['alias_name']?>"/> </td>
+        </tr>
+        <tr>
             <td>APP_ID</td>
             <td><input type="text" required name="app_id" placeholder="appid,在微信后台找" value="<?=$number['app_id']?>"/> </td>
         </tr>
@@ -36,7 +40,9 @@
         <tr>
             <td>token</td>
             <td><input type="text" required name="token" placeholder="token,自动生成一个32位字符串" id="token" value="<?=$number['token']?>"/>
-                <a herf="javascript:;" onclick="generateRandomString()">自动生成</a></td>
+                <a herf="javascript:;" onclick="generateRandomString()">自动生成</a>
+                <div>将 http://<?php echo $_SERVER['HTTP_HOST']?>/index.php/Response/index/<span id="token_str"><?=$number['token']?></span> 设置到微信服务器url中.</div>
+            </td>
         </tr>
 
         <tr>
@@ -69,8 +75,10 @@
     }
 
     function generateRandomString() {
-        var str = randomString(32);
+        var str = randomString(16);
         document.getElementById('token').value = str;
+        document.getElementById('token_str').value = str;
+
     }
 
 </script>

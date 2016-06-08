@@ -60,6 +60,10 @@ class OfficialNumber_model extends CI_Model
         }
     }
 
+    public function removeNumber($id) {
+        return $this->db->delete("official_number","id=$id");
+    }
+
     public function getNumberByToken($token) {
         $this->db->where("token",$token);
         $q = $this->db->get("official_number");

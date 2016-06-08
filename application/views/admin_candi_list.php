@@ -37,12 +37,12 @@
                 <td><?=$candi['enroll_time']?></td>
                 <td class="vote_count"><?=$candi['vote_count']?></td>
                 <td><?=$candi['rank']?></td>
-                <td><?php if($candi['status'] == 0) :?>正常<?php else :?>冻结<?php endif;?></td>
+                <td class="candi_status"><?php if($candi['status'] == 0) :?>正常<?php else :?>冻结<?php endif;?></td>
                 <td>
                     <a href="index.php/AdminCandidateController/detail/<?=$candi['id']?>">详情</a>
                     <a href="javascript:;" onclick="changePriority('<?=$candi['id']?>',this)">增减票数</a>
-                    <a href="">冻结/解冻</a>
-                    <a href="">联系</a>
+                    <a href="javascript:;" onclick="changeStatus('<?=$candi['id']?>',this)">冻结/解冻</a>
+                    <a href="index.php/AdminOfficialNumber/chatWith/<?=$candi['user_id']?>" >联系</a>
                 </td>
             </tr>
             <?php endforeach;?>
@@ -71,5 +71,21 @@
             });
         }));
 
+    }
+
+    function changeStatus(id,obj) {
+        var target = $(obj).parents("tr").children(".candi_status");
+        $.ajax({
+            url:"index.php/AdminCandidateController/ajaxChangeStatus",
+            dataType:"json",
+            data:{id:id},
+            success:function(data) {
+                if (data.errcode == 'ok') {
+                    $(target).text(data.status);
+                } else {
+                    alert(data.errmsg);
+                }
+            }
+        });
     }
 </script>

@@ -69,12 +69,15 @@
 </div>
 
 <div class="modal fade" id="resp_news" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width:700px;">
         <div class="modal-content">
             <div class="close" ></div>
             <div class="modal-body" >
                 <div>
                     <p>选择回复素材</p>
+                    <div class="margin-top-10">
+                        <?=$links?> <button class="btn btn-default" onclick="respNews()">确定</button>
+                    </div>
                     <div class="grid clearfix">
                         <?php foreach ($materials as $m) :?>
                         <div class="grid-item" data-id="<?=$m[0]['media_id']?>">
@@ -93,9 +96,7 @@
                         <?php endforeach;?>
                     </div>
                 </div>
-                <div class="margin-top-10">
-                    <button class="btn btn-default" onclick="respNews()">确定</button>
-                </div>
+
             </div>
         </div><!-- /.modal-content -->
     </div>
@@ -173,7 +174,7 @@
                         type = "图文回复";
                     }else if (data.type == 2) {
                         type = "程序处理";
-                    };
+                    }
                     var str = "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + data.keywords + "</div> " +
                      "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + type + "</div> " +
                      "<div class=\"col-xs-3\" data-id=\"" + data.id + "\">" + data.content + "</div> " +
@@ -218,4 +219,40 @@
         $("#resp_pro").addClass("checked").children("a").before("<i class=\"fa fa-check\"></i>");
         $("#resp_program").modal("hide");
     }
+
+    function ajax_page(page) {
+        $.ajax({
+            url:"index.php/AdminOfficialNumber/ajaxNewsMaterial/" + page,
+            dataType:"text",
+            type:"get",
+            data:{id:'<?=$id?>'},
+            success:function(data) {
+                $("#resp_news .modal-body").empty().html(data);
+
+                $("#resp_news .grid-item").click(function() {
+                    $("#resp_news .grid-item").removeClass("checked");
+                    $(this).addClass("checked");
+                });
+
+                window.setTimeout(function(){
+                    $('.grid').masonry({
+                        itemSelector: '.grid-item',
+                        gutter:10
+                    });
+                },200);
+            },
+            error:function(e) {
+            }
+        });
+    }
+
+    $(function(){
+        $("#resp_news").on("shown.bs.modal",function(){
+            $('.grid').masonry({
+                // options
+                itemSelector: '.grid-item',
+                gutter:10
+            });
+        });
+    });
 </script>

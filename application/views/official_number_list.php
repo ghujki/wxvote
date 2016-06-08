@@ -60,7 +60,7 @@
                 <div class="col-xs-3"><?=$item['app_name']?></div>
                 <div class="col-xs-3"><span><?=$item['member_count']?></span><a href="javascript:;" onclick="syncMembers(<?=$item['id']?>,this)"> 同步 </div>
                 <div class="col-xs-3"><a href="index.php/AdminOfficialNumber/edit?id=<?=$item['id']?>">配置</a>&nbsp;
-                    <a href="">解除绑定</a>
+                    <a href="index.php/AdminOfficialNumber/remove/<?=$item['id']?>">解除绑定</a>
                 </div>
             </div>
             <div id="collapse<?=$item['id']?>" class="row panel-collapse collapse">

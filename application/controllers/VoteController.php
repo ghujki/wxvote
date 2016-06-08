@@ -208,6 +208,16 @@ class VoteController extends FrontController
         if ($vote['vote_start_time'] > time() || $vote['vote_end_time'] < time()) {
             die(json_encode(array("err"=>1,"info"=>"现在不是投票期")));
         }
+        //判断是否已经冻结
+        $this->load->model("candidate_model","candi");
+        $candi = $this->candi->getCandidate($candidate_id);
+        if ($candi['id']) {
+            if ($candi['status']) {
+                die (json_encode(array("err"=>1,"info"=>"该选手已经被冻结,请联系客服")));
+            }
+        } else {
+            die (json_encode(array("err"=>1,"info"=>"该选手不存在")));
+        }
         if ($token) {
             $this->load->model("VoteToken_model","token");
             $v_token = $this->token->getToken($token);

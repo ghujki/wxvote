@@ -32,10 +32,24 @@
                             <dt>素材管理</dt>
                             <dd><a href="index.php/AdminMaterial">素材列表</a></dd>
                         </dl>
+<!--                        <dl>-->
+<!--                            <dt>投票活动</dt>-->
+<!--                            <dd><a href="index.php/AdminVoteController">活动列表</a></dd>-->
+<!--                            <dd><a href="index.php/AdminVoteController/add">增加活动</a></dd>-->
+<!--                        </dl>-->
+
                         <dl>
-                            <dt>投票活动</dt>
-                            <dd><a href="index.php/AdminVoteController">活动列表</a></dd>
-                            <dd><a href="index.php/AdminVoteController/add">增加活动</a></dd>
+                            <dt>功能模块</dt>
+                            <dd><a href="index.php/module/chat_factory/IndexController">找人聊天</a></dd>
+                        </dl>
+
+                        <dl>
+                            <dt>任务管理</dt>
+                            <dd><a href="index.php/AdminJobController/listJobs">任务列表</a></dd>
+                        </dl>
+                        <dl>
+                            <dt>系统设置</dt>
+                            <dd><a href="index.php/AdminNavController/index">导航设置</a></dd>
                         </dl>
                     </div>
                 </div>
@@ -57,6 +71,5 @@
             <script type="text/javascript" src="<?=$path?>"></script>
         <?php endforeach;?>
         <?php endif;?>
-        <script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
     </body>
 </html>
