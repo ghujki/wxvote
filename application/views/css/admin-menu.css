@@ -1,0 +1,55 @@
+.nav-panel {
+    padding-bottom:50px;     /* 修改 */
+}
+
+.navbar {
+    margin-top:185px;
+}
+.navbar-nav>li {
+    width:160px;
+    border-left:1px solid #ccc;
+    border-right:1px solid #ccc;
+}
+.nav-item {
+    float:right;
+    display:none;
+    padding-right:10px;
+    cursor:pointer;
+    line-height: 1.42857143;
+}
+
+.navbar-nav>li span{
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+}
+
+.dropdown-menu>li {
+    padding:0.5em 0em;
+}
+.dropdown-menu>li:hover {
+    background-color:#00a0e9;
+}
+.dropdown-menu>li:hover i {
+    display:block;
+}
+.dropdown-toggle:hover i {
+    display:block;
+}
+/* add */
+.dropdown{
+    margin-right:10px;
+}
+
+ul.dropdown-menu.one {
+    position: absolute;
+    top: auto;
+    bottom:50px;
+    left:0;
+}
+li.dropdown.open.Big {
+    margin-right: 10px;
+}
