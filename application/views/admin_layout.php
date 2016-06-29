@@ -51,6 +51,11 @@
                             <dt>系统设置</dt>
                             <dd><a href="index.php/AdminNavController/index">导航设置</a></dd>
                         </dl>
+
+                        <dl>
+                            <dt>任务管理</dt>
+                            <dd><a href="index.php/AdminJobController/listJobs">任务列表</a></dd>
+                        </dl>
                     </div>
                 </div>
                 <div class="col-xs-12 col-lg-9">
