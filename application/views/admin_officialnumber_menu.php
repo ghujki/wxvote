@@ -78,24 +78,26 @@
     }
 
     function updateWxMenu(id) {
-        var str = $("#menu-code").val();
-        $.ajax({
-            url:"index.php/AdminOfficialNumber/ajaxUpdateMenu",
-            dataType:"json",
-            data:{'id':id,'menu_str':str},
-            success:function(data) {
-                if (data.errcode == 0) {
-                    alert('更新成功，一段时间后微信将更新菜单，或者重新关注公众号可立刻更新菜单');
-                } else {
-                    alert(data.errmsg);
+        if (window.confirm("本次操作将直接更新微信菜单,是否继续?")) {
+            var str = $("#menu-code").val();
+            $.ajax({
+                url: "index.php/AdminOfficialNumber/ajaxUpdateMenu",
+                dataType: "json",
+                data: {'id': id, 'menu_str': str},
+                success: function (data) {
+                    if (data.errcode == 0) {
+                        alert('更新成功，一段时间后微信将更新菜单，或者重新关注公众号可立刻更新菜单');
+                    } else {
+                        alert(data.errmsg);
+                    }
+                },
+                failure: function (e) {
+                    alert(e);
+                },
+                error: function (e) {
+                    alert(e);
                 }
-            },
-            failure:function(e) {
-                alert(e);
-            },
-            error:function (e) {
-                alert(e);
-            }
-        });
+            });
+        }
     }
 </script>
