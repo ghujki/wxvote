@@ -210,6 +210,7 @@ class MpWechat {
 		return json_decode($str,true);
 	}
 
+	//增加永久素材
 	public function postMedia ($appid,$secretkey,$file,$type) {
 		$accessToken  = $this->getAccessToken($appid,$secretkey);
 		if ($accessToken == null) {
@@ -220,12 +221,13 @@ class MpWechat {
 		curl_setopt($ch, CURLOPT_VERBOSE, 0);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
-		curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=$accessToken&type=$type");
+		curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=$accessToken");
 		curl_setopt($ch, CURLOPT_POST, true);
 		// same as <input type="file" name="file_box">\
 		$cfile = new CURLFile(realpath(APPPATH."..".$file));
 		$post = array(
-			"media"=> $cfile //"@".APPPATH."..".$file
+			"media"=> $cfile, //"@".APPPATH."..".$file,
+			"type"=>$$type
 		);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 		$response = curl_exec($ch);
@@ -248,7 +250,7 @@ class MpWechat {
 				"show_cover_pic"=>$article['show_cover_pic']);
 			$obj["articles"][] = $item;
 		}
-		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/media/uploadnews?access_token=$accessToken");
+		$str = dataPost(json_encode($obj,JSON_UNESCAPED_UNICODE),"https://api.weixin.qq.com/cgi-bin/material/add_news?access_token=$accessToken");
 		return json_decode($str);
 	}
 
@@ -295,6 +297,17 @@ class MpWechat {
 			$str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
 		}
 		return $str;
+	}
+
+	public function preview($appid,$secretkey,$toUser,$media_id) {
+		$accessToken = $this->getAccessToken($appid,$secretkey);
+		if ($accessToken == null) {
+			return array("errcode"=>"1","errmsg"=>"获得accesstoken出错");
+		}
+
+		$obj = array("touser"=>$toUser,"mpnews"=>array("media_id"=>$media_id),"msgtype"=>"mpnews");
+		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/message/mass/preview?access_token=$accessToken");
+		return json_decode($str);
 	}
 }
 ?>

@@ -4,6 +4,7 @@
 
 <div class="wxuser-content container-fluid">
     <div>用户列表 &nbsp; <a href="javascript:;" onclick="syncWxUsers()">同步微信用户</a>
+        <input type="text" id="keywords" onblur="ajax_page('<?=$start?>')">
         <div class="float-right" >已选：<span id="selected"></span><input type="hidden" id="selectedId"></div>
     </div>
     <?php if($users) :?>
@@ -20,7 +21,7 @@
     <?php endif;?>
     <p><?=$links?></p>
 </div>
-<button class="btn btn-default" onclick="bindUser()">确定</button>
+<button class="btn btn-default customed-confirm" onclick="bindUser()">确定</button>
 <script>
     function checkThis(id,obj) {
         $(".wxuser_item").removeClass("checked");
@@ -30,14 +31,16 @@
     }
 
     function syncWxUsers() {
-        $.ajax({
-            url:'index.php/AdminCandidateController/syncWxUser',
-            dateType:'json',
-            data:{'number_id':'<?=$number_id?>'},
-            success:function() {
-                $("#modal2").modal("hide");
-            }
-        });
+        if (confirm("本次操作可能会造成几分钟的卡顿,是否继续?")) {
+            $.ajax({
+                url: 'index.php/AdminCandidateController/syncWxUser',
+                dateType: 'json',
+                data: {'number_id': '<?=$number_id?>'},
+                success: function () {
+                    $("#modal2").modal("hide");
+                }
+            });
+        }
     }
 
     function bindUser() {
@@ -55,12 +58,15 @@
     }
 
     function ajax_page(start) {
+        var t = event.target;
+        var keywords = $("#keywords").val();
         $.ajax({
             url:"index.php/AdminOfficialNumber/ajaxShowUsers",
             dataType:"text",
-            data: {'id':'<?=$number_id?>',start:start},
+            data: {'id':'<?=$number_id?>',start:start,keywords:keywords},
             success:function(data) {
-                $("#subContent<?=$number_id?>").html(data);
+                $(t).parents(".wxuser-content").parent().html(data);
+                //$("#subContent<?=$number_id?>").html(data);
                 window.setTimeout(function(){
                     $(".wxuser-list").masonry({
                         itemSelector : '.wxuser_item'

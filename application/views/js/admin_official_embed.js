@@ -122,16 +122,18 @@ function formatJson(json) {
 }
 
 function syncMembers(id,obj) {
-    $.ajax({
-        url:'index.php/AdminOfficialNumber/ajaxSyncMember',
-        dataType:'json',
-        data:{id:id},
-        success:function(data) {
-            if (data['errinfo']) {
-                alert(data['errinfo']);
-            } else {
-                $(obj).parent().children("span").text(data);
+    if (confirm("该操作会将微信服务器上的用户同步到本平台,数据量大时会造成服务器几分钟的卡顿,确认要继续操作吗?")) {
+        $.ajax({
+            url: 'index.php/AdminOfficialNumber/ajaxSyncMember',
+            dataType: 'json',
+            data: {id: id},
+            success: function (data) {
+                if (data['errinfo']) {
+                    alert(data['errinfo']);
+                } else {
+                    $(obj).parent().children("span").text(data);
+                }
             }
-        }
-    });
+        });
+    }
 }

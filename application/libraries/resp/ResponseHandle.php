@@ -24,7 +24,6 @@ abstract class ResponseHandle
         }
         //查询访问者
         $user = $CI->user->getUserByOpenId($fromUserName);
-
         //如果没有保存,则保存起来
         $CI->load->library("wx/MpWechat");
         $userinfo = $CI->mpwechat->getUserInfo($app['app_id'],$app['secretkey'],$fromUserName);

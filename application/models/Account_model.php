@@ -31,8 +31,33 @@ class Account_model extends CI_Model
         return $query->row_array();
     }
 
+    public function getById($id) {
+        $this->db->where("id",$id);
+        $query = $this->db->get("account");
+        return $query->row_array();
+    }
+
     public function updateLastLogin() {
 
+    }
+
+    public function saveOrUpdate($account) {
+        if ($account['id']) {
+            $this->db->update("account",$account,"id=$account[id]");
+        } else {
+            $this->db->insert("account",$account);
+        }
+    }
+
+    public function getAccounts($start = 0,$limit = 30,$keywords = "") {
+        $this->db->like("username",$keywords);
+        $data['num'] = $this->db->count_all_results("account");
+
+        $this->db->like("username",$keywords);
+        $this->db->limit($limit,$start);
+        $q = $this->db->get("account");
+        $data['data'] = $q->result_array();
+        return $data;
     }
     
 }

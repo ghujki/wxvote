@@ -80,7 +80,7 @@
                 <div>
                     <p>选择回复素材</p>
                     <div class="grid clearfix">
-                        <?php foreach ($materials as $m) :?>
+                        <?php foreach ($materials['data'] as $m) :?>
                             <div class="grid-item" data-id="<?=$m[0]['media_id']?>">
                                 <?php $cover = array_shift($m);?>
                                 <figure>

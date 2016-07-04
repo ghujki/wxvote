@@ -15,7 +15,7 @@ class Material_model extends  CI_Model
     }
 
     public function save($data) {
-        if ($data['id'] ) {
+        if ($data['id'] > 0 ) {
             $this->db->where("id",$data['id']);
             $this->db->update("material",$data);
             return $data['id'];
@@ -25,13 +25,13 @@ class Material_model extends  CI_Model
         }
     }
 
-    public function getNumberMaterials($nid,$page = 0,$page_size = 20) {
+    public function getNumberMaterials($nid,$page = 0,$page_size = 20,$keywords='') {
 
-        $q = $this->db->query("select count(1) as c from (select distinct media_id from wsg_material where app_id=$nid) d");
+        $q = $this->db->query("select count(1) as c from (select distinct media_id from wsg_material where app_id=$nid and title like '%$keywords%') d");
         $count = $q->row_array()['c'];
 
-        $sql = "select m.*  from wsg_material m , (select distinct media_id from wsg_material where app_id=$nid 
-                order by id asc limit $page,$page_size) d where m.media_id=d.media_id order by m.id asc";
+        $sql = "select m.*  from wsg_material m , (select distinct media_id from wsg_material where app_id=$nid and title like '%$keywords%'
+                order by id asc limit $page,$page_size) d where m.media_id=d.media_id order by m.sort asc,m.id asc";
 
         $q = $this->db->query($sql);
         $rows = $q->result_array();
@@ -53,6 +53,8 @@ class Material_model extends  CI_Model
 
     public function getMaterialByMedia($media_id) {
         $this->db->where("media_id",$media_id);
+        $this->db->order_by("sort","asc");
+        $this->db->order_by("id","asc");
         $q = $this->db->get("material");
         return $q->result_array();
     }
@@ -60,5 +62,21 @@ class Material_model extends  CI_Model
     public function remove($media_id) {
         $this->db->where("media_id",$media_id);
         $this->db->delete("material");
+    }
+
+    public function removeMaterial($id) {
+        $this->db->where("id",$id);
+        $this->db->delete("material");
+    }
+
+    public function updateSort($material_id,$sort) {
+        $arr = Array("sort"=>$sort);
+        $this->db->update("material",$arr,"id=$material_id");
+    }
+
+    public function getMaterial($id) {
+        $this->db->where("id",$id);
+        $q = $this->db->get("material");
+        return $q->row_array();
     }
 }

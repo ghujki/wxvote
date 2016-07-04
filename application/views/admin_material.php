@@ -3,9 +3,8 @@
 ?>
 <style>
     .m-head {
-        margin-top:20px;
         border-bottom:1px solid #ccc;
-        padding:1em;
+        padding-bottom:1em;
     }
     .grid {
         margin-top:10px;
@@ -25,12 +24,36 @@
         opacity: .8;
     }
     .item-row {border-top:1px solid #ccc;padding:.5em;font-size:small}
+    .media-tools {
+        display:none;
+        position: absolute;
+        top: 0px;
+        left: 0;
+    }
+    .grid-item.checked .media-tools {
+        display:block;
+    }
+
+    .wxuser-content .wxuser_item {
+        width: 100px;
+        float: left;
+        margin-right: 10px;
+        font-size: smaller;
+        word-break: break-all;
+    }
+
+    .wxuser-content .wxuser_item.checked {
+        border:1px solid green;
+    }
+    .customed-confirm {display:none;}
 </style>
 <link  rel="stylesheet" href="application/views/css/jquery.datetimepicker.css" />
+<link  rel="stylesheet" href="application/views/css/tinyselect.css" />
 <div class="row">
     <div class="col-xs-12">
-        <form class="admin-query">
-            <input type="text" placeholder="查询条件" name="query">
+        <form class="admin-query" onsubmit="checkQuery()">
+            <input type="text" placeholder="查询条件" name="query" value="<?=$query?>">
+            <input type="hidden" name="id" id="query_id" value="<?=$id?>" />
             <input type="submit" value="查询">
         </form>
     </div>
@@ -41,12 +64,13 @@
                 <option value="<?=$number['id']?>" <?php if ($number['id'] == $id):?>selected<?php endif;?>><?=$number['app_name']?></option>
                 <?php endforeach;?>
             </select>
-            <button class="btn btn-default" onclick="postNewsMessages('<?=$number['id']?>',$('#material_container .grid-item.checked').attr('data-id'))">推送图文消息</button>
+            <button class="btn btn-default" onclick="postNewsMessages('<?=$id?>',$('#material_container .grid-item.checked').attr('data-id'))">推送图文消息</button>
             <button class="btn btn-default" onclick="syncNewsMessages()">同步图文消息</button>
-            <button class="btn btn-default " disabled onclick="addNewsMessages()">新建图文消息</button>
-            <button class="btn btn-default" disabled onclick="editNewsMessage('<?=$number['id']?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
+            <button class="btn btn-default " onclick="addNewsMessages()">新建图文消息</button>
+            <button class="btn btn-default" onclick="editNewsMessage('<?=$id?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
             <button class="btn btn-default" onclick="deleteMessage($('#material_container .grid-item.checked').attr('data-id'))">删除图文</button>
             <button class="btn btn-default" id="job_btn" disabled data-toggle="modal" data-target="#jobModal">加入到推送任务</button>
+
         </div>
     </div>
     <div class="col-xs-12">
@@ -58,14 +82,19 @@
                 <?php $cover = array_shift($m);?>
                 <figure>
                     <img src="<?=$cover['picurl']?>" class="img-responsive">
-                    <figcaption><a href="<?=$cover['url']?>" target="_blank"><?=$cover['title']?></a></figcaption>
+                    <figcaption><a <?php if($cover['url']) {?> href="<?=$cover['url']?>" <?php } else { echo "href=\"index.php/AdminMaterial/preview/$cover[id]\"";}?> target="_blank"><?=$cover['title']?></a></figcaption>
                 </figure>
                 <?php foreach ($m as $item): ?>
                     <div class="row item-row">
-                        <div class="col-xs-8"><a href="<?=$item['url']?>" target="_blank"><?=$item['title']?></a></div>
+                        <div class="col-xs-8"><a <?php if($item['url']) {?> href="<?=$item['url']?>" <?php } else { echo "href=\"index.php/AdminMaterial/preview/$item[id]\"";}?> target="_blank"><?=$item['title']?></a></div>
                         <div class="col-xs-4"><img src="<?=$item['picurl']?>" class="img-responsive"></div>
                     </div>
                 <?php endforeach; ?>
+                <?php if ($cover['synchronized']) {?>
+                <div class="media-tools">
+                    <button class="btn btn-default" id="mobile-preview"  data-toggle="modal" data-target="#prevModal" onclick="view_users('<?=$cover["app_id"]?>')">手机预览</button>
+                </div>
+                <?php }?>
             </div>
             <?php endforeach;?>
             </div>
@@ -97,3 +126,87 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
+
+<div class="modal fade" id="prevModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    选择接受者
+                </h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="mt_preview()">
+                    提交
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<script>
+    function view_users(id) {
+        $.ajax({
+            url:"index.php/AdminOfficialNumber/ajaxShowUsers",
+            dataType:"text",
+            data: { id: id},
+            success:function (data) {
+                $("#prevModal .modal-body").html(data);
+                window.setTimeout(function(){
+                    $(".wxuser-list").masonry({
+                        itemSelector : '.wxuser_item'
+                    });
+                },500);
+            }
+        });
+    }
+
+    function mt_preview () {
+        var id = $("#selectedId").val();
+        var media_id = $(".grid-item.checked").attr("data-id");
+        if (id != null && id != '' ) {
+            $.ajax({
+                url:"index.php/AdminMaterial/mobilePreview",
+                dataType:"json",
+                data:{"uid":id,"mid":media_id},
+                success:function(data) {
+                    if (data.errcode) {
+                        alert(data.errmsg);
+                    } else {
+                        $("#prevModal").modal("hide");
+                        alert("发送成功");
+                    }
+                }
+            });
+        }
+    }
+    function customed_page (nid,start) {
+        $.ajax({
+            url:"index.php/AdminOfficialNumber/ajaxShowUsers",
+            dataType:"text",
+            data: {'id':nid,start:start},
+            success:function(data) {
+                $("#prevModal .modal-body").html(data);
+                window.setTimeout(function(){
+                    $(".wxuser-list").masonry({
+                        itemSelector : '.wxuser_item'
+                    });
+                },500);
+            }
+        });
+    }
+
+    function checkQuery() {
+        $("#query_id").val($("#number_id").val());
+        return true;
+    }
+</script>

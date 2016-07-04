@@ -23,38 +23,19 @@
             <div class="row">
                 <div class="col-xs-12 col-lg-3">
                     <div class="admin-menu">
+                        <?php $menus = get_menu(); ?>
+                        <?php foreach ($menus as $menu) {
+                            if ($menu['account']) {
+                            if ($menu['level'] == 1) {?>
+                            <dt><?=$menu['menu_name']?></dt>
+                            <?php } elseif ($menu['level'] == 2) {?>
+                            <dd>
+                                <a href="<?=$menu['url']?>"><?=$menu['menu_name']?></a>
+                            </dd>
+                            <?php }?>
+                        <?php }}?>
                         <dl>
-                            <dt>公众号管理</dt>
-                            <dd><a href="index.php/AdminOfficialNumber">公众号维护</a></dd>
-                            <dd><a href="index.php/AdminOfficialNumber/add">增加公众号</a></dd>
-                        </dl>
-                        <dl>
-                            <dt>素材管理</dt>
-                            <dd><a href="index.php/AdminMaterial">素材列表</a></dd>
-                        </dl>
-<!--                        <dl>-->
-<!--                            <dt>投票活动</dt>-->
-<!--                            <dd><a href="index.php/AdminVoteController">活动列表</a></dd>-->
-<!--                            <dd><a href="index.php/AdminVoteController/add">增加活动</a></dd>-->
-<!--                        </dl>-->
-
-                        <dl>
-                            <dt>功能模块</dt>
-                            <dd><a href="index.php/module/chat_factory/IndexController">找人聊天</a></dd>
-                        </dl>
-
-                        <dl>
-                            <dt>任务管理</dt>
-                            <dd><a href="index.php/AdminJobController/listJobs">任务列表</a></dd>
-                        </dl>
-                        <dl>
-                            <dt>系统设置</dt>
-                            <dd><a href="index.php/AdminNavController/index">导航设置</a></dd>
-                        </dl>
-
-                        <dl>
-                            <dt>任务管理</dt>
-                            <dd><a href="index.php/AdminJobController/listJobs">任务列表</a></dd>
+                            <dd><a href="index.php/AdminController/logout">退出</a></dd>
                         </dl>
                     </div>
                 </div>

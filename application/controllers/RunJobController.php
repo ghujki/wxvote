@@ -38,13 +38,15 @@ class RunJobController extends MY_Controller
         $this->load->library("wx/MpWechat",null,"mpwechat");
 
         $need_sync = false;
-        foreach ($mt as $material) {
+        foreach ($mt as $key=>$material) {
             if (!$material['synchronized']) {
                 $need_sync = true;
-                $res = $this->mpwechat->postPic($number['app_id'],$number['secretkey'],$material['picurl'],"thumb");
+                $res = $this->mpwechat->postMedia($number['app_id'],$number['secretkey'],$material['picurl'],"image");
+
                 if ($res['media_id']) {
                     $material['thumb_media_id'] = $res['media_id'];
                     $this->material->save($material);
+                    $mt[$key] = $material;
                 }
             }
         }
@@ -52,14 +54,15 @@ class RunJobController extends MY_Controller
 
         if ($need_sync) {
             $res = $this->mpwechat->postNews($number['app_id'], $number['secretkey'], $mt);
-            if ($res['media_id']) {
-                foreach ($mt as $material) {
-                    $material['media_id'] = $res['media_id'];
+
+            if ($res->media_id) {
+                foreach ($mt as $key=>$material) {
+                    $material['media_id'] = $res->media_id;
                     $material['synchronized'] = 1;
                     $this->material->save($material);
-                }
-
-                $media_id = $res['media_id'];
+                    $mt[$key]['media_id'] = $res->media_id;
+                 }
+                $media_id = $res->media_id;
             }
         }
 

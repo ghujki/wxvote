@@ -160,9 +160,26 @@ class ChatFactoryHandle extends ResponseHandle {
             //为对方新建一个waiting
             $waiting =  array("user1_id"=>$another['id'],"status"=>0,"wait_time"=>time());
             $this->match_md->save_match($waiting);
+            //自己新建一个waiting
+            $waiting =  array("user1_id"=>$user_id,"status"=>0,"wait_time"=>time());
+            $this->match_md->save_match($waiting);
+
             return "**你退出了匹配**";
         }
         return "**你退出了匹配**";
+    }
+
+    public function remove($fromUserName,$toUserName) {
+        $this->quit($fromUserName,$toUserName);
+
+        $user_id = $this->saveUser($fromUserName,$toUserName)['id'];
+        $this->load->model("UserMatches_model","match_md");
+
+        $my_waiting = $this->match_md->get_match_waiting($user_id);
+        if ($my_waiting['id']) {
+            $this->match_md->delete_match($my_waiting['id']);
+        }
+        return "==您退出了聊天,欢迎再来!==";
     }
 
     public function who($fromUserName,$toUserName) {
@@ -180,5 +197,4 @@ class ChatFactoryHandle extends ResponseHandle {
         }
         return "**你还没有加入聊天**";
     }
-    
 }

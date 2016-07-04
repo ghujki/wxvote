@@ -42,7 +42,7 @@
     <div class="row">
         <div class="col-xs-12">
             <form class="admin-query">
-                <input type="text" placeholder="查询条件" name="query">
+                <input type="text" placeholder="<?=$query?>" name="query" >
                 <input type="submit" value="查询">
             </form>
         </div>

@@ -14,11 +14,12 @@ class OfficialNumber_model extends CI_Model
         $this->load->database();
     }
 
-    public function getNumbers($start = 0,$limit = 20) {
+    public function getNumbers($keywords = "",$start = 0,$limit = 20) {
         $this->db->order_by("create_time","DESC");
         if ($limit > 0) {
             $this->db->limit($start, $limit);
         }
+        $this->db->like ("app_name",$keywords,"both");
         $query = $this->db->get("official_number");
         return $query->result_array();
     }
@@ -78,5 +79,19 @@ class OfficialNumber_model extends CI_Model
             $results[$row['app_id']] = $row['c'];
         }
         return $results;
+    }
+
+    public function get_numbers_with_check($account_id) {
+        $sql = "select n.* ,a.account_id from wsg_official_number n left join (select * from wsg_official_number_access where account_id='$account_id') a on n.id = a.app_id";
+        $q = $this->db->query($sql);
+        return $q->result_array();
+    }
+
+    public function clear_number_access($account_id) {
+        $this->db->delete("official_number_access","account_id=$account_id");
+    }
+
+    public function save_access ($access) {
+        $this->db->insert("official_number_access",$access);
     }
 }

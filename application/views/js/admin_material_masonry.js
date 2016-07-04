@@ -1,11 +1,18 @@
 /**
  * Created by ghujk on 2016/4/25.
  */
-$('.grid').masonry({
-    // options
-    itemSelector: '.grid-item',
-    gutter:10
+$(function() {
+    window.setTimeout(function(){
+        $('.grid').masonry({
+            // options
+            itemSelector: '.grid-item',
+            gutter:10
+        });
+    },200);
+
+    $("#number_id").tinyselect();
 });
+
 
 
 $("#number_id").change(function() {
@@ -13,12 +20,17 @@ $("#number_id").change(function() {
 });
 
 function syncNewsMessages() {
-
     var nid = $("#number_id").val();
+    var mid = $(".grid-item.checked").attr("data-id");
+    if (mid == null || mid == '') {
+        if (!confirm("该操作将同步微信服务器上的所有图文消息到平台,可能会造成服务器一段时间的卡顿,是否继续?")) {
+            return;
+        }
+    }
     $.ajax({
             url: 'index.php/AdminMaterial/ajaxSync',
             dataType: 'json',
-            data: {"number_id": nid},
+            data: {"number_id": nid,"media_id":mid},
             success: function (data) {
                 if (data.errcode) {
                     alert(data.errmsg);
@@ -58,7 +70,7 @@ function addNewsMessages() {
 function postNewsMessages(nid,id) {
     if (window.confirm("确定要推送这一条图文吗?")) {
         $.ajax({
-            url:"index.php/AdminMaterial/post",
+            url:"index.php/RunJobController/post",
             dataType:"json",
             type:"get",
             data:{"number_id":nid,"media_id":id},

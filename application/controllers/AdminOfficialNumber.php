@@ -13,12 +13,14 @@ class AdminOfficialNumber extends AdminController
 
     public function index($start = 0) {
         //account list page
+        $keywords = $this->input->get("query");
         $this->load->model("OfficialNumber_model","model");
-        $numbers = $this->model->getNumbers();
+        $numbers = $this->model->getNumbers($keywords);
         $memberCount = $this->model->getOfficialMemberCount();
         for($i = 0;$i < count($numbers);$i++) {
             $numbers[$i]['member_count'] = isset($memberCount[$numbers[$i]['id']]) ? $memberCount[$numbers[$i]['id']] : 0;
         }
+        $data['query'] = $keywords;
         $data['numbers'] = $numbers;
         $data['title'] = "公众号列表";
         $data['jspaths'] = array("application/views/js/admin_official_embed.js","application/views/js/jquery.form.js","application/views/js/masonry.pkgd.min.js");
@@ -218,6 +220,7 @@ class AdminOfficialNumber extends AdminController
 
         $this->pagination->initialize($config);
         $data['links'] = $this->pagination->create_ajax_links();
+        $data['start'] = $start ;
 
         echo $this->load->view("admin_user_list",$data,TRUE);
     }

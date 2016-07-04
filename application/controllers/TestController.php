@@ -76,4 +76,10 @@ class TestController extends MY_Controller
         $param = $_GET['param'];
         header('Location:'.$url.(strpos($url,"?") ? "&":"?").$param);
     }
+
+    public function test_array() {
+        $a  = array(1,2,3);
+        $b = array(1,2);
+        echo array_intersect($a,$b) == $b;
+    }
 }

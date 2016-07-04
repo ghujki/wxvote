@@ -15,18 +15,12 @@ class AdminController extends MY_Controller
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
 
-        //auth check
-//        if ($this->router->class == "AdminController" &&
-//            !in_array($this->router->method,array("index","login")) &&
-//            $this->checkLogin()) {
-//            die("you are not allowed");
-//        }
         if(!$this->checkLogin() && !($this->router->class == "AdminController" &&
             in_array($this->router->method,array("index","login")))) {
             redirect("AdminController/index");
             exit;
-            //die("you are not allowed");
         }
+        $this->load->helper("menu_helper");
     }
 
     public function index(){
@@ -64,6 +58,8 @@ class AdminController extends MY_Controller
                 $this->load->model("AccountLoginRecord","loginModel");
                 $this->loginModel->newLogin($account['id']);
                 //session record
+                $this->session->set_userdata("wsg_user_id",$account['id']);
+                $this->session->set_userdata("wsg_user_name",$username);
                 $this->session->set_userdata("user_role",AdminController::$ADMIN_ROLE);
                 redirect("AdminOfficialNumber");
             } else {
@@ -77,5 +73,55 @@ class AdminController extends MY_Controller
         $content = $this->load->view($file,$data,TRUE);
         $data['content'] = $content;
         $this->load->view("admin_layout",$data);
+    }
+
+    public function captcha() {
+        $vals=array(
+            'word'=>mt_rand(1000,10000),//显示纯数字，这里有人不知道怎么做
+            'img_path'=>'./captcha/',
+            'img_url'=>base_url()."captcha/",
+            'expiration'=>7200
+        );
+        $this->load->helper("captcha");
+        $cap=create_captcha($vals);
+        $num=$cap['word'];
+        $file = $cap['filename'];
+        $this->session->set_userdata("captcha",$num);
+        $this->session->set_userdata("captcha_expire",time() + $vals['expiration']);
+        $file_path = $vals['img_path'].$file;
+        $file_content = file_get_contents($file_path);
+        @unlink($file_path);
+        $this->output->set_content_type('jpeg')->set_output($file_content);
+    }
+
+    protected function valid_captcha($code) {
+        $expire = $this->session->userdata("captcha_expire");
+        $captcha = $this->session->userdata("captcha");
+
+        if ($expire > time() && $captcha == $code) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function can_show($controller = "AdminController",$method = 'index',$id = '') {
+        $username = $this->session->userdata("wsg_user_name");
+        if ($username == null) {
+            return false;
+        }
+        $user_id = $this->session->userdata("wsg_user_id");
+        $this->load->model("Privilege_model","m");
+        $pris = $this->m->getPrivileges($user_id,$controller,$method);
+        if ($pris != null && in_array($id,explode(",",$pris[0]["ids"]))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function logout() {
+        $this->session->sess_destroy();
+        redirect("/");
     }
 }
