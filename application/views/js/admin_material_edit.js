@@ -44,19 +44,25 @@ function preview_mt (obj) {
 
 
 function addNewsMessage() {
-    var str = "<div class=\"row news-item news-sub-item news-current \" onclick=\"editNewsMessage(this)\"> " +
+    var str = "<div class=\"row news-item news-sub-item \" onclick=\"editNewsMessage(this)\"> " +
         " <div class=\"title\">标题</div> " +
         " <img src=\"application/views/images/picture.jpg\" class=\"img-responsive\"></div> ";
-    $(".news-current").after($(str)).removeClass("news-current");
-    $("input[name=title]").val('');
-    $("input[name=desc]").val('');
-    $("input[name=pic]").val('');
-    $("input[name=url]").val('');
-    $("#check_url").prop("checked",true);
-    $("#material_id").val('');
-    ue.setContent('');
-    $("input[name=content_source_url]").val("");
-    $("#sort").val(parseFloat($("#sort").val()) + 1);
+    if ($(".news-current").length  > 0) {
+        $(".news-current").after($(str));
+        editNewsMessage($(str));
+        $(str).addClass("news-current");
+    } else {
+        $(".news-item:not(.news-add):last").after($(str));
+    }
+    // $("input[name=title]").val('');
+    // $("input[name=desc]").val('');
+    // $("input[name=pic]").val('');
+    // $("input[name=url]").val('');
+    // $("#check_url").prop("checked",true);
+    // $("#material_id").val('');
+    // ue.setContent('');
+    // $("input[name=content_source_url]").val("");
+    //$("#sort").val(parseFloat($("#sort").val()) + 1);
 }
 
 function removeNewsMessage() {
@@ -196,13 +202,46 @@ function downNewsMessage () {
 
 function editNewsMessage(obj) {
     var lid = $(".news-current").attr("data-content-id");
+    var old = $(".news-current");
     var id  = $(obj).attr("data-content-id");
-    if ((lid == null || lid == '') && lid != id && id != '' && id != null) {
-        if (!confirm("上一条编辑的内容尚未保存,确定放弃吗?")) {
-            return ;
-        };
+
+    if ((lid == null || lid == '') && ue.getContentLength() > 0 || (lid > 0 && contentChanged)) {
+ //       if (confirm("上一条编辑的内容尚未保存,需要保存吗?")) {
+            $("#materialForm").ajaxSubmit({
+                url: "index.php/AdminMaterial/doEdit",
+                type: "post",
+                dataType: "json",
+                success: function (data) {
+                    if (data.error) {
+                        $("input[name='token_wxvote']").val(data.hash);
+                        alert(data.error);
+                        return;
+                    }
+                    $(old).attr("data-content-id",data.id);
+
+                    $("input[name='token_wxvote']").val(data.hash);
+                    $(old).find("img").attr("src", data.picurl);
+                    $(old).attr("data-content-id", data.id);
+                    $(old).find(".title").text(data.title);
+                    $("#media_id").val(data.media_id);
+                    if ((lid == null || lid == '')) {
+                        newslist.push(data);
+                    } else {
+                        for (var i = 0;i < newslist.length;i++)  {
+                            var o = newslist[i];
+                            if (o != null && o.id == lid) {
+                                newslist[i] = data;
+                            }
+                        }
+                    }
+                },
+                error:function(e) {
+                    alert(e.responseText);
+                }
+            });
+ //       };
     }
-    $(".news-current").removeClass("news-current");
+    $(old).removeClass("news-current");
     $(obj).addClass("news-current");
 
     if (newslist) {
@@ -218,6 +257,7 @@ function editNewsMessage(obj) {
                 $("#material_id").val(o.id);
                 $("#sort").val(o.sort);
                 ue.setContent(o.content);
+                contentChanged = false;
                 matched = true;
                 break;
             }
@@ -230,6 +270,7 @@ function editNewsMessage(obj) {
             $("input[name=url]").val('');
             $("#material_id").val('');
             ue.setContent('');
+            contentChanged = false;
             $("input[name=content_source_url]").val("");
             $("#sort").val(parseFloat($("#sort").val()) + 1);
         }

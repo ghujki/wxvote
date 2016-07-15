@@ -14,13 +14,14 @@ class AdminController extends MY_Controller
         parent::__construct();
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
+        $this->load->helper("menu_helper");
 
         if(!$this->checkLogin() && !($this->router->class == "AdminController" &&
             in_array($this->router->method,array("index","login")))) {
             redirect("AdminController/index");
             exit;
         }
-        $this->load->helper("menu_helper");
+
     }
 
     public function index(){

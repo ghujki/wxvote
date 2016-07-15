@@ -1,10 +1,10 @@
 /*!
  * UEditor
  * version: ueditor
- * build: Thu Feb 25 2016 11:44:16 GMT+0800 (CST)
+ * build: Thu Jun 16 2016 12:33:50 GMT+0800 (CST)
  */
 
-(function () {
+(function(){
 
 // editor.js
 UEDITOR_CONFIG = window.UEDITOR_CONFIG || {};
@@ -766,6 +766,24 @@ var utils = UE.utils = {
 
         }) : '';
     },
+    /**
+     * 将url中的html字符转义， 仅转义  ', ", <, > 四个字符
+     * @param  { String } str 需要转义的字符串
+     * @param  { RegExp } reg 自定义的正则
+     * @return { String }     转义后的字符串
+     */
+    unhtmlForUrl:function (str, reg) {
+        return str ? str.replace(reg || /[<">']/g, function (a) {
+            return {
+                '<':'&lt;',
+                '&':'&amp;',
+                '"':'&quot;',
+                '>':'&gt;',
+                "'":'&#39;'
+            }[a]
+
+        }) : '';
+    },
 
     /**
      * 将str中的转义字符还原成html字符
@@ -1482,6 +1500,7 @@ utils.each(['String', 'Function', 'Array', 'Number', 'RegExp', 'Object', 'Date']
         return Object.prototype.toString.apply(obj) == '[object ' + v + ']';
     }
 });
+
 
 // core/EventBase.js
 /**
@@ -4230,7 +4249,7 @@ var domUtils = dom.domUtils = {
         while(start !== node){
             if(start.nextSibling){
                 return 0
-            }
+            };
             start = start.parentNode;
         }
         return 1;
@@ -5884,7 +5903,7 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
                             tmpNode = tmpNode.previousSibling;
                         }
                         firstIndex +=  (isStart ? me.startOffset : me.endOffset)// - (fillCharReg.test(node.nodeValue) ? 1 : 0 )
-                    };else{
+                    }else{
                         node =  node.childNodes[ isStart ? me.startOffset : me.endOffset];
                         if(node){
                             firstIndex = domUtils.getNodeIndex(node,ignoreTxt);
@@ -11102,6 +11121,29 @@ UE.commands['insertimage'] = {
             return;
         }
 
+        function unhtmlData(imgCi) {
+
+            utils.each('width,height,border,hspace,vspace'.split(','), function (item) {
+
+                if (imgCi[item]) {
+                    imgCi[item] = parseInt(imgCi[item], 10) || 0;
+                }
+            });
+
+            utils.each('src,_src'.split(','), function (item) {
+
+                if (imgCi[item]) {
+                    imgCi[item] = utils.unhtmlForUrl(imgCi[item]);
+                }
+            });
+            utils.each('title,alt'.split(','), function (item) {
+
+                if (imgCi[item]) {
+                    imgCi[item] = utils.unhtml(imgCi[item]);
+                }
+            });
+        }
+
         if (img && /img/i.test(img.tagName) && (img.className != "edui-faked-video" || img.className.indexOf("edui-upload-video")!=-1) && !img.getAttribute("word_img")) {
             var first = opt.shift();
             var floatStyle = first['floatStyle'];
@@ -11120,6 +11162,8 @@ UE.commands['insertimage'] = {
             var html = [], str = '', ci;
             ci = opt[0];
             if (opt.length == 1) {
+                unhtmlData(ci);
+
                 str = '<img src="' + ci.src + '" ' + (ci._src ? ' _src="' + ci._src + '" ' : '') +
                     (ci.width ? 'width="' + ci.width + '" ' : '') +
                     (ci.height ? ' height="' + ci.height + '" ' : '') +
@@ -11136,6 +11180,7 @@ UE.commands['insertimage'] = {
 
             } else {
                 for (var i = 0; ci = opt[i++];) {
+                    unhtmlData(ci);
                     str = '<p ' + (ci['floatStyle'] == 'center' ? 'style="text-align: center" ' : '') + '><img src="' + ci.src + '" ' +
                         (ci.width ? 'width="' + ci.width + '" ' : '') + (ci._src ? ' _src="' + ci._src + '" ' : '') +
                         (ci.height ? ' height="' + ci.height + '" ' : '') +
@@ -11152,6 +11197,7 @@ UE.commands['insertimage'] = {
         me.fireEvent('afterinsertimage', opt)
     }
 };
+
 
 // plugins/justify.js
 /**
@@ -13212,7 +13258,7 @@ UE.plugins['insertcode'] = function() {
                                         }else{
                                             code += cn.data
                                         }
-                                    });
+                                    })
                                     if(!/\n$/.test(code)){
                                         code += '\n';
                                     }
@@ -13566,7 +13612,7 @@ UE.plugins['insertcode'] = function() {
                                 }else{
                                     htmlstr += cn.data
                                 }
-                            });
+                            })
                             if(!/\n$/.test(htmlstr)){
                                 htmlstr += '\n';
                             }
@@ -13601,7 +13647,7 @@ UE.plugins['insertcode'] = function() {
                                     frag.appendChild(me.document.createTextNode(utils.html( cn.data.replace(/&nbsp;/g,' '))));
 
                                 }
-                            });
+                            })
                             if(frag.lastChild.nodeName != 'BR'){
                                 frag.appendChild(me.document.createElement('br'))
                             }
@@ -13628,7 +13674,7 @@ UE.plugins['insertcode'] = function() {
         if(keyCode == 40){
             var rng = me.selection.getRange(),pre,start = rng.startContainer;
             if(rng.collapsed && (pre = domUtils.findParentByTagName(rng.startContainer,'pre',true)) && !pre.nextSibling){
-                var last = pre.lastChild;
+                var last = pre.lastChild
                 while(last && last.nodeName == 'BR'){
                     last = last.previousSibling;
                 }
@@ -14365,7 +14411,7 @@ UE.plugins['undo'] = function () {
                             save(me);
                             clearInterval(interalTimer)
                         }
-                    },300);
+                    },300)
                     return;
                 }
                 save(me);
@@ -15635,7 +15681,7 @@ UE.plugins['list'] = function () {
                         me.fireEvent('contentchange');
                         me.fireEvent('saveScene');
                         domUtils.preventDefault(evt);
-                        
+                        return;
 
                     }
 
@@ -16102,7 +16148,7 @@ UE.plugins['list'] = function () {
                     }
                     if(tag == ci.nodeName.toLowerCase()){
                         return 1
-                    }
+                    };
                 }
                 return 0;
 
@@ -16119,7 +16165,7 @@ UE.plugins['list'] = function () {
                     if(tag == ci.nodeName.toLowerCase()){
                         node = ci;
                         break;
-                    }
+                    };
                 }
                 return node ? getStyle(node) || domUtils.getComputedStyle(node, 'list-style-type') : null;
             }
@@ -16283,8 +16329,8 @@ UE.plugins['list'] = function () {
                                     if(node.firstChild().tagName == 'br' ){
                                         node.removeChild(node.firstChild())
                                     }
-                                }
-                                    break;
+                                };
+                                break;
                                 case 'pre':
                                     node.innerText(node.innerText().replace(/&nbsp;/g,' '))
 
@@ -16763,7 +16809,7 @@ UE.plugins['keystrokes'] = function() {
                     }
                     if(start === parent.lastChild)
                         evt.preventDefault();
-                    
+                    return;
                 }
             }
         }
@@ -17596,11 +17642,19 @@ UE.plugins['video'] = function (){
      * @param addParagraph  是否需要添加P 标签
      */
     function creatInsertStr(url,width,height,id,align,classname,type){
+
+        url = utils.unhtmlForUrl(url);
+        align = utils.unhtml(align);
+        classname = utils.unhtml(classname);
+
+        width = parseInt(width, 10) || 0;
+        height = parseInt(height, 10) || 0;
+
         var str;
         switch (type){
             case 'image':
                 str = '<img ' + (id ? 'id="' + id+'"' : '') + ' width="'+ width +'" height="' + height + '" _url="'+url+'" class="' + classname.replace(/\bvideo-js\b/, '') + '"'  +
-                    ' src="' + me.options.UEDITOR_HOME_URL+'themes/default/images/spacer.gif" style="background:url('+me.options.UEDITOR_HOME_URL+'themes/default/images/videologo.gif) no-repeat center center; border:1px solid gray;'+(align ? 'float:' + align + ';': '')+'" />';
+                    ' src="' + me.options.UEDITOR_HOME_URL+'themes/default/images/spacer.gif" style="background:url('+me.options.UEDITOR_HOME_URL+'themes/default/images/videologo.gif) no-repeat center center; border:1px solid gray;'+(align ? 'float:' + align + ';': '')+'" />'
                 break;
             case 'embed':
                 str = '<embed type="application/x-shockwave-flash" class="' + classname + '" pluginspage="http://www.macromedia.com/go/getflashplayer"' +
@@ -17730,6 +17784,7 @@ UE.plugins['video'] = function (){
         }
     };
 };
+
 
 // plugins/table.core.js
 /**
@@ -17926,7 +17981,7 @@ UE.plugins['video'] = function (){
         tmpCell.style.borderTopWidth = cell.style.borderBottomWidth;
         flag && domUtils.addClass(cell, "selectTdClass");
         return tmpCell;
-    };
+    }
 
     UETable.prototype = {
         getMaxRows:function () {
@@ -18874,7 +18929,15 @@ UE.plugins['video'] = function (){
 })();
 
 // plugins/table.cmds.js
-    (function () {
+/**
+ * Created with JetBrains PhpStorm.
+ * User: taoqili
+ * Date: 13-2-20
+ * Time: 下午6:25
+ * To change this template use File | Settings | File Templates.
+ */
+;
+(function () {
     var UT = UE.UETable,
         getTableItemsByRange = function (editor) {
             return UT.getTableItemsByRange(editor);
@@ -18972,7 +19035,7 @@ UE.plugins['video'] = function (){
                 } else {
                     rng.setStart(next, 0)
                 }
-                rng.setCursor(false, true);
+                rng.setCursor(false, true)
                 this.fireEvent("tablehasdeleted")
 
             }
@@ -19780,7 +19843,7 @@ UE.plugins['video'] = function (){
         setTimeout(function () {
             utils.each(tds, function (td) {
                 (td.colSpan == 1) && tdsWidths.push(td.offsetWidth)
-            });
+            })
             utils.each(tds, function (td,i) {
                 (td.colSpan == 1) && td.setAttribute("width", tdsWidths[i] + "");
             })
@@ -19857,14 +19920,14 @@ UE.plugins['table'] = function () {
                 var str = '';
                 utils.each(table.selectedTds,function(td){
                     str += td[browser.ie?'innerText':'textContent'];
-                });
+                })
                 return str;
             }else{
                 return orgGetText.call(me.selection)
             }
 
         }
-    });
+    })
 
     //处理拖动及框选相关方法
     var startTd = null, //鼠标按下时的锚点td
@@ -22843,7 +22906,7 @@ UE.plugin.register('searchreplace',function(){
                     }
                 }
             }else if(!dtd.$empty[currentNode.tagName]){
-                currentNodeLength = currentNode[browser.ie ? 'innerText' : 'textContent'].replace(/(^[\t\r\n]+)|([\t\r\n]+$)/,'').length;
+                currentNodeLength = currentNode[browser.ie ? 'innerText' : 'textContent'].replace(/(^[\t\r\n]+)|([\t\r\n]+$)/,'').length
                 currentIndex += currentNodeLength;
                 if(currentIndex >= index){
                     result = findNTextInBlockElm(currentNode,currentNodeLength - (currentIndex - index),str);
@@ -24056,7 +24119,7 @@ UE.plugin.register('charts', function (){
             })
 
         }
-    };
+    }
 
     function validData ( table ) {
 
@@ -24743,6 +24806,88 @@ UE.plugin.register('insertfile', function (){
 });
 
 
+
+
+// plugins/xssFilter.js
+/**
+ * @file xssFilter.js
+ * @desc xss过滤器
+ * @author robbenmu
+ */
+
+UE.plugins.xssFilter = function() {
+
+	var config = UEDITOR_CONFIG;
+	var whitList = config.whitList;
+
+	function filter(node) {
+
+		var tagName = node.tagName;
+		var attrs = node.attrs;
+
+		if (!whitList.hasOwnProperty(tagName)) {
+			node.parentNode.removeChild(node);
+			return false;
+		}
+
+		UE.utils.each(attrs, function (val, key) {
+
+			if (whitList[tagName].indexOf(key) === -1) {
+				node.setAttr(key);
+			}
+		});
+	}
+
+	// 添加inserthtml\paste等操作用的过滤规则
+	if (whitList && config.xssFilterRules) {
+		this.options.filterRules = function () {
+
+			var result = {};
+
+			UE.utils.each(whitList, function(val, key) {
+				result[key] = function (node) {
+					return filter(node);
+				};
+			});
+
+			return result;
+		}();
+	}
+
+	var tagList = [];
+
+	UE.utils.each(whitList, function (val, key) {
+		tagList.push(key);
+	});
+
+	// 添加input过滤规则
+	//
+	if (whitList && config.inputXssFilter) {
+		this.addInputRule(function (root) {
+
+			root.traversal(function(node) {
+				if (node.type !== 'element') {
+					return false;
+				}
+				filter(node);
+			});
+		});
+	}
+	// 添加output过滤规则
+	//
+	if (whitList && config.outputXssFilter) {
+		this.addOutputRule(function (root) {
+
+			root.traversal(function(node) {
+				if (node.type !== 'element') {
+					return false;
+				}
+				filter(node);
+			});
+		});
+	}
+
+};
 
 
 // ui/ui.js
@@ -29004,7 +29149,7 @@ UE.ui = baidu.editor.ui = {};
 
                 var buff = [];
                 for (var i = 0, ci; ci = list[i]; i++) {
-                    buff[i] = this.formatHtml('<span unselectable="on" onclick="$$.editor.execCommand(&quot;elementpath&quot;, &quot;' + i + '&quot;)">' + ci + '</span>');
+                    buff[i] = this.formatHtml('<span unselectable="on" onclick="$$.editor.execCommand(&quot;elementpath&quot;, &quot;' + i + '&quot;);">' + ci + '</span>');
                 }
                 bottom.innerHTML = '<div class="edui-editor-breadcrumb" onmousedown="return false;">' + this.editor.getLang("elementPathTip") + ': ' + buff.join(' &gt; ') + '</div>';
 

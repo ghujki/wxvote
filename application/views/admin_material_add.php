@@ -51,8 +51,8 @@
 </style>
 <script>
     var newslist = <?=json_encode($news_materials)?>;
-    window.onbeforeunload = function() {
-        return confirm("确定退出编辑界面吗?");
+    if (newslist == null) {
+        newslist = [];
     }
 </script>
 <div class="row">
@@ -64,7 +64,7 @@
     </div>
     <div class="col-xs-12">
         <div class="m-head">
-            <span><?=$number['app_name']?></span>/<span>新建图文消息</span>
+            <span><a href="javascript:history.go(-1);"><?=$number['app_name']?></a></span>/<span>新建图文消息</span>
         </div>
     </div>
     <div class="col-xs-12">
@@ -107,6 +107,7 @@
                 <div class="col-xs-8">
                     <div class="news-content">
                         <?php echo form_open_multipart("AdminMaterial/doEdit",array("id"=>"materialForm"));?>
+
                             <div class="form-group">
                                 <label>标题</label>
                                 <input type="text" class="form-control" name="title" value="<?=$cover['title']?>"/>
@@ -118,6 +119,7 @@
 
                             <div class="form-group">
                                 <label>图片</label>
+                                <button class="btn btn-default float-right" >提交</button>
                                 <input type="file" name="pic" />
                             </div>
 
@@ -135,10 +137,26 @@
                                     <!-- 配置文件 -->
                                     <script type="text/javascript" src="/application/third_party/uedit/ueditor.config.js"></script>
                                     <!-- 编辑器源码文件 -->
-                                    <script type="text/javascript" src="/application/third_party/uedit/ueditor.all.min.js"></script>
+                                    <script type="text/javascript" src="/application/third_party/uedit/ueditor.all.js"></script>
                                     <!-- 实例化编辑器 -->
                                     <script type="text/javascript">
-                                        var ue = UE.getEditor('container',{maximumWords:100000});
+                                        var ue = UE.getEditor('container');
+                                        var contentChanged = false;
+                                        ue.addListener("ready",function() {
+                                            ue.addInputRule(function(root){
+                                                $.each(root.getNodesByTagName('img'),function(i,node){
+                                                    var src = $(node).attr("data-src");
+                                                    if (src != null) {
+                                                        node.src = src;
+                                                    }
+                                                });
+                                            });
+
+                                            ue.addListener( 'contentChange', function( editor ) {
+                                                contentChanged = true;
+                                            });
+                                        });
+
                                     </script>
                                 </div>
                             </div>
@@ -164,3 +182,4 @@
         </div>
     </div>
 </div>
+

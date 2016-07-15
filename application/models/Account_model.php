@@ -49,6 +49,13 @@ class Account_model extends CI_Model
         }
     }
 
+    public function removeAccount($id) {
+        $this->db->query("delete from wsg_account_login_rec where account_id=$id");
+        $this->db->query("delete from wsg_account where id=$id");
+        $this->db->query("delete from wsg_menu_access where account_id=$id");
+        $this->db->query("delete from wsg_official_number_access where account_id=$id");
+    }
+
     public function getAccounts($start = 0,$limit = 30,$keywords = "") {
         $this->db->like("username",$keywords);
         $data['num'] = $this->db->count_all_results("account");

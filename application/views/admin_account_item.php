@@ -24,7 +24,7 @@
             <?php }}?>
         </div>
         <div class="col-xs-8">
-            <h5>公众号分配</h5>
+            <h5>公众号分配<label for="check_all">全选</label><input type="checkbox" id="check_all" onchange="toggleCheck()"></h5>
             <?php if ($numbers) {?>
             <?php foreach ($numbers as $number) {?>
             <label for="number_<?=$number['id']?>"><?=$number['app_name']?></label><input type="checkbox" name="number_id[]" value="<?=$number['id']?>" id="number_<?=$number['id']?>"  <?php if ($number['account_id']) {echo "checked";}?> />
@@ -45,5 +45,9 @@
             }
             $(parent).find("input").attr("checked",true);
         }
+    }
+
+    function toggleCheck() {
+        $("input[name='number_id[]']").prop("checked",$("#check_all").prop("checked"));
     }
 </script>

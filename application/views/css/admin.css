@@ -77,8 +77,26 @@
 .float-right {
     float:right;
 }
-
+.account-info {
+    position: absolute;
+    margin-right: 0px;
+    right: 30px;
+    top: 30px;
+}
 .margin-top-10 {
     margin-top:10px;
 }
 .clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden}
+
+.scroll-tool {
+    font-size: xx-large;
+    position: fixed;
+    right: 100px;
+    bottom:100px;
+    border: 1px solid #ddd;
+    text-align: center;
+    padding: 10px 10px 10px 15px;
+}
+.scroll-tool a {
+    text-decoration: none;
+}

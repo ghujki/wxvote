@@ -54,11 +54,13 @@ class OfficialNumber_model extends CI_Model
 
     public function save($number) {
         if (empty($number['id'])) {
+            unset($number['id']);
             $this->db->insert("official_number",$number);
         } else {
             $this->db->where("id",$number['id']);
             $this->db->update("official_number",$number);
         }
+        var_dump($this->db->last_query());
     }
 
     public function removeNumber($id) {

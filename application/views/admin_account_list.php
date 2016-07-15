@@ -71,6 +71,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         if ($id == '1') {
             alert("管理员账号不能删除");
         }
+        if(confirm("确定要删除这个账号吗?")) {
+            $.ajax({
+                url:"index.php/AdminAccountController/remove",
+                dataType:"text",
+                data:{id:$id},
+                success:function (data) {
+                    window.location.href = window.location.href;
+                }
+            });
+        }
+
     }
 
     function edit_privilege ($id) {

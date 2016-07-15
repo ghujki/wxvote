@@ -97,6 +97,14 @@ class AdminAccountController extends AdminController
         echo $content;
     }
 
+    public function remove() {
+        $account_id = $this->input->get("id");
+        if ($account_id > 1) {
+            $this->load->model("Account_model","account");
+            $this->account->removeAccount($account_id);
+        }
+    }
+
     public function dispatch() {
         $account_id = $this->input->get("account_id");
         $menu_ids = $this->input->get("menu_id");

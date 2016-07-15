@@ -5,6 +5,7 @@ class Chat_factory_IndexController_module extends CI_Module{
     public function __construct()
     {
         parent::__construct();
+        $this->load->helper("menu_helper");
     }
 
     public function index () {

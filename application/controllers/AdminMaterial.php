@@ -20,11 +20,19 @@ class AdminMaterial extends AdminController
         $keywords = $this->input->get("query");
         $page_size = 10;
         $this->load->model("OfficialNumber_model", "model");
-        $numbers = $this->model->getNumbers('',0,0);
+        //$numbers = $this->model->getNumbers('',0,0);
+        $account = $this->session->userdata("wsg_user_id");
+        $n = $this->model->get_numbers_with_check($account);
+        foreach ($n as $item) {
+            if ($item['account_id']) {
+                $numbers[] = $item;
+            }
+        }
+
         $data['numbers'] = $numbers;
 
         $this->load->model("material_model","m");
-        $data['id'] = isset($id) ? $id :$numbers[0]['id'];
+        $data['id'] = isset($id) ? $id : ((count($numbers) > 0) ? $numbers[0]['id'] : 0);
         $materials = $this->m->getNumberMaterials($data['id'],$start,$page_size,$keywords);
         $count = $materials['count'];
         $data['materials']  = $materials['data'];
@@ -256,7 +264,7 @@ class AdminMaterial extends AdminController
         $data['sort'] = $this->input->post("sort");
         $data['content'] = $this->input->post("content");
         $data['show_cover_pic'] = 0;
-        $data['content_source_url'] = $this->input->post("content_source_url");
+        $data['content_source_url'] = htmlspecialchars($this->input->post("content_source_url"));
         $this->load->model("material_model","m");
         try {
             $id = $this->m->save($data);

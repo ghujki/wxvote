@@ -15,7 +15,18 @@ class AdminOfficialNumber extends AdminController
         //account list page
         $keywords = $this->input->get("query");
         $this->load->model("OfficialNumber_model","model");
-        $numbers = $this->model->getNumbers($keywords);
+        $a_numbers = $this->model->getNumbers($keywords);
+        $account = $this->session->userdata("wsg_user_id");
+        $authorNumbers = $this->model->get_numbers_with_check($account);
+        foreach ($authorNumbers as $authorNumber) {
+            foreach ($a_numbers as $a_number) {
+                if($authorNumber['account_id'] && $authorNumber['id'] == $a_number['id']) {
+                    $numbers[] = $a_number;
+                }
+            }
+        }
+
+
         $memberCount = $this->model->getOfficialMemberCount();
         for($i = 0;$i < count($numbers);$i++) {
             $numbers[$i]['member_count'] = isset($memberCount[$numbers[$i]['id']]) ? $memberCount[$numbers[$i]['id']] : 0;
