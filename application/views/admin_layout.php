@@ -20,11 +20,16 @@
                     <div><h1>微时光微信管理系统</h1></div>
                     <div class="account-info">你好，<?php echo $this->session->userdata("wsg_user_name");?>&nbsp;
                         <a href="index.php/AdminAccountController/editAccount?id=<?php echo $this->session->userdata("wsg_user_id");?>">修改密码</a>&nbsp;
-                        <a href="index.php/AdminController/logout">退出</a></div>
+                        <a href="index.php/AdminController/logout">退出</a>
+                    </div>
+                    <form class="search-query">
+                        <input type="text" placeholder="" name="query">
+                        <button type="submit" value="查询">查询</button>
+                    </form>                                     
                 </div>
             </header>
             <div class="row">
-                <div class="col-xs-12 col-lg-3">
+                <div class="col-xs-12 col-lg-3 left-sidebar">
                     <div class="admin-menu">
                         <?php $menus = get_menu(); ?>
                         <?php foreach ($menus as $menu) {

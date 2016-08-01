@@ -23,6 +23,8 @@ function syncNewsMessages() {
     var nid = $("#number_id").val();
     var mid = $(".grid-item.checked").attr("data-id");
     if (mid == null || mid == '') {
+        alert('请选择一条图文');
+        return;
         if (!confirm("该操作将同步微信服务器上的所有图文消息到平台,可能会造成服务器一段时间的卡顿,是否继续?")) {
             return;
         }
@@ -100,10 +102,25 @@ function postNewsJob () {
     });
 }
 
+function cp_to() {
+    var number_id = $(".modal-user-list input:checked").val();
+    var media_id = $('#material_container .grid-item.checked').attr('data-id');
+    $.ajax({
+        url:"index.php/AdminMaterial/copy_to",
+        dataType:"json",
+        type:"get",
+        data:{"number_id":number_id,"media_id":media_id},
+        success:function(data) {
+            window.location.href = "/index.php/AdminMaterial/index?id="+ number_id;
+        }
+    });
+}
+
 $("#material_container .grid-item").click(function(){
     $("#material_container .grid-item").removeClass("checked");
     $(this).addClass("checked");
     $("#job_btn").prop("disabled",false);
+    $("#copy_btn").prop("disabled",false);
 });
 
 $(function(){

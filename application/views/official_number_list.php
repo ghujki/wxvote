@@ -3,24 +3,52 @@
 ?>
     <style>
         .thead {
-            background-color:#8c8c8c;
-            font-weight:bold;
+            background-color:rgba(46, 60, 72, 0.8);             /* 修改的地方 */
+            font-weight:bold;       
             padding-top:.5em;
+            margin-top: -1px;
+            color: #fff;
         }
         .tbody {
             padding: .5em 0;
-            border:1px solid #ccc;
+            border-bottom:1px solid #000;
+            color: #000;
         }
         .panel-body {
-            border-left:1px solid #ccc;
-            border-right:1px solid #ccc;
-            border-bottom:1px solid #ccc;
+            border-top:1px solid #000;      /* 修改的地方 */
+            border-left:1px solid #000;
+            border-right:1px solid #000;
+            border-bottom:1px solid #000;
+            text-align: center;
         }
-        .panel-body>a {
+        /* .panel-body>a {
             margin-right:10px;
+        } */
+        .panel-body>a {
+          margin-right: 10px;
+          display: block;
+          float: left;
+          height: 30px;                      /* 修改的地方 */
+          width: 88px;
+          line-height: 30px;
+          background-color: rgba(105,70,65,0.7);
+          -webkit-border-radius:10px;
+          -moz-border-radius:10px;
+          border-radius:10px; 
+          color: #fff;
+        }
+        .panel-body>a:hover{
+            background-color: rgba(105,70,65,0.9);
+            text-decoration: none;             /* 修改的地方 */
         }
         #accordion {
             font-size:small;
+        }
+        hr {
+          margin-top: 46px;
+          margin-bottom: 20px;
+          border: 0;                            /* 修改的地方 */
+          border-top: 1px solid #000;
         }
         .wxuser-content {
             margin-bottom:1em ;
@@ -38,6 +66,15 @@
         .wxuser-content .wxuser_item.checked {
             border-color:green;
         }
+        .wxuser-list{
+            margin-top: 20px;       
+        }
+        #keywords{
+            -webkit-border-radius:10px;
+            -moz-border-radius:10px;         /* 修改的地方 */
+            border-radius:10px; 
+            border: none;
+        }
     </style>
     <div class="row">
         <div class="col-xs-12">
@@ -46,7 +83,7 @@
                 <input type="submit" value="查询">
             </form>
         </div>
-        <div class="col-xs-12" id="accordion">
+        <div class="col-xs-12 main" id="accordion">
             <div class="row thead">
                 <div class="col-xs-3"><label>app_id</label></div>
                 <div class="col-xs-3"><label>公众号名称</label></div>
@@ -58,9 +95,13 @@
             <div class="row tbody">
                 <div class="col-xs-3"><a data-toggle="collapse" data-parent="#accordion" href="#collapse<?=$item['id']?>" ><?=$item['app_id']?></a></div>
                 <div class="col-xs-3"><?=$item['app_name']?></div>
-                <div class="col-xs-3"><span><?=$item['member_count']?></span><a href="javascript:;" onclick="syncMembers(<?=$item['id']?>,this)"> 同步 </div>
-                <div class="col-xs-3"><a href="index.php/AdminOfficialNumber/edit?id=<?=$item['id']?>">配置</a>&nbsp;
-                    <a href="index.php/AdminOfficialNumber/remove/<?=$item['id']?>">解除绑定</a>
+                <div class="col-xs-3"><span><?=$item['member_count']?></span>
+                    <a class="fa fa-refresh <?php if($item['sync_disabled']) { echo ' disabled';} if ($item['sync_error']) {echo ' sync_error';} ?>" href="javascript:;" <?php if (!$item['sync_disabled']) {?>onclick="syncMembers(<?=$item['id']?>,this)" <?php }?> > 同步</a>
+                    <a class="fa fa-eye" href="javascript:;" onclick="view_sync('<?=$item['id']?>')">查看同步结果</a>
+                </div>
+                <div class="col-xs-3">
+                    <a class="fa fa-cog" href="index.php/AdminOfficialNumber/edit?id=<?=$item['id']?>">配置</a>&nbsp;
+                    <a class="fa fa-unlock" href="index.php/AdminOfficialNumber/remove/<?=$item['id']?>">解除绑定</a>
                 </div>
             </div>
             <div id="collapse<?=$item['id']?>" class="row panel-collapse collapse">

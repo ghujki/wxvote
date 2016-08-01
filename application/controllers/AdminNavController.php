@@ -9,10 +9,6 @@
 require "AdminController.php";
 class AdminNavController extends AdminController
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
 
     public function index () {
         $data['title'] = "导航设置";

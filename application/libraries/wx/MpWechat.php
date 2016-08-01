@@ -130,16 +130,17 @@ class MpWechat {
 		return json_decode($str);
 	}
 
-	public function getMembers($appId,$secretkey) {
+	public function getMembers($appId,$secretkey,$nextOpenId = '') {
 		$accessToken = $this->getAccessToken($appId, $secretkey);
-		$str = getCurl("https://api.weixin.qq.com/cgi-bin/user/get?access_token=$accessToken&next_openid=");
+		$str = getCurl("https://api.weixin.qq.com/cgi-bin/user/get?access_token=$accessToken&next_openid=$nextOpenId");
 		$obj = json_decode($str,true);
 		if ($obj['errcode']) {
 			throw new Exception($obj['errmsg']);
 		}
 		$data = array();
 		$data = array_merge($data,$obj['data']['openid']);
-		if ($obj['total'] < $obj['count'] && $obj['next_openid']) {
+		error_log("total = " .$obj['total'].",count=".$obj['count'].",next_openid".$obj['next_openid']);
+		if ($obj['total'] > $obj['count'] && $obj['count'] == 10000) {
 			$data1 = $this->getNextMembers($accessToken,$obj['next_openid']);
 			$data = array_merge($data,$data1);
 		}
@@ -154,11 +155,22 @@ class MpWechat {
 		}
 		$data = array();
 		$data = array_merge($data,$obj['data']['openid']);
-		if ($obj['total'] < $obj['count'] && !in_array($nextOpenId,$obj['data']['openid'])) {
+		error_log("total = " .$obj['total'].",count=".$obj['count'].",next_openid=".$obj['next_openid'].",parent_open_id=".$nextOpenId);
+		if ($obj['total'] > $obj['count'] && $obj['count'] == 10000) {
 			$data1 = $this->getNextMembers($accessToken,$obj['next_openid']);
 			$data = array_merge($data,$data1);
 		}
 		return $data;
+	}
+
+	public function getBatchUserInfo($appid,$secretkey,$obj) {
+		$accessToken = $this->getAccessToken($appid, $secretkey);
+		$str = dataPost(json_encode($obj),"https://api.weixin.qq.com/cgi-bin/user/info/batchget?access_token=$accessToken");
+		$obj = json_decode($str,true);
+		if ($obj['errcode']) {
+			throw new Exception($obj['errmsg']);
+		}
+		return $obj;
 	}
 
 	public function getBatchNewsMaterial($appid,$secretkey,$offset = 0) {

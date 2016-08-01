@@ -26,10 +26,18 @@ class AdminOfficialNumber extends AdminController
             }
         }
 
+        $f = file_get_contents(APPPATH."config/user_sync.php");
+        $config = json_decode($f,true);
 
         $memberCount = $this->model->getOfficialMemberCount();
         for($i = 0;$i < count($numbers);$i++) {
             $numbers[$i]['member_count'] = isset($memberCount[$numbers[$i]['id']]) ? $memberCount[$numbers[$i]['id']] : 0;
+            $job = $config[$numbers[$i]['id']];
+            if (count($job) > 0 && $job['start_time'] > 0 && $job['end_time'] == 0) {
+                $numbers[$i]['sync_disabled'] = true;
+            } elseif (count($job) > 0 && $job['start_time'] > 0 && $job['end_time'] > 0 && !is_numeric($job['return'])) {
+                $numbers[$i]['sync_error'] = true;
+            }
         }
         $data['query'] = $keywords;
         $data['numbers'] = $numbers;
@@ -238,26 +246,36 @@ class AdminOfficialNumber extends AdminController
 
     public function ajaxSyncMember() {
         $id = $this->input->get("id");
-        $this->load->model("OfficialNumber_model", "model");
-        $number = $this->model->getOfficialNumber($id);
-        try {
-            $this->load->library("wx/MpWechat");
-            $members = $this->mpwechat->getMembers($number['app_id'], $number['secretkey']);
-            if ($members['errcode']) {
-                die ($members['errmsg']);
-            }
-            //update or insert
-            $this->load->model("User_model", "user");
-            foreach ($members as $m) {
-                $user = array("user_open_id" => $m, "app_id" => $number['id']);
-                $this->user->save($m,$number['id'],$user);
-            }
-            echo json_encode(count($members));
-        } catch (Exception $e) {
-            echo json_encode(array("errinfo"=>$e->getMessage()));
+        $f = file_get_contents(APPPATH."config/user_sync.php");
+        $config = json_decode($f,true);
+        $job = $config[$id];
+        if (count($job) > 0 && $job['start_time'] > 0 && $job['end_time'] == 0) {
+            return json_encode(array("errinfo"=>"同步正在进行,请稍后"));
         }
+        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncWxUser ".$id." > /dev/null &";
+        exec($cmd);
+        sleep(1);
     }
 
+    public function syncResult() {
+        $id = $this->input->get("id");
+        $f = file_get_contents(APPPATH."config/user_sync.php");
+        $config = json_decode($f,true);
+        $job = $config[$id];
+        if (count($job) > 0 ) {
+            if ($job['start_time'] > 0 && $job['end_time'] == 0) {
+                die(json_encode("正在同步"));
+            } elseif ($job['start_time'] > 0 && $job['end_time'] > 0) {
+                if (is_numeric($job['return'])) {
+                    die(json_encode("同步".$job['return']."条,完成时间:" .date("m月d日,H:i:s",$job['end_time'])));
+                }else {
+                    die(json_encode("同步错误:".$job['return']));
+                }
+            }
+        } else {
+            die(json_encode("还没有同步任务:"));
+        }
+    }
     public function saveResponse() {
         $keywords = $this->input->get("keywords");
         $type = $this->input->get("type");

@@ -9,7 +9,7 @@
     .grid {
         margin-top:10px;
     }
-    .grid-item { width: 200px;margin-bottom:10px; border:1px solid #ccc;padding:1em;}
+    .grid-item { width: 200px;margin-bottom:10px; border:1px solid #ccc;padding:1em;background:#fff;}
     .grid-item.checked {border-color:green;}
     .grid-item figure {
         padding-bottom:10px;
@@ -46,6 +46,8 @@
         border:1px solid green;
     }
     .customed-confirm {display:none;}
+    .modal-user-list {list-style: none}
+    .modal-user-list li {float:left;margin-right:20px;}
 </style>
 <link  rel="stylesheet" href="application/views/css/jquery.datetimepicker.css" />
 <link  rel="stylesheet" href="application/views/css/tinyselect.css" />
@@ -70,7 +72,7 @@
             <button class="btn btn-default" onclick="editNewsMessage('<?=$id?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
             <button class="btn btn-default" onclick="deleteMessage($('#material_container .grid-item.checked').attr('data-id'))">删除图文</button>
             <button class="btn btn-default" id="job_btn" disabled data-toggle="modal" data-target="#jobModal">加入到推送任务</button>
-
+            <button class="btn btn-default" id="copy_btn" disabled data-toggle="modal" data-target="#newsModal">复制图文</button>
         </div>
     </div>
     <div class="col-xs-12">
@@ -153,6 +155,43 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal -->
 </div>
+
+
+<div class="modal fade" id="newsModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" >
+                    复制给公众号:
+                </h4>
+            </div>
+            <div class="modal-body">
+                <ul class="modal-user-list clearfix">
+                    <?php foreach ($numbers as $number) : ?>
+                        <?php if ($number['id'] != $id):?>
+                        <li>
+                            <input type="radio" name="number_id" id="n_<?=$number['id']?>" value="<?=$number['id']?>">
+                            <label for="n_<?=$number['id']?>"><?=$number['app_name']?></label>
+                        </li>
+                        <?php endif;?>
+                    <?php endforeach;?>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="cp_to()">
+                    提交
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
 <script>
     function view_users(id) {
         $.ajax({

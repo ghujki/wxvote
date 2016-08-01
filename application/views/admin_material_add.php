@@ -12,6 +12,7 @@
     .news-item {
         border:1px dashed #ccc;
         margin:0px;
+        background:#fff;
     }
     .news-sub-item {
         padding:1em 0;

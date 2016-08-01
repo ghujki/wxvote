@@ -34,8 +34,28 @@ class User_model extends CI_Model {
 
     public function getUserCount($number_id,$keywords) {
         $this->db->where("app_id",$number_id);
-        $this->db->like("nickname",$keywords);
+        if ($keywords) {
+            $this->db->like("nickname", $keywords);
+        }
         return $this->db->count_all_results("user");
+    }
+
+    public function getUserByNumber($appid,$number) {
+        $this->db->where("app_id",$appid);
+        $this->db->limit(1,$number - 1);
+        $q = $this->db->get("user");
+        return $q->row_array();
+    }
+
+    public function delUsersFrom($appid,$id) {
+        $sql = "delete from wsg_user where app_id=$appid and id > $id";
+        $this->db->query($sql);
+    }
+
+    public function batch_save($users) {
+        $this->db->trans_start();
+        $this->db->insert_batch("user",$users);
+        $this->db->trans_complete();
     }
 
     public function getUsers($numberId,$keywords,$start = 0,$limit = 0) {

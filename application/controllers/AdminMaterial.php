@@ -103,112 +103,31 @@ class AdminMaterial extends AdminController
     }
 
     public function ajaxSync() {
-        $nid = $this->input->get("number_id");
-        $mid = $this->input->get("media_id");
-        $this->load->model("OfficialNumber_model", "model");
-
-        $number = $this->model->getOfficialNumber($nid);
-        $this->load->library("wx/MpWechat");
-        $this->load->model("Material_model","material");
-        $media  = $this->material->getMaterialByMedia($mid);
-
-        if ($media && count($media) > 0) {
-            $result = array("errcode"=>0,"errmsg"=>"");
-
-            $need_sync = false;
-            foreach ($media as $key=>$material) {
-                if (!$material['synchronized'] ) {
-                    $need_sync = true;
-                    if ($material['thumb_media_id'] == null) {
-                        $res = $this->mpwechat->postMedia($number['app_id'], $number['secretkey'], $material['picurl'], "image");
-                        if ($res['media_id']) {
-                            error_log("get media for thumb:" . $res['media_id']);
-                            $material['thumb_media_id'] = $res['media_id'];
-                            $this->material->save($material);
-                            $media[$key] = $material;
-                        } else {
-                            error_log("1:" . json_encode($res));
-                            die(json_encode($res));
-                        }
-                    }
-                }
-            }
-
-
-            if ($need_sync) {
-                $res = $this->mpwechat->postNews($number['app_id'], $number['secretkey'], $media);
-
-                if ($res->media_id) {
-                    foreach ($media as $key=>$material) {
-                        $material['media_id'] = $res->media_id;
-                        $material['synchronized'] = 1;
-                        $this->material->save($material);
-                        $media[$key] = $material;
-                    }
-                    $media_id = $res->media_id;
-                    $rspMedia = $this->mpwechat->getMaterial($number['app_id'], $number['secretkey'],$media_id);
-                    if ($rspMedia['news_item'] && count($rspMedia['news_item'] > 0)) {
-                        foreach ($rspMedia['news_item'] as $item) {
-                            foreach ($media as $m) {
-                                if ($m['thumb_media_id'] == $item['thumb_media_id']) {
-                                    $m['url'] = $item['url'];
-                                    $this->material->save($m);
-                                }
-                            }
-                        }
-                    } else {
-                        error_log("2:".json_encode($rspMedia));
-                        die(json_encode($rspMedia));
-                    }
-                    $result['errcode'] = "0";
-                    $result['errmsg'] = "同步成功";
-                } else {
-                    error_log("3:".json_encode($res));
-                    die(json_encode($res));
-                }
-            } else {
-                $result['errcode'] = "1";
-                $result['errmsg'] = "该条图文已经同步";
-            }
-            die(json_encode($result));
-        } elseif(!isset($mid)) {
-            //看本地已经有多少图文
-            $local_number = $this->material->getMeterialCount(nid);
-            $remove_number = $this->mpwechat->getNewsCount($number['app_id'], $number['secretkey']);
-
-            if ($remove_number > $local_number) {
-                $offset = $remove_number - $local_number;
-            } else {
-                die(json_encode(0));
-            }
-            $items = $this->mpwechat->getBatchNewsMaterial($number['app_id'], $number['secretkey'], $offset);
-            //save
-            foreach ($items as $item) {
-                //看是否已经存在
-                $media_id = $item['media_id'];
-                $mt = $this->material->getMaterialByMedia($media_id);
-                if (count($mt) > 0) {
-                    continue;
-                }
-                //一个item是一组图文
-                $i = 1;
-                foreach ($item['content']['news_item'] as $news_item) {
-                    $matieral['app_id'] = $nid;
-                    $matieral['media_id'] = $media_id;
-                    $matieral['title'] = $news_item['title'];
-                    $matieral['digest'] = $news_item['digest'];
-                    $matieral['desc'] = $news_item['digest'];
-                    $matieral['author'] = $news_item['author'];
-                    $matieral['url'] = $news_item['url'];
-                    $matieral['picurl'] = $news_item['thumb_url'];
-                    $matieral['synchronized'] = 1;
-                    $material['content'] = $news_item['content'];
-                    $material['sort'] = $i++;
-                    $this->material->save($matieral);
-                }
-            }
-            echo json_encode(count($items));
+        $media_id = $this->input->get("media_id");
+        $f = file_get_contents(APPPATH."config/media_sync.php");
+        $config = json_decode($f,true);
+        $job = $config[$media_id];
+        if ($job != null && $job['start_time'] > 0 && $job['end_time'] == 0) {
+            die (json_encode($result = array("errcode"=>1,"errmsg"=>"正在进行同步")));
         }
+
+        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncMedia ".$media_id." > /dev/null &";
+        exec($cmd);
+        die (json_encode($result = array("errcode"=>1,"errmsg"=>"已提交后台进行同步")));
+    }
+
+    public function copy_to() {
+        $media_id = $this->input->get("media_id");
+        $number_id = $this->input->get("number_id");
+        $this->load->model("Material_model","material");
+        $m = time();
+        $sql =  " insert into wsg_material(app_id,media_id,title,show_cover_pic,author,digest,content,url,content_source_url, ".
+                " update_time,name,type,picurl,`desc`,sort,synchronized) select $number_id as app_id, $m as media_id,title, ".
+                " show_cover_pic,author,digest,content,url,content_source_url,update_time,name,type,picurl,`desc`,sort,0 as synchronized ".
+                " from wsg_material where media_id='$media_id' ";
+        $this->load->database();
+        $this->db->query($sql);
+        die(json_encode(1));
     }
 
     public function ajaxRemove() {

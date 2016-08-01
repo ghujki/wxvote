@@ -18,11 +18,14 @@ class Material_model extends  CI_Model
         if ($data['id'] > 0 ) {
             $this->db->where("id",$data['id']);
             $this->db->update("material",$data);
+
             return $data['id'];
         } else {
             $this->db->insert("material",$data);
+            error_log($this->db->last_query());
             return $this->db->insert_id();
         }
+
     }
 
     public function getNumberMaterials($nid,$page = 0,$page_size = 20,$keywords='') {

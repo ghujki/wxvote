@@ -1,14 +1,17 @@
 .admin-query {
     padding:.5em 1em ;
     text-align:right;
+    /* position: absolute;
+    top: -50px;                     
+    right: 222px; */
+    display: none;            /* 修改的地方 */
 }
-
 .query-result {
     padding:.5em;
 }
 
 .query-result thead {
-    background-color: #8c8c8c;
+    background-color: rgba(84, 89, 87, 0.99);
     color:#fff;
 }
 
@@ -16,9 +19,14 @@
     padding:.3em;
     text-align:center;
 }
+.query-result thead tr td{
+    color: #fff;             /* 修改的地方 */
+}
 .query-result td {
     padding:.3em;
     font-size:smaller;
+    text-align: center;
+    color: #000;                /* 修改的地方 */
 }
 
 .query-result td a {
@@ -32,6 +40,7 @@
 
 .admin-form tr td:first-child {
     text-align:right;
+     color: #000;                   /* 修改的地方 */
 }
 .admin-form tr td:last-child {
     text-align:left;
@@ -48,11 +57,14 @@
 .admin-menu {
     margin-top:3em;
     font-size:small;
+    /* background-color: #033649; */
 }
 .admin-menu dt {
-    background-color:#8c8c8c;
-    padding:.5em;
+    background-color: rgba(220,221,213,0.7);
+    padding:.7em;
+    color: #47474D;
 }
+
 .admin-menu dd {
     margin-left:10px;
     padding:.5em;
@@ -61,27 +73,39 @@
 .admin-menu dd a {
     text-decoration: none;
     cursor:pointer;
+    font-family: "微软雅黑";
+    color: #cdb380;
+
 }
 
-
+.admin-menu dd a:hover{
+    color: #e6b33d;
+    text-decoration: underline;
+}
+.admin-menu dd:hover{
+    border-right: 3px solid #F4CD0D;
+}
 .footer {
-    border-top:1px solid #ccc;
+    border-top:1px solid #000;
     margin:1em 0;
     padding:1em;
 }
 
 .float-left {
     float:left;
+    color: #000;
 }
 
 .float-right {
     float:right;
+    color: #000;                /* 修改的地方 */
 }
 .account-info {
     position: absolute;
     margin-right: 0px;
     right: 30px;
     top: 30px;
+    color: #fff;                /* 修改的地方 */      
 }
 .margin-top-10 {
     margin-top:10px;
@@ -100,3 +124,67 @@
 .scroll-tool a {
     text-decoration: none;
 }
+
+
+/* 修改的地方开始 */
+body{
+    /* background: url(../images/squared_metal.png); */
+    background: url(../images/wood_pattern.png);
+   /*  background: url(../images/restaurant.png); */
+    color: #000;
+    font-family: "微软雅黑";
+}
+header {
+  background-color: rgba(46, 60, 72, 0.8);
+  border-bottom: 10px solid rgba(255, 255, 255, 0.13);
+  position: relative;
+}
+header h1{
+     /*  color: rgba(131, 240, 219, 0.75); */
+      color: rgba(218, 247, 241, 0.75);
+}
+.text-center{
+    color: #000;
+} 
+.left-sidebar{
+     background-color: rgba(46, 60, 72, 0.8);
+}
+.search-query {
+    padding:.5em 1em ;
+    text-align:right;
+    position: absolute;
+    top: 22px;                     /* 修改的地方 */
+    right: 222px;
+}
+button {
+  background-color: #A4A59F;
+  border-radius: 3px;
+  border: none;
+  color: #fff;
+}
+button:hover{
+background-color: #848679;
+}
+.search-query input{
+  border-radius: 5px;
+  border: none;
+}
+.account-info a:hover{
+    color: #0D8FFF;
+}
+.admin-form{
+    margin-top: 35px;
+}
+a{
+    color:#1997CF;
+}
+a:hover{
+    color:#0E64B2;
+}
+a.disabled {
+    color:#ccc;
+}
+a.sync_error {
+    color:orangered;
+}
+/* 修改的地方结束

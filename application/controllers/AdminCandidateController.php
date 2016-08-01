@@ -175,34 +175,15 @@ class AdminCandidateController extends AdminController
     }
 
     public function syncWxUser() {
-        $number_id = $this->input->get("number_id");
-        $this->load->model('OfficialNumber_model','number');
-        $number = $this->number->getOfficialNumber($number_id);
-        //
-        try {
-            $this->load->library("wx/MpWechat");
-            $members = $this->mpwechat->getMembers($number['app_id'], $number['secretkey']);
-            //update or insert
-            $this->load->model("User_model", "user");
-            foreach ($members as $m) {
-                $user = $this->mpwechat->getUserInfo($number['app_id'],$number['secretkey'],$m);
-                $user['user_open_id'] = $m;
-                $user['app_id'] = $number['id'];
-                $user['union_id'] = $user['unionid'];
-
-                unset($user['openid']);
-                unset($user['subscribe']);
-                unset($user['remark']);
-                unset($user['accessToken']);
-                unset($user['groupid']);
-                unset($user['tagid_list']);
-                unset($user['unionid']);
-                $this->user->save($m,$number['id'],$user);
-            }
-            echo count($members);
-        } catch (Exception $e) {
-            echo json_encode(array("errinfo"=>$e->getMessage()));
+        $id = $this->input->get("number_id");
+        $f = file_get_contents(APPPATH."config/user_sync.php");
+        $config = json_decode($f,true);
+        $job = $config[$id];
+        if (count($job) > 0 && $job['start_time'] > 0 && $job['end_time'] == 0) {
+            return json_encode(array("errinfo"=>"同步正在进行,请稍后"));
         }
+        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncWxUser ".$id ." > /dev/null &";
+        exec($cmd,$o,$e);
     }
 
     public function ajaxBindUser() {

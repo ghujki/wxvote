@@ -36,8 +36,11 @@
                 url: 'index.php/AdminCandidateController/syncWxUser',
                 dateType: 'json',
                 data: {'number_id': '<?=$number_id?>'},
-                success: function () {
-                    $("#modal2").modal("hide");
+                success: function (data) {
+                    if (data.errinfo) {
+                        alert(data.errinfo);
+                    }
+                    //$("#modal2").modal("hide");
                 }
             });
         }

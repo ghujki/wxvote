@@ -122,7 +122,9 @@ function formatJson(json) {
 }
 
 function syncMembers(id,obj) {
-    if (confirm("该操作会将微信服务器上的用户同步到本平台,数据量大时会造成服务器几分钟的卡顿,确认要继续操作吗?")) {
+    $(obj).removeAttr("onclick");
+    $(obj).addClass("disabled");
+    if (confirm("该方法已经改进,不会造成卡顿.但是需要一段时间完成.")) {
         $.ajax({
             url: 'index.php/AdminOfficialNumber/ajaxSyncMember',
             dataType: 'json',
@@ -136,4 +138,15 @@ function syncMembers(id,obj) {
             }
         });
     }
+}
+
+function view_sync(id) {
+    $.ajax({
+        url: 'index.php/AdminOfficialNumber/syncResult',
+        dataType: 'json',
+        data: {id: id},
+        success: function (data) {
+            alert(data);
+        }
+    });
 }

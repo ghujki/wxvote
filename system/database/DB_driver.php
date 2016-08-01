@@ -204,7 +204,7 @@ abstract class CI_DB_driver {
 	 *
 	 * @var	bool
 	 */
-	public $save_queries		= TRUE;
+	public $save_queries		= FALSE;
 
 	/**
 	 * Queries list

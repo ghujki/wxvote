@@ -41,7 +41,8 @@
             <td>token</td>
             <td><input type="text" required name="token" placeholder="token,自动生成一个32位字符串" id="token" value="<?=$number['token']?>"/>
                 <a herf="javascript:;" onclick="generateRandomString()">自动生成</a>
-                <div>将 http://<?php echo $_SERVER['HTTP_HOST']?>/index.php/Response/index/<span id="token_str"><?=$number['token']?></span> 设置到微信服务器url中.</div>
+                <div class="txt" style="color:#000">将 http://<?php echo $_SERVER['HTTP_HOST']?>/index.php/Response/index/<span id="token_str"><?=$number['token']?></span>
+                 <span >设置到微信服务器url中.</span></div>
             </td>
         </tr>
 
