@@ -246,13 +246,14 @@ class AdminOfficialNumber extends AdminController
 
     public function ajaxSyncMember() {
         $id = $this->input->get("id");
+        $num = $this->input->get("num");
         $f = file_get_contents(APPPATH."config/user_sync.php");
         $config = json_decode($f,true);
         $job = $config[$id];
         if (count($job) > 0 && $job['start_time'] > 0 && $job['end_time'] == 0) {
             return json_encode(array("errinfo"=>"同步正在进行,请稍后"));
         }
-        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncWxUser ".$id." > /dev/null &";
+        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncUser $id $num  > /dev/null &";
         exec($cmd);
         sleep(1);
     }

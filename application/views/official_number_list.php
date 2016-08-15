@@ -76,6 +76,7 @@
             border: none;
         }
     </style>
+    
     <div class="row">
         <div class="col-xs-12">
             <form class="admin-query">
@@ -96,7 +97,8 @@
                 <div class="col-xs-3"><a data-toggle="collapse" data-parent="#accordion" href="#collapse<?=$item['id']?>" ><?=$item['app_id']?></a></div>
                 <div class="col-xs-3"><?=$item['app_name']?></div>
                 <div class="col-xs-3"><span><?=$item['member_count']?></span>
-                    <a class="fa fa-refresh <?php if($item['sync_disabled']) { echo ' disabled';} if ($item['sync_error']) {echo ' sync_error';} ?>" href="javascript:;" <?php if (!$item['sync_disabled']) {?>onclick="syncMembers(<?=$item['id']?>,this)" <?php }?> > 同步</a>
+                    <a class="fa fa-refresh <?php if($item['sync_disabled']) { echo ' disabled';} if ($item['sync_error']) {echo ' sync_error';} ?>" href="javascript:;" <?php if (!$item['sync_disabled'])
+                        {?>onclick="show_sync_user_panel(<?=$item['id']?>,this)" <?php }?> > 同步</a>
                     <a class="fa fa-eye" href="javascript:;" onclick="view_sync('<?=$item['id']?>')">查看同步结果</a>
                 </div>
                 <div class="col-xs-3">
@@ -105,14 +107,22 @@
                 </div>
             </div>
             <div id="collapse<?=$item['id']?>" class="row panel-collapse collapse">
-                <div class="panel-body">
-                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxKeywordsPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">自动回复设置</a>
-                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxMenuPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">菜单设置</a>
-                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxShowUsers" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">查看粉丝</a>
-                    <a href="#subContent<?=$item['id']?>" data-toggle="collapse" data-src="index.php/AdminOfficialNumber/ajaxEventPage" target="#subContent<?=$item['id']?>" data-id="<?=$item['id']?>">事件配置</a>
-                    <hr/>
-                    <div id="subContent<?=$item['id']?>" class="panel-collapse"></div>
+
+                <div class="panel-body" role="tablist">
+                    <a href="#tab1<?=$item['id']?>" onclick='showPage("tab1<?=$item['id']?>","index.php/AdminOfficialNumber/ajaxKeywordsPage?id=<?=$item['id']?>")'>自动回复设置</a>
+                    <a href="#tab2<?=$item['id']?>" onclick='showPage("tab2<?=$item['id']?>","index.php/AdminOfficialNumber/ajaxMenuPage?id=<?=$item['id']?>")'>菜单设置</a>
+                    <a href="#tab3<?=$item['id']?>" onclick='showPage("tab3<?=$item['id']?>","index.php/AdminOfficialNumber/ajaxShowUsers?id=<?=$item['id']?>")'>查看粉丝</a>
+                    <a href="#tab4<?=$item['id']?>" onclick='showPage("tab4<?=$item['id']?>","index.php/AdminOfficialNumber/ajaxEventPage?id=<?=$item['id']?>")'>事件配置</a>
                 </div>
+
+                <!-- Tab panes -->
+                <div class="tab-content panel-body">
+                    <div class="tab-pane active" id="tab1<?=$item['id']?>"></div>
+                    <div class="tab-pane" id="tab2<?=$item['id']?>"></div>
+                    <div class="tab-pane" id="tab3<?=$item['id']?>"></div>
+                    <div class="tab-pane" id="tab4<?=$item['id']?>"></div>
+                </div>
+
             </div>
             <?php endforeach;?>
             <?php else:?>
@@ -121,3 +131,50 @@
         </div>
     </div>
 
+<div class="modal fade" id="syncUserModel" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close"
+                        data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" >
+                    同步选项
+                </h4>
+            </div>
+            <div class="modal-body">
+                <span>从</span><input type="number" id="number" value="0"><span>开始同步</span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="sync_user()">
+                    提交
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<script>
+    var number_id,target;
+    function show_sync_user_panel(id,obj) {
+        $("#syncUserModel").modal();
+        number_id = id;
+        target = obj;
+    }
+
+    function sync_user() {
+        var num = $("#number").val();
+        syncMembers(number_id,num,target);
+        $("#syncUserModel").modal("hide");
+    }
+
+    function showPage(tabId, url){
+        $('.panel-body a[href="#'+tabId+'"]').tab('show'); // 显示点击的tab页面
+        if($('#'+tabId).html().length<20) { // 当tab页面内容小于20个字节时ajax加载新页面
+            $('#'+tabId).html('<br> 页面加载中，请稍后...'); // 设置页面加载时的loading图片
+            $('#'+tabId).load(url); // ajax加载页面
+        }
+    }
+</script>

@@ -111,7 +111,7 @@ class AdminMaterial extends AdminController
             die (json_encode($result = array("errcode"=>1,"errmsg"=>"正在进行同步")));
         }
 
-        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncMedia ".$media_id." > /dev/null &";
+        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncMedia ".$media_id ." > /dev/null &";
         exec($cmd);
         die (json_encode($result = array("errcode"=>1,"errmsg"=>"已提交后台进行同步")));
     }

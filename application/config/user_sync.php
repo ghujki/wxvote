@@ -1,1 +1,1 @@
-{"1":{"start_time":1470362262,"end_time":1470362262,"return":"access_token missing hint: [hHEYAA0258vr20]"},"2":{"start_time":1470365194,"end_time":1470365195,"return":"invalid credential, access_token is invalid or not latest hint: [zttewA0191vr22]"}}
+{"1":{"start_time":1470362262,"end_time":1470362262,"return":"access_token missing hint: [hHEYAA0258vr20]"},"2":{"start_time":1470623075,"end_time":1470623087,"return":"invalid openid hint: [hLEt30079vr20]"}}

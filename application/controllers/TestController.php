@@ -35,6 +35,29 @@ class TestController extends MY_Controller
         echo json_encode($res);
     }
 
+    public function test_post_media() {
+        $number_id = "2";
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($number_id);
+        $pic = "http://player.video.qiyi.com/b054ec72fbda6452017daee606d2377b/0/0/w_19rt50y185.swf-albumId=5736667609-tvId=5736667609-isPurchase=0-cnId=22";
+
+        $this->load->library("wx/MpWechat");
+
+        $res = $this->mpwechat->postMedia($number['app_id'],$number['secretkey'],$pic,'video');
+        echo json_encode($res);
+    }
+
+    public function test_download_media() {
+        $number_id = "2";
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($number_id);
+        $pic = "http://player.video.qiyi.com/b054ec72fbda6452017daee606d2377b/0/0/w_19rt50y185.swf-albumId=5736667609-tvId=5736667609-isPurchase=0-cnId=22";
+
+        $this->load->library("wx/MpWechat");
+        $res = $this->mpwechat->downloadMedia($pic,"download");
+        echo json_encode($res);
+    }
+
     public function test_get_media() {
         $media_id = "J3hfnibVmqbnID8y6n9GAtL8kTErxooJAOVBYq7fqBOiauRrEiah6AIe7bx4B2ZLC0KPrgm7s85Q63PnrU5IxALow";
         $number_id = "3";
