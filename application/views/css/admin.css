@@ -120,6 +120,8 @@
     border: 1px solid #ddd;
     text-align: center;
     padding: 10px 10px 10px 15px;
+    background:#fff;
+    box-shadow:5px 5px 5px #000;
 }
 .scroll-tool a {
     text-decoration: none;
@@ -129,11 +131,14 @@
 /* 修改的地方开始 */
 body{
     /* background: url(../images/squared_metal.png); */
-    background: url(../images/wood_pattern.png);
+    /*background: url(../images/wood_pattern.png);*/
    /*  background: url(../images/restaurant.png); */
+    background:#aaa;
     color: #000;
     font-family: "微软雅黑";
 }
+
+.main-content {background:#fff;}
 header {
   background-color: rgba(46, 60, 72, 0.8);
   border-bottom: 10px solid rgba(255, 255, 255, 0.13);
@@ -187,4 +192,105 @@ a.disabled {
 a.sync_error {
     color:orangered;
 }
-/* 修改的地方结束
+/* 修改的地方结束*/
+
+.robot-item {
+    background: #fff;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    text-align: center;
+    font-size:large;
+    height: 180px;
+}
+.robot-item.add-item {
+    line-height:180px;
+}
+.robot-item img {
+    margin-top: 10px;
+    width: 100px;
+    height: 100px;
+}
+.robot-item .robot-status {
+    font-size:x-small;
+}
+.robot-item .robot-status1 {
+    color:green;
+}
+
+.robot-item a.robot-item-op {
+    font-size: x-large;
+    position: absolute;
+    right: 5px;
+    top:5px;
+    border-radius: 20px;
+    background: forestgreen;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    color: #fff;
+    text-decoration:none;
+    display:none;
+}
+
+.robot-item.current {
+    border:1px solid forestgreen;
+}
+.robot-item.current  a.robot-item-op{
+    display:block;
+}
+
+.robot-item a.robot-item-op:hover {
+    background: #aaa;
+}
+
+.robot-item .robot-item-conf {
+    position: absolute;
+    right: 30px;
+    font-size: x-large;
+    bottom: 10px;
+    display:none;
+    text-decoration: none;
+}
+.robot-item.current .robot-item-conf {
+    display:block;
+}
+.robot-config-panel {margin-bottom: 20px;}
+.robot-config-panel h5{background:#ccc;padding:10px;margin: 0;}
+.robot-config-panel .robot-config-item {padding:5px 10px;}
+.robot-config-panel .robot-config-item a {}
+.robot-config-panel input[type=file] {display:inline;display:none;width:75px;}
+.robot-config-panel input,.robot-config-panel select {margin:0 5px;}
+.robot-config-panel .robot-config-item .sub-item {padding:10px;margin-left:190px;}
+.robot-config-panel .robot-config-item img {width:50px;}
+
+.news-toolbar {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    position:fixed;
+    width:350px;
+}
+
+.news-toolbar .toolbar-nav {list-style:none;padding:0px;}
+.news-toolbar .toolbar-nav  li {    height: 30px;
+    line-height: 30px;
+    background: #ddd;
+    padding: 0 5px;
+}
+.news-toolbar .toolbar-content {
+    padding: 10px;
+    max-height: 600px;
+    overflow-y: scroll;
+    overflow-x:hidden;
+}
+.tab-pane.loaded {
+    width: 100%;
+}
+.news-toolbar .tag-item {
+    cursor:pointer;
+}
+
+.news-toolbar .tag-item img {
+    max-width:100%;
+}

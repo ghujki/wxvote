@@ -14,7 +14,7 @@
         <link rel="stylesheet" href="application/views/css/font-awesome-ie7.min.css">
     </head>
     <body>
-        <div class="container">
+        <div class="container main-content" >
             <header class="row">
                 <div class="col-xs-12">
                     <div><h1>微时光微信管理系统</h1></div>

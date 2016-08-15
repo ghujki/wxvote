@@ -22,7 +22,6 @@ class Material_model extends  CI_Model
             return $data['id'];
         } else {
             $this->db->insert("material",$data);
-            error_log($this->db->last_query());
             return $this->db->insert_id();
         }
 
@@ -65,6 +64,7 @@ class Material_model extends  CI_Model
     public function remove($media_id) {
         $this->db->where("media_id",$media_id);
         $this->db->delete("material");
+        error_log($this->db->last_query());
     }
 
     public function removeMaterial($id) {

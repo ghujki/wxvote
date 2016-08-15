@@ -138,7 +138,7 @@
                 nonceStr: result.nonceStr,
                 signature: result.signature,
                 jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage']
-            }
+            };
             wx.config(conf_data);
         }
     });
@@ -162,7 +162,7 @@
                         //setCookie("share_num", num, 3);
                         //location.href = dUrl+"indexs.html";
                         location.href = "http://mp.weixin.qq.com/s?__biz=MzI0NTI4MjkwOA==&mid=100000025&idx=1&sn=a29a3d6d081d55619d5565b38c3d1380#rd";
-                        return;
+                        
                     }else{
                         alert("分享到【微信群】成功，加入交友还需"+(3-num)+"次分享");
                         setCookie("share_num", num, 3);
@@ -190,7 +190,7 @@
                     if (num >= 3) {
                         //removeCookie("share_num");
                         location.href = "http://mp.weixin.qq.com/s?__biz=MzI0NTI4MjkwOA==&mid=100000025&idx=1&sn=a29a3d6d081d55619d5565b38c3d1380#rd";
-                        return;
+                        
                     }else{
                         alert("分享到【微信群】成功，加入交友还需"+(3-num)+"次分享");
                         setCookie("share_num", num, 3);

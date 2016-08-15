@@ -68,7 +68,7 @@ class AdminMaterial extends AdminController
 
 
         $data['jspaths'] = array("application/views/js/jquery.form.js","application/views/js/admin_material_edit.js");
-        $this->render("admin_material_add",$data);
+        $this->load->view("admin_material_add",$data);
     }
     public function edit() {
         $nid = $this->input->get("number_id");
@@ -82,7 +82,7 @@ class AdminMaterial extends AdminController
         //todo:编辑消息逻辑实现
         $data['news_materials'] = $mt;
         $data['jspaths'] = array("application/views/js/jquery.form.js","application/views/js/admin_material_edit.js");
-        $this->render("admin_material_add",$data);
+        $this->load->view("admin_material_add",$data);
     }
 
 
@@ -102,6 +102,37 @@ class AdminMaterial extends AdminController
         echo json_encode("ok");
     }
 
+    public function curl () {
+        $url = $this->input->get("url");
+        include_once APPPATH."third_party/phpQuery.php";
+        phpQuery::newDocumentFile($url,"text/html;charset=utf8");
+
+        $imgs = pq(".rich_media_content img");
+        foreach ($imgs as $img) {
+            $src = pq($img)->attr("data-src");
+            pq($img)->attr("src",$src);
+        }
+        $content = pq(".rich_media_content")->html();
+        $title = pq(".rich_media_title")->text();
+        $style = pq("head style")->html();
+        $html = '<html>
+                <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+                <meta name="apple-mobile-web-app-capable" content="yes">
+                <meta name="apple-mobile-web-app-status-bar-style" content="black">
+                <meta name="format-detection" content="telephone=no">
+                <title>'.$title.'</title>
+                <style>'.$style.'</style>
+                </head>
+                <body>
+                '.$content.'
+                </body>
+                </html>';
+        echo json_encode(array("content"=>$html,"title"=>$title),JSON_UNESCAPED_UNICODE);
+    }
+
     public function ajaxSync() {
         $media_id = $this->input->get("media_id");
         $f = file_get_contents(APPPATH."config/media_sync.php");
@@ -111,7 +142,7 @@ class AdminMaterial extends AdminController
             die (json_encode($result = array("errcode"=>1,"errmsg"=>"正在进行同步")));
         }
 
-        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncMedia ".$media_id." > /dev/null &";
+        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncMedia ".$media_id ." > /dev/null &";
         exec($cmd);
         die (json_encode($result = array("errcode"=>1,"errmsg"=>"已提交后台进行同步")));
     }
@@ -238,5 +269,25 @@ class AdminMaterial extends AdminController
         $this->load->library("wx/MpWechat");
         $result = $this->mpwechat->preview($number['app_id'], $number['secretkey'],$user['user_open_id'],$mid);
         echo json_encode($result);
+    }
+
+    public function templateIndex() {
+        $data = array();
+        $this->render("admin_material_template",$data);
+    }
+
+    public function saveTemplate() {
+        $url = $this->input->post("url");
+        $content = $this->input->post("content");
+        $realdir = APPPATH."..".$url;
+        if (!file_exists($realdir)) {
+            $data['error'] = "错误的路径:$realdir";
+        } else {
+            $data['content'] = $content;
+            $data['url'] = $url;
+            file_put_contents($realdir,$content);
+        }
+        $this->load->helper("form");
+        $this->render("admin_material_template",$data);
     }
 }

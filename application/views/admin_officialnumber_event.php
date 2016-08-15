@@ -139,6 +139,7 @@
     </div>
     <div class="row tbody">
         <?php foreach($keywords as $k):?>
+            <?php if ($k['event'] != 'chat') {?>
             <div class="col-xs-3" data-id="<?=$k['id']?>">
                 <?=$k['event']?>
             </div>
@@ -151,6 +152,7 @@
             <div class="col-xs-3" data-id="<?=$k['id']?>">
                 <a href="javascript:;" onclick="removeResp('<?=$k['id']?>',this)">删除</a>
             </div>
+        <?php }?>
         <?php endforeach;?>
     </div>
 </div>

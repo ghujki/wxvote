@@ -246,13 +246,14 @@ class AdminOfficialNumber extends AdminController
 
     public function ajaxSyncMember() {
         $id = $this->input->get("id");
+        $num = $this->input->get("num");
         $f = file_get_contents(APPPATH."config/user_sync.php");
         $config = json_decode($f,true);
         $job = $config[$id];
         if (count($job) > 0 && $job['start_time'] > 0 && $job['end_time'] == 0) {
             return json_encode(array("errinfo"=>"同步正在进行,请稍后"));
         }
-        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncWxUser ".$id." > /dev/null &";
+        $cmd = "/usr/local/bin/php -q ".APPPATH."../index.php runJobController syncUser $id $num  > /dev/null &";
         exec($cmd);
         sleep(1);
     }
@@ -325,10 +326,40 @@ class AdminOfficialNumber extends AdminController
     public function chatWith($id) {
         $this->load->model("User_model","user");
         $user = $this->user->getUser($id);
+
         $this->load->model("Wx_message_model","message");
         $messages = $this->message->getMessages($user['user_open_id']);
+        usort($messages,function($message1,$message2) {
+            return $message1['msg_time'] - $message2['msg_time'];
+        });
         $data['user'] = $user;
         $data['messages'] = $messages;
+        $data['openid'] = $user['user_open_id'];
         $this->render("admin_wx_message",$data);
+    }
+
+    public function chat() {
+        $message = $this->input->get("message");
+        $userId = $this->input->get("userId");
+        $this->load->model("User_model","user");
+        $user = $this->user->getUser($userId);
+        if (empty($user['id'])) {
+            die (json_encode(array("errcode"=>1,"errmsg"=>"无效的用户")));
+        }
+        $this->load->model("OfficialNumber_model","number");
+        $officialNumber = $this->number->getOfficialNumber($user['app_id']);
+
+        $this->load->library("wx/MpWechat");
+        $custom_message = array("touser"=>$user['user_open_id'],"msgtype"=>"text","text"=>array("content"=>$message));
+        $result = $this->mpwechat->sendCustomMessage($officialNumber['app_id'],$officialNumber['secretkey'],json_encode($custom_message,JSON_UNESCAPED_UNICODE));
+        $ret = json_encode($result,true);
+        if ($ret['errcode'] == 0) {
+            $m = array('fromusername'=>$officialNumber['app_id'],"tousername"=>$user['user_open_id'],"event"=>"custom_message","content"=>$message,"msg_time"=>time(),"original_content"=>json_encode($custom_message,JSON_UNESCAPED_UNICODE));
+            $this->load->model("Wx_message_model","message");
+            $this->message->saveMessage($m);
+        } else {
+            error_log($result);
+        }
+        die ($result);
     }
 }

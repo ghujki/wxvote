@@ -235,15 +235,96 @@ class MpWechat {
 		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
 		curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=$accessToken");
 		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 		// same as <input type="file" name="file_box">\
-		$cfile = new CURLFile(realpath(APPPATH."..".$file));
+		if (strpos($file,"http://") === false && strpos($file,"https://") === false) {
+			$cfile = new CURLFile(realpath(APPPATH."..".$file));
+		} else {
+			$c = $this->downloadMedia($file);
+			$cfile = new CURLFile(realpath($c['save_path']));
+		}
+
 		$post = array(
 			"media"=> $cfile, //"@".APPPATH."..".$file,
-			"type"=>$$type
+			"type"=>$type,
+			"description"=>array("title"=>time(),"introduction"=>"introduction")
 		);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
 		$response = curl_exec($ch);
 		return json_decode($response,true);
+	}
+
+	public function postImg($appid,$secretkey,$file) {
+		$accessToken  = $this->getAccessToken($appid,$secretkey);
+		if ($accessToken == null) {
+			return array("errcode"=>"1","errmsg"=>"获得accesstoken出错");
+		}
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_VERBOSE, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
+		curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/media/uploadimg?access_token=$accessToken");
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		// same as <input type="file" name="file_box">\
+		if (strpos($file,"http://") === false && strpos($file,"https://") === false) {
+			$cfile = new CURLFile(realpath(APPPATH."..".$file));
+		} else {
+			$c = $this->downloadMedia($file);
+			$cfile = new CURLFile(realpath($c['save_path']));
+		}
+
+		$post = array(
+			"media"=> $cfile, //"@".APPPATH."..".$file,
+			"access_token"=>$accessToken
+		);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+		$response = curl_exec($ch);
+		return json_decode($response,true);
+	}
+
+	function downloadMedia($url,$save_dir='',$filename='',$type=0){
+		if(trim($url)==''){
+			return array('file_name'=>'','save_path'=>'','error'=>1);
+		}
+		if(trim($save_dir)==''){
+			$save_dir='./';
+		}
+		if(trim($filename)==''){//保存文件名
+			$ext=strrchr($url,'.');
+			$filename=time().$ext;
+		}
+		if(0!==strrpos($save_dir,'/')){
+			$save_dir.='/';
+		}
+		//创建保存目录
+		if(!file_exists($save_dir)&&!mkdir($save_dir,0777,true)){
+			return array('file_name'=>'','save_path'=>'','error'=>5);
+		}
+		//获取远程文件所采用的方法
+		if($type){
+			$ch=curl_init();
+			$timeout=3;
+			curl_setopt($ch,CURLOPT_URL,$url);
+			curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
+			curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+			curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+			$img=curl_exec($ch);
+			curl_close($ch);
+		}else{
+			ob_start();
+			readfile($url);
+			$img=ob_get_contents();
+			ob_end_clean();
+		}
+		//$size=strlen($img);
+		//文件大小
+		$fp2=@fopen($save_dir.$filename,'w');
+		fwrite($fp2,$img);
+		fclose($fp2);
+		unset($img,$url);
+		return array('file_name'=>$filename,'save_path'=>$save_dir.$filename,'error'=>0);
 	}
 
 	public function postNews($appid,$secretkey,$articles) {

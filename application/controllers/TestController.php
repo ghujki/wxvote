@@ -35,6 +35,29 @@ class TestController extends MY_Controller
         echo json_encode($res);
     }
 
+    public function test_post_media() {
+        $number_id = "2";
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($number_id);
+        $pic = "http://player.video.qiyi.com/b054ec72fbda6452017daee606d2377b/0/0/w_19rt50y185.swf-albumId=5736667609-tvId=5736667609-isPurchase=0-cnId=22";
+
+        $this->load->library("wx/MpWechat");
+
+        $res = $this->mpwechat->postMedia($number['app_id'],$number['secretkey'],$pic,'video');
+        echo json_encode($res);
+    }
+
+    public function test_download_media() {
+        $number_id = "2";
+        $this->load->model("OfficialNumber_model", "model");
+        $number = $this->model->getOfficialNumber($number_id);
+        $pic = "http://player.video.qiyi.com/b054ec72fbda6452017daee606d2377b/0/0/w_19rt50y185.swf-albumId=5736667609-tvId=5736667609-isPurchase=0-cnId=22";
+
+        $this->load->library("wx/MpWechat");
+        $res = $this->mpwechat->downloadMedia($pic,"download");
+        echo json_encode($res);
+    }
+
     public function test_get_media() {
         $media_id = "J3hfnibVmqbnID8y6n9GAtL8kTErxooJAOVBYq7fqBOiauRrEiah6AIe7bx4B2ZLC0KPrgm7s85Q63PnrU5IxALow";
         $number_id = "3";
@@ -81,5 +104,45 @@ class TestController extends MY_Controller
         $a  = array(1,2,3);
         $b = array(1,2);
         echo array_intersect($a,$b) == $b;
+    }
+
+
+    public function test_transform($materialId) {
+        $this->load->model("Material_model","m");
+        require_once APPPATH."third_party/Jclyons52/PHPQuery/Document.php";
+        $meta = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
+        $material = $this->m->getMaterial($materialId);
+        if (!$material) {
+            die ("nothing !");
+        }
+
+        $dom = new Jclyons52\PHPQuery\Document($meta.$material['content']);
+        $elements = $dom->querySelectorAll('img');
+        foreach ($elements as $element) {
+            $src = $element->attr("src");
+            $wxsrc = $element->attr("data-wxsrc");
+            if (strpos($src,"http://") === false && strpos($src,"https://") === false && $wxsrc) {
+                $element->attr("src",$wxsrc);
+            }
+        }
+
+        $this->transformStyle($dom,"section","background-image");
+        $this->transformStyle($dom,"section","border-image-source");
+        $this->transformStyle($dom,"blockquote","background-image");
+        $this->transformStyle($dom,"blockquote","border-image-source");
+        $this->transformStyle($dom,"span","background-image");
+
+        echo $dom->toString();
+    }
+
+    private function transformStyle($dom,$selector,$css) {
+        $elements = $dom->querySelectorAll($selector);
+        foreach ($elements as $element) {
+            $styles = $element->css();
+            $datasrc = $element->attr("data-wxsrc");
+            if (isset($styles[$css])  && strpos("url",$styles[$css]) >= 0 && $datasrc) {
+                $element->css(array($css=>"url(".$datasrc.")"));
+            }
+        }
     }
 }

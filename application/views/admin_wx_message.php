@@ -6,10 +6,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         width: 100%;
         border: 1px solid #ccc;
         margin-top: 10px;
-        height: 15em;
+        min-height: 250px;
         overflow-y: auto;
         overflow-x: hidden;
         padding: .5em;
+        background: #fff;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        max-height: 550px;
+
     }
     .chat-box .msg-item {
         margin:.5em;
@@ -24,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     }
     .chat-box .to ,.chat-box .from {
         color: #fff;
-        padding: .2em;
+        padding: .5em;
         border-radius: .2em;
         word-break: break-all;
     }
@@ -32,22 +37,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     .ctl-panel {
         background: #999;
         padding: .5em;
-        text-align: right;
     }
-    .chat-box .msg-item .pointer {
-        position: absolute;
-    }
-    .chat-box .from .pointer {
-        border-bottom: 1em solid transparent;
-        border-top: 1em solid transparent;
-        border-right: 1em solid grey;
-        left: 1.5em;
-    }
-    .chat-box .to .pointer {
-        border-bottom: 1em solid transparent;
-        border-top: 1em solid transparent;
-        border-left: 1em solid green;
-        right: 1.5em;
+
+    #message {
+        width: 100%;
+        height: 100px;
+        overflow-y: scroll;
+        resize: none;
     }
 </style>
 <div class="row">
@@ -61,31 +57,42 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="col-xs-12">
         <div>与<span><?=$user['nickname']?></span>聊天</div>
         <div class="chat-box">
+            <?php foreach ($messages as $message) {?>
             <div class="msg-item clearfix">
-                <div class="from">
-                    <div class="pointer"></div>
-                    <span>5/10 14:20:10</span>
-                    <div>
-                        你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!
-                        你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!
+                <div class="<?php if ($openid == $message['fromusername']) { echo 'from'; } else {echo 'to';}?>">
+                    <span><?=date('Y-m-d H:i:s',$message['msg_time'])?></span>
+                    <div data-id="<?=$message['id']?>">
+                        <?=$message['content']?>
                     </div>
                 </div>
             </div>
-            <div class="msg-item clearfix">
-                <div class="to">
-                    <div class="pointer"></div>
-                    <span>5/10 14:20:10</span>
-                    <div>你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!你好!</div>
-                </div>
-            </div>
+            <?php } ?>
         </div>
 
     </div>
 
     <div class="col-xs-12">
         <div class="ctl-panel">
-            <input type="text" name="message" id="message" class="form-controll" >
-            <input type="button" value="发送" />
+            <textarea namd="message" id="message" ></textarea>
+            <input type="button" value="发送" onclick="sendMessage()"/>
         </div>
     </div>
 </div>
+<script>
+    function sendMessage() {
+        var userId = '<?=$user['id']?>';
+        var message = $("#message").val();
+        $.ajax({
+            url:"/index.php/AdminOfficialNumber/chat",
+            dataType:"json",
+            data:{userId:userId,message:message},
+            success:function(data) {
+                if (data.errcode) {
+                    alert(data.errmsg);
+                } else {
+                    window.location.href = window.location.href;
+                }
+            }
+        });
+    }
+</script>

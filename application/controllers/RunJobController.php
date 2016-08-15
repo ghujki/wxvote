@@ -98,15 +98,20 @@ class RunJobController extends MY_Controller
         $this->load->model("Material_model","material");
         $media  = $this->material->getMaterialByMedia($mid);
 
+        echo "获得media:".count($media);
+        require_once APPPATH."third_party/Jclyons52/PHPQuery/Document.php";
+
         if ($media && count($media) > 0) {
             $nid = $media[0]['app_id'];
             $number = $this->model->getOfficialNumber($nid);
             $result = array("errcode"=>0,"errmsg"=>"");
 
+            echo "开始上传封面";
             foreach ($media as $key=>$material) {
-                if ($material['thumb_media_id'] == null) {
+                if ( $material['picurl']) {
                     $res = $this->mpwechat->postMedia($number['app_id'], $number['secretkey'], $material['picurl'], "image");
                     if ($res['media_id']) {
+                        echo ($material['picurl']."=>".$res['media_id']."\r\n");
                         $material['thumb_media_id'] = $res['media_id'];
                         $this->material->save($material);
                         $media[$key] = $material;
@@ -119,8 +124,15 @@ class RunJobController extends MY_Controller
                 }
             }
 
-            $res = $this->mpwechat->postNews($number['app_id'], $number['secretkey'], $media);
+            echo "上传封面完毕";
 
+            foreach ($media as $key=>$material) {
+                $material['content'] = $this->test_transform($material['content'],$this->mpwechat,$number['app_id'], $number['secretkey']);
+                $media[$key] = $material;
+            }
+
+            $res = $this->mpwechat->postNews($number['app_id'], $number['secretkey'], $media);
+            echo "上传媒体文件完毕";
             if ($res->media_id) {
                 foreach ($media as $key=>$material) {
                     $material['media_id'] = $res->media_id;
@@ -149,7 +161,9 @@ class RunJobController extends MY_Controller
                 $result['errmsg'] = "同步成功";
 
             } else {
-                error_log("3:".json_encode($res));
+                $job['end_time'] = time();
+                $job['return'] = "没有获得图文";
+                $this->saveSyncMediaJob($mid,$job);
                 die(json_encode($res));
             }
         }
@@ -201,7 +215,45 @@ class RunJobController extends MY_Controller
     }
 
 
-    public function syncUser($id,$num) {
+    private function test_transform($content,$mp,$appid,$secretkey) {
+        require_once APPPATH."third_party/Jclyons52/PHPQuery/Document.php";
+        $meta = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>';
+        $dom = new Jclyons52\PHPQuery\Document($meta.$content);
+        $elements = $dom->querySelectorAll('img');
+        foreach ($elements as $element) {
+            $src = $element->attr("src");
+            $wxsrc = $element->attr("data-wxsrc");
+            if (strpos($src,"http://") === false && strpos($src,"https://") === false && $wxsrc) {
+                $element->attr("src",$wxsrc);
+            } elseif (strtolower($src) != "none" && strpos($src,"http://") === false && strpos($src,"https://") === false) {
+                $res = $mp->postImg($appid,$secretkey,$src);
+                echo json_encode($res);
+                $element->attr("src",$res['url']);
+            }
+        }
+
+        $this->transformStyle($dom,"section","background-image");
+        $this->transformStyle($dom,"section","border-image-source");
+        $this->transformStyle($dom,"blockquote","background-image");
+        $this->transformStyle($dom,"blockquote","border-image-source");
+        $this->transformStyle($dom,"span","background-image");
+
+        return $dom->toString();
+    }
+
+    private function transformStyle($dom,$selector,$css) {
+        $elements = $dom->querySelectorAll($selector);
+        foreach ($elements as $element) {
+            $styles = $element->css();
+            $datasrc = $element->attr("data-wxsrc");
+            if (isset($styles[$css])  && strpos("url",$styles[$css]) >= 0 && $datasrc) {
+                $element->css(array($css=>"url(".$datasrc.")"));
+            }
+        }
+    }
+
+
+    public function syncUser($id,$num=0) {
         $this->load->model("OfficialNumber_model", "model");
         $number = $this->model->getOfficialNumber($id);
         $job = $this->getSyncUserJob($id);
@@ -264,7 +316,7 @@ class RunJobController extends MY_Controller
     private function saveUser($m,$id,$appid,$secretkey,$openid_list) {
         $users = $this->mpwechat->getBatchUserInfo($appid, $secretkey,$openid_list);
         $j = 0;
-        foreach ($users as $user) {
+        foreach ($users['user_info_list'] as $user) {
             $user['user_open_id'] = $m;
             $user['app_id'] = $id;
             $user['union_id'] = $user['unionid'];

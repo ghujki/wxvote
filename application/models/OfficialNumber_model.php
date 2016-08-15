@@ -60,7 +60,6 @@ class OfficialNumber_model extends CI_Model
             $this->db->where("id",$number['id']);
             $this->db->update("official_number",$number);
         }
-        var_dump($this->db->last_query());
     }
 
     public function removeNumber($id) {
@@ -96,4 +95,5 @@ class OfficialNumber_model extends CI_Model
     public function save_access ($access) {
         $this->db->insert("official_number_access",$access);
     }
+    
 }

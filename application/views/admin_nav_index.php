@@ -22,8 +22,8 @@
 <div class="row margin-top">
     <div class="col-xs-6">
         <div class="menu-item" data-content-id="0">微时光微信平台</div>
-        <?php if ($menus) {?>
-            <?php foreach ($menus as $menu) {?>
+        <?php if ($menus_all) {?>
+            <?php foreach ($menus_all as $menu) {?>
                 <div  class="menu-item menu-item-<?=$menu['level']?>" data-content-id="<?=$menu['id']?>" onclick="edit_me('<?=$menu["id"]?>')"><?=$menu['menu_name']?></div>
             <?php }?>
         <?php }?>

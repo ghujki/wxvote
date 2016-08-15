@@ -46,8 +46,6 @@ $(function(){
         }
     });
 
-
-
 });
 
 function repeat(s, count) {
@@ -121,23 +119,21 @@ function formatJson(json) {
     return targetJson;
 }
 
-function syncMembers(id,obj) {
+function syncMembers(id,num,obj) {
     $(obj).removeAttr("onclick");
     $(obj).addClass("disabled");
-    if (confirm("该方法已经改进,不会造成卡顿.但是需要一段时间完成.")) {
-        $.ajax({
-            url: 'index.php/AdminOfficialNumber/ajaxSyncMember',
-            dataType: 'json',
-            data: {id: id},
-            success: function (data) {
-                if (data['errinfo']) {
-                    alert(data['errinfo']);
-                } else {
-                    $(obj).parent().children("span").text(data);
-                }
+    $.ajax({
+        url: 'index.php/AdminOfficialNumber/ajaxSyncMember',
+        dataType: 'json',
+        data: {id: id,num:num},
+        success: function (data) {
+            if (data['errinfo']) {
+                alert(data['errinfo']);
+            } else {
+                $(obj).parent().children("span").text(data);
             }
-        });
-    }
+        }
+    });
 }
 
 function view_sync(id) {
@@ -150,3 +146,4 @@ function view_sync(id) {
         }
     });
 }
+

@@ -42,7 +42,7 @@ class User_model extends CI_Model {
 
     public function getUserByNumber($appid,$number) {
         $this->db->where("app_id",$appid);
-        $this->db->limit(1,$number - 1);
+        $this->db->limit(1,$number == 0 ? 0 : $number - 1);
         $q = $this->db->get("user");
         return $q->row_array();
     }
@@ -54,7 +54,11 @@ class User_model extends CI_Model {
 
     public function batch_save($users) {
         $this->db->trans_start();
-        $this->db->insert_batch("user",$users);
+        
+        $result = $this->db->insert_batch("user",$users);
+        if ($result == false) {
+            error_log("batch_insert_error");
+        }
         $this->db->trans_complete();
     }
 

@@ -75,6 +75,7 @@ class MY_Loader extends CI_Loader {
      */
     public function module($module_uri, $vars = array(), $return = FALSE)
     {
+        //error_log($module_uri);
         if ($module_uri == '')
         {
             return;
@@ -99,8 +100,10 @@ class MY_Loader extends CI_Loader {
         {
             $segments = explode('/', $module_uri);
 
+            //error_log(APPPATH.'modules/'.$segments[0].'/controllers/'.ucfirst($segments[1]).'.php');
             if (file_exists(APPPATH.'modules/'.$segments[0].'/controllers/'.ucfirst($segments[1]).'.php'))
             {
+                //error_log("exists");
                 $path = '';
                 $module = $segments[0];
                 $controller = $segments[1];
@@ -138,17 +141,17 @@ class MY_Loader extends CI_Loader {
                 $path = rtrim($path, '/') . '/';
             }
         }
-
+        //error_log("1===");
         // 模块名全部小写
         $module = strtolower($module);
-
+        //error_log("2===");
         // 必须是类似这样的模块类名：目录_模块名_控制器名_module (如：Account_Message_Home_module)
         $c = str_replace(' ', '_', ucwords(str_replace('_', ' ', $controller)));
         $class_name = str_replace(' ', '_', ucwords(str_replace('/', ' ', $path.$module.' '.$c))) . '_module';
-
+        //error_log("3===");
         // Module 的控制器文件的路径
         $controller_path = APPPATH.'modules/'.$path.$module.'/controllers/'.ucfirst($controller).'.php';
-
+        //error_log($controller_path);
         if ( ! file_exists($controller_path))
         {
             throw new RuntimeException('Unable to locate the module you have specified: '.$path.$module.'/controllers/'.$controller.'.php');

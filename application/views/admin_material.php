@@ -10,6 +10,9 @@
         margin-top:10px;
     }
     .grid-item { width: 200px;margin-bottom:10px; border:1px solid #ccc;padding:1em;background:#fff;}
+    .grid-item.item-synched {
+        border:#2e6da4 2px solid ;
+    }
     .grid-item.checked {border-color:green;}
     .grid-item figure {
         padding-bottom:10px;
@@ -71,7 +74,7 @@
             <button class="btn btn-default " onclick="addNewsMessages()">新建图文消息</button>
             <button class="btn btn-default" onclick="editNewsMessage('<?=$id?>',$('#material_container .grid-item.checked').attr('data-id'))">编辑图文</button>
             <button class="btn btn-default" onclick="deleteMessage($('#material_container .grid-item.checked').attr('data-id'))">删除图文</button>
-            <button class="btn btn-default" id="job_btn" disabled data-toggle="modal" data-target="#jobModal">加入到推送任务</button>
+            <button class="btn btn-default" id="job_btn" disabled onclick="add_job()">加入到推送任务</button>
             <button class="btn btn-default" id="copy_btn" disabled data-toggle="modal" data-target="#newsModal">复制图文</button>
         </div>
     </div>
@@ -80,8 +83,9 @@
         <div class="grid">
             <div class="container-fluid" id="material_container">
             <?php foreach ($materials as $m) :?>
-            <div class="grid-item" data-id="<?=$m[0]['media_id']?>">
                 <?php $cover = array_shift($m);?>
+            <div class="grid-item <?php if ($cover['synchronized']) {echo 'item-synched';} ?>" data-id="<?=$cover['media_id']?>">
+               
                 <figure>
                     <img src="<?=$cover['picurl']?>" class="img-responsive">
                     <figcaption><a <?php if($cover['url']) {?> href="<?=$cover['url']?>" <?php } else { echo "href=\"index.php/AdminMaterial/preview/$cover[id]\"";}?> target="_blank"><?=$cover['title']?></a></figcaption>
@@ -193,6 +197,15 @@
 </div>
 
 <script>
+
+    function add_job () {
+        var dataid = $(".grid-item.checked").attr("data-id");
+        if (dataid.match(/^\d*$/)) {
+            alert("这条图文还没有同步,如果已经同步的话,请刷新页面再重新添加任务");
+            return ;
+        }
+        $("#jobModal").modal();
+    }
     function view_users(id) {
         $.ajax({
             url:"index.php/AdminOfficialNumber/ajaxShowUsers",

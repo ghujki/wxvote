@@ -81,7 +81,7 @@ function removeNewsMessage() {
         success:function(data) {
             if (data.error) {
                 alert(data.error);
-                return;
+                
             } else {
                 var obj = $(".news-current");
                 try {

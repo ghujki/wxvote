@@ -62,7 +62,7 @@ class AdminVoteController extends AdminController
 
         //get official numbers from model
         $this->load->model("OfficialNumber_model","numberModel");
-        $data['numbers'] = $this->numberModel->getNumbers(0,0);
+        $data['numbers'] = $this->numberModel->getNumbers('',0,0);
 
         //some other configs to load
         $data['jspaths'] = array('application/views/js/jquery.datetimepicker.js',"application/views/js/admin_vote_edit.js");

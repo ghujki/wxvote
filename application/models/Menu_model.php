@@ -14,13 +14,14 @@ class Menu_model extends CI_Model
     }
 
     public function get_menu($user_id) {
-        $sql = "select m.*,a.account_id from wsg_menu m left join (select * from wsg_menu_access where account_id='$user_id') a on m.id = a.menu_id";
+        $sql = "select m.*,a.account_id,CONCAT('c',((case when parent_id is null then 0 else parent_id end) * 100 + m.id)) as c  from wsg_menu m left join (select * from wsg_menu_access where account_id='$user_id') a on m.id = a.menu_id order by c";
         $q = $this->db->query($sql);
         return $q->result_array();
     }
 
     public function get_all_menu () {
-        $q = $this->db->get("menu");
+        $sql = "select * ,CONCAT('c',((case when parent_id is null then 0 else parent_id end) * 100 + id)) as c from wsg_menu order by c";
+        $q = $this->db->query($sql);
         return $q->result_array();
     }
 

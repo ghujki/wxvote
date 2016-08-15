@@ -13,7 +13,7 @@ class AdminNavController extends AdminController
     public function index () {
         $data['title'] = "导航设置";
         $this->load->model("Menu_model","m");
-        $data['menus'] = $this->m->get_all_menu();
+        $data['menus_all'] = $this->m->get_all_menu();
         $this->render("admin_nav_index",$data);
     }
 

@@ -49,7 +49,7 @@
 		loadComplete: function() {},
 		loadError: function() {},
 		clipFinish: function() {}
-	}
+	};
 
 	function PhotoClip(container, option) {
 		if (!window.FileReader) {
@@ -198,7 +198,7 @@
 				freeScroll: true,
 				mouseWheel: true,
 				wheelAction: "zoom"
-			}
+			};
 			myScroll = new IScroll($clipView[0], options);
 		}
 		function resetScroll() {
