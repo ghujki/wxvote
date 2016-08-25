@@ -9,7 +9,14 @@
  * file that was distributed with this source code.
  */
 
+
+
 namespace Symfony\Component\CssSelector\Parser\Shortcut;
+require_once __DIR__."/../../Node/ClassNode.php";
+require_once __DIR__."/../../Node/HashNode.php";
+require_once __DIR__."/../../Node/SelectorNode.php";
+require_once __DIR__."/../../Node/ElementNode.php";
+require_once __DIR__."/../ParserInterface.php";
 
 use Symfony\Component\CssSelector\Node\ClassNode;
 use Symfony\Component\CssSelector\Node\ElementNode;
@@ -26,6 +33,7 @@ use Symfony\Component\CssSelector\Parser\ParserInterface;
  *
  * @internal
  */
+
 class ClassParser implements ParserInterface
 {
     /**

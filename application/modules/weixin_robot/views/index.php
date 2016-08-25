@@ -7,6 +7,9 @@
  */
 ?>
 <div class="row">
+    <div class="col-xs-12">
+        <a href="javascript:;" class="btn btn-default margin-top-10" onclick="refresh_status()">刷新状态</a>
+    </div>
     <?php foreach ($users as $user) {?>
         <div class="col-xs-4" >
             <figure class="robot-item" onclick="select_item(this)">
@@ -62,6 +65,12 @@
 
 
 <script>
+
+    function refresh_status() {
+        $.get("/index.php/module/weixin_robot/indexController/checkProcess",function(){
+            window.location.href = window.location.href;
+        });
+    }
 
     function postRule() {
         var uin = $("#cuin").val();

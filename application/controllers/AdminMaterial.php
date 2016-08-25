@@ -55,10 +55,12 @@ class AdminMaterial extends AdminController
 
         $data['jspaths'] = array("application/views/js/masonry.pkgd.min.js","application/views/js/tinyselect.js",
             "application/views/js/admin_material_masonry.js",
-            "application/views/js/jquery.datetimepicker.js"
+            "application/views/js/jquery.datetimepicker.js",
+            "application/views/js/bootstrap-tagsinput.min.js"
             );
         $this->render("admin_material",$data);
     }
+
 
     public function add() {
         $nid = $this->input->get("number_id");
@@ -115,6 +117,15 @@ class AdminMaterial extends AdminController
         $content = pq(".rich_media_content")->html();
         $title = pq(".rich_media_title")->text();
         $style = pq("head style")->html();
+        $cover = pq("script")->text();
+        if (preg_match("/msg_cdn_url\s\=\s\"([\s\S]*\/0[\?wx_fmt\=[jpeg|png|gif]*]?)\";/",$cover,$matches)) {
+            $coverimg = $matches[1];
+            $image = file_get_contents($coverimg);
+            $ext = ".jpg";
+
+            $path = "/upload/wx/".time().$ext;
+            file_put_contents(APPPATH."..".$path,$image);
+        }
         $html = '<html>
                 <head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -130,7 +141,7 @@ class AdminMaterial extends AdminController
                 '.$content.'
                 </body>
                 </html>';
-        echo json_encode(array("content"=>$html,"title"=>$title),JSON_UNESCAPED_UNICODE);
+        echo json_encode(array("content"=>$html,"title"=>$title,"cover"=>$path),JSON_UNESCAPED_UNICODE);
     }
 
     public function ajaxSync() {
@@ -193,7 +204,7 @@ class AdminMaterial extends AdminController
         $this->load->library('upload', $config);
 
         $token_value = $this ->security->get_csrf_hash();
-
+        $data['picurl'] = $this->input->post("imported_file");
         if ($_FILES['pic']) {
             if (!$this->upload->do_upload('pic')) {
 
@@ -289,5 +300,34 @@ class AdminMaterial extends AdminController
         }
         $this->load->helper("form");
         $this->render("admin_material_template",$data);
+    }
+
+    public function addTag() {
+        $id = $this->input->get("id");
+        $content = $this->input->get("content");
+        $item = $this->input->get("item");
+        $arr = explode(",",$content);
+        array_push($arr,$item);
+
+        $this->load->model("material_model","m");
+        $this->m->updateTags($id,implode(",",$arr));
+        echo json_encode(1);
+    }
+
+    public function removeTag() {
+        $id = $this->input->get("id");
+        $content = $this->input->get("content");
+        $item = $this->input->get("item");
+
+        $arr = explode(",",$content);
+        foreach ($arr as $key=>$v) {
+            if ($v == $item) {
+                unset($arr[$key]);
+            }
+        }
+
+        $this->load->model("material_model","m");
+        $this->m->updateTags($id,implode(",",$arr));
+        echo json_encode(1);
     }
 }

@@ -76,6 +76,31 @@ class Weixin_robot_IndexController_module extends CI_Module {
         die (json_encode(1));
     }
 
+    public function checkProcess() {
+        $hostdir = dirname(__FILE__);
+        $content = file_get_contents($hostdir . "/../account_list.json");
+        $users = json_decode($content,true);
+        $aft = [];
+        $i = 0;
+        foreach ($users as $user) {
+            if (isset($user['pid'])) {
+                $process = $this->getParentPid($user['pid']);
+                if (count($process) == 0) {
+                    echo json_encode($process)."<br/>";
+                    $user['status'] = -1;
+                    $user['desc'] = 'exit';
+                    $i++;
+                } else {
+                    $user['status'] = 1;
+                    $user['desc'] = 'processing';
+                }
+            }
+            $aft[] = $user;
+        }
+        file_put_contents($hostdir . "/../account_list.json",json_encode($aft));
+        echo $i."个账号刷新了";
+    }
+
     public function upload() {
         $hostdir = dirname(__FILE__);
         $config['upload_path'] = "$hostdir/../upload/";
@@ -151,9 +176,20 @@ class Weixin_robot_IndexController_module extends CI_Module {
                         if (empty($p)) {
                             unset($users[$key]);
                         }
+                    } else {
+                        //TODO:window 下的修改
+                        unset($users[$key]);
                     }
-                } elseif ($user['status'] == '-1' && !isset($user['pid'])) {
-                    unset($users[$key]);
+                } elseif ($user['status'] == '-1' || $user['status'] == '0') {
+                    if(PHP_OS == 'Linux') {
+                        $p = $this->getParentPid($user['pid']);
+                        if (empty($p)) {
+                            unset($users[$key]);
+                        }
+                    } else {
+                        //TODO:windows下的实现
+                        unset($users[$key]);
+                    }
                 }
             }
         }
@@ -181,26 +217,13 @@ class Weixin_robot_IndexController_module extends CI_Module {
     }
 
     public function getParentPid($pid) {
+        ob_start();
         passthru ("ps -ef | grep $pid | grep -v 'grep'");
         $var = ob_get_contents();
         ob_end_clean();
-
-        $a = explode(PHP_EOL,$var);
-        $lines = [];
-        foreach ($a as $item) {
-            if ($item != '') {
-                $r = explode(" ",$item);
-                $r = array_filter($r);
-                $command = '';
-                foreach ($r as $key=>$c) {
-                    if ($key >= 17) {
-                        $command .= "$c ";
-                    }
-                }
-                $arr = array($r[0],$r[3],$r[4],trim($command));
-                $lines[] = $arr;
-            }
-        }
+        echo $var;
+        $a = explode(PHP.PHP_EOL,$var);
+        $lines = preg_grep("/(\w*)\s(\d*)\s(\d*)\s\d*\s\d*[\s\S]*python[\s\S]*test.py/",$a);
         return $lines;
     }
 

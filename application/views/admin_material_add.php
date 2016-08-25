@@ -60,6 +60,13 @@
             line-height: 20px;
             cursor:pointer;
         }
+        .modal-content {
+            background: transparent;
+            box-shadow: none;
+            border: 0px;
+            text-align: center;
+            margin-top: 300px;
+        }
     </style>
     <script>
         var newslist = <?=json_encode($news_materials)?>;
@@ -155,6 +162,7 @@
                     <a class="btn btn-default float-right" onclick="preview_mt(this)" target="_blank" href="javascript:;">预览</a>
                     <button class="btn btn-default float-right" >提交</button>
                     <input type="file" name="pic" />
+                    <input type="hidden" name="imported_file" id="imported_file" />
                 </div>
 
                 <div class="form-group">
@@ -260,6 +268,16 @@
         </div>
     </footer>
 </div>
+
+<div class="modal fade" id="load" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img src="/application/views/images/loading.gif">
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
 <script src="application/views/js/jquery-1.11.3.min.js"></script>
 <script src="application/views/js/bootstrap-3.3.5.min.js"></script>
 <script src="application/views/js/admin_vote_edit.js"></script>
@@ -301,17 +319,53 @@
             $(id).addClass("loaded");
         }
     }
+    var posted = false;
     function importUrl(e) {
         var e = e || window.event;
-        var url = $("#url").val()+ "?" + (+ new Date());
-        if(e.keyCode == 13 && url) {
+        var url = $("#url").val();
+        if (url.indexOf("?") >=0 ) {
+            url = url + "&" + (+ new Date());
+        } else {
+            url = url + "?" + (+ new Date());
+        }
+        if(e.keyCode == 13 && url && !window.posted) {
+            $("#load").modal({backdrop: 'static', keyboard: false});
+            posted = true;
             $.ajax({
                 url:"/index.php/AdminMaterial/curl",
                 dataType:"json",
                 data:{url:url},
                 success:function(data) {
                     $("input[name=title]").val(data.title.trim());
+                    $(".news-current img").attr("src",data.cover);
+                    $("#imported_file").val(data.cover);
+                    $(".news-current .title").html(data.title.trim());
                     ue.setContent(data.content);
+                    posted = false;
+                    $("#load").modal("hide");
+                    var id = $(".news-current").attr("data-content-id")
+                    var news = getNews(id);
+                    if (news == null) {
+                        news = {};
+                    }
+                    news.id = id;
+                    news.title = $("input[name=title]").val();
+                    news.desc = $("input[name=desc]").val();
+                    news.url = $("input[name=url]").val();
+                    news.content_source_url = $("input[name=content_source_url]").val();
+                    news.id = $("#material_id").val();
+                    news.sort = $("#sort").val();
+                    news.content = ue.getContent();
+                    if (id) {
+                        for (var i = 0; i < newslist.length; i++) {
+                            var o = newslist[i];
+                            if (o != null && o.id == id) {
+                                newslist[i] = news;
+                            }
+                        }
+                    } else {
+                        newslist.push(news);
+                    }
                 }
             })
         }

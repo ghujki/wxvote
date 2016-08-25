@@ -19,7 +19,7 @@
         <?php echo validation_errors(); ?>
         <?php echo form_open('AdminController/login'); ?>
         <div class="title">
-            微时光微信管理系统
+            头等微信管理系统
         </div>
         <form>
             <div class="form-group">
@@ -39,7 +39,6 @@
                 <label for="remember">记住密码</label>
                 <input type="checkbox" id="remember"  />
             </div>
-         
         </form>
     </div>
 </body>

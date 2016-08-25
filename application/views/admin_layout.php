@@ -17,7 +17,7 @@
         <div class="container main-content" >
             <header class="row">
                 <div class="col-xs-12">
-                    <div><h1>微时光微信管理系统</h1></div>
+                    <div><h1>头等微信管理系统</h1></div>
                     <div class="account-info">你好，<?php echo $this->session->userdata("wsg_user_name");?>&nbsp;
                         <a href="index.php/AdminAccountController/editAccount?id=<?php echo $this->session->userdata("wsg_user_id");?>">修改密码</a>&nbsp;
                         <a href="index.php/AdminController/logout">退出</a>
@@ -57,7 +57,7 @@
                     <a href="javascript:window.scrollTo(0,$(document.body).height());" class="fa fa-angle-double-down" title="到底部">&nbsp;</a>
                 </div>
                 <div class="text-center">
-                    微时光微信管理系统
+                    头等传媒微信管理系统
                 </div>
             </footer>
         </div>

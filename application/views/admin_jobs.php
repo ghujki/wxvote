@@ -10,7 +10,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 
     <div class="col-xs-12">
-        <table width="100%" border="1px" class="query-result">
+        <a class="btn btn-default margin-top-10" href="javascript:;" onclick="clear_expire_jobs()">清除过期的任务</a>
+        <table width="100%" border="1px" class="query-result margin-top-10">
             <thead>
             <tr>
                 <td>id</td>
@@ -28,3 +29,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </table>
     </div>
 </div>
+<script>
+    function clear_expire_jobs() {
+        $.ajax({
+            url:"/index.php/RunJobController/delExpireJobs",
+            dataType:"json",
+            success:function(data) {
+                alert("清理了" + data + "条任务");
+            }
+        });
+    }
+</script>

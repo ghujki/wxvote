@@ -396,4 +396,38 @@ class RunJobController extends MY_Controller
             $this->saveSyncUserJob($id,$job);
         }
     }
+
+    public function delExpireJobs() {
+        $this->load->library("cron/CrontabManager",null,"cron");
+        $out = $this->cron->listJobs();
+        $jobs = explode("\n",$out);
+        $i = 0;
+        if ($jobs) {
+            foreach ($jobs as $str) {
+                if ($str) {
+                    $arr = explode("#", $str);
+                    $job['id'] = trim($arr[1]);
+                    $job['command'] = $arr[0];
+
+                    $command = $arr[0];
+                    if (preg_match("/(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+|\*)\s([\s\S]*)/",$command,$matches)) {
+                        $minute = $matches[1];
+                        $hour = $matches[2];
+                        $day = $matches[3];
+                        $month = $matches[4];
+                        $now = time();
+                        $year = date("Y",$now);
+                        $date = "$year-$month-$day $hour:$minute:00";
+                        $runtime = strtotime($date);
+                        if ($runtime < $now) {
+                            $i ++;
+                            $this->cron->deleteJob($job['id']);
+                            $this->cron->save(false);
+                        }
+                    }
+                }
+            }
+        }
+        echo json_encode($i);
+    }
 }
