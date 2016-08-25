@@ -145,4 +145,17 @@ class TestController extends MY_Controller
             }
         }
     }
+
+    public function testSendMsg() {
+        $phone  = "17788934435";
+        $text = "监控：机器人[test]下线了";
+        $this->load->library("SMSender",null,"sender");
+        $arr = $this->sender->sendMsg($text,$phone);
+        print_r($arr);
+    }
+
+    public function testImage($name) {
+        $this->load->library("resp/Iphone7OrderHandle",null,"h");
+        $this->h->make_order_file($name);
+    }
 }

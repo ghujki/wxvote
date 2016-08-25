@@ -25,8 +25,40 @@ class Weixin_robot_IndexController_module extends CI_Module {
                 $data['users'][$key]['headImgUrl'] = "/application/modules/weixin_robot/robots/" . $uin . "/head.jpg";
             }
         }
-        $data['jspaths'] = array("application/views/js/jquery.form.js");
+        $data['monitoring'] = $this->checkMonitorProcess();
+        $data['jspaths'] = array("application/views/js/jquery.form.js","application/views/js/masonry.pkgd.min.js","application/views/js/robot.js","application/views/js/tinyselect.js");
         $this->render("index",$data);
+    }
+
+    private function checkMonitorProcess() {
+        $keywords = "monitorRobots";
+        $this->load->library("cron/CrontabManager",null,"cron");
+        $out = $this->cron->listJobs();
+        $jobs = explode("\n",$out);
+        if ($jobs) {
+            foreach ($jobs as $str) {
+                if ($str) {
+                    $arr = explode("#", $str);
+                    if ($arr && strpos($arr[0],$keywords) !== false) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public function start_monitor() {
+        $this->load->library("cron/CrontabManager");
+        if ($this->checkMonitorProcess()) {
+            die (json_encode(array("err"=>0)));
+        }
+        $job = $this->crontabmanager->newJob();
+        $time = "*/1 * * * *";
+        $job->on($time)->doJob("curl http://rtzmy.com/index.php/RunJobController/monitorRobots");
+        $this->crontabmanager->add($job);
+        $this->crontabmanager->save();
+        die (json_encode(array("err"=>0)));
     }
 
     public function saveRule() {
@@ -46,8 +78,18 @@ class Weixin_robot_IndexController_module extends CI_Module {
             $str = file_get_contents($path);
             $rules = json_decode($str,TRUE);
         }
+        $this->load->model("OfficialNumber_model","num");
+        $accountid = $this->session->userdata("wsg_user_id");
+        $data['numbers'] = $this->num->get_numbers_with_check($accountid);
+        $user_id = $rules['user_id'];
+        if ($user_id) {
+            $this->load->model("User_model","user");
+            $user = $this->user->getUser($user_id);
+            $data['user'] = $user;
+        }
         $data['rule'] = $rules;
         $data['uin'] = $uin;
+
         $content = $this->load->view("robot_config",$data,TRUE);
         echo $content;
     }
@@ -74,6 +116,31 @@ class Weixin_robot_IndexController_module extends CI_Module {
             echo $str;
         }
         die (json_encode(1));
+    }
+
+    public function checkProcess() {
+        $hostdir = dirname(__FILE__);
+        $content = file_get_contents($hostdir . "/../account_list.json");
+        $users = json_decode($content,true);
+        $aft = [];
+        $i = 0;
+        foreach ($users as $user) {
+            if (isset($user['pid'])) {
+                $process = $this->getParentPid($user['pid']);
+                if (count($process) == 0) {
+                    echo json_encode($process)."<br/>";
+                    $user['status'] = -1;
+                    $user['desc'] = 'exit';
+                    $i++;
+                } else {
+                    $user['status'] = 1;
+                    $user['desc'] = 'processing';
+                }
+            }
+            $aft[] = $user;
+        }
+        file_put_contents($hostdir . "/../account_list.json",json_encode($aft));
+        echo $i."个账号刷新了";
     }
 
     public function upload() {
@@ -151,9 +218,20 @@ class Weixin_robot_IndexController_module extends CI_Module {
                         if (empty($p)) {
                             unset($users[$key]);
                         }
+                    } else {
+                        //TODO:window 下的修改
+                        unset($users[$key]);
                     }
-                } elseif ($user['status'] == '-1' && !isset($user['pid'])) {
-                    unset($users[$key]);
+                } elseif ($user['status'] == '-1' || $user['status'] == '0') {
+                    if(PHP_OS == 'Linux') {
+                        $p = $this->getParentPid($user['pid']);
+                        if (empty($p)) {
+                            unset($users[$key]);
+                        }
+                    } else {
+                        //TODO:windows下的实现
+                        unset($users[$key]);
+                    }
                 }
             }
         }
@@ -181,26 +259,12 @@ class Weixin_robot_IndexController_module extends CI_Module {
     }
 
     public function getParentPid($pid) {
+        ob_start();
         passthru ("ps -ef | grep $pid | grep -v 'grep'");
         $var = ob_get_contents();
         ob_end_clean();
-
-        $a = explode(PHP_EOL,$var);
-        $lines = [];
-        foreach ($a as $item) {
-            if ($item != '') {
-                $r = explode(" ",$item);
-                $r = array_filter($r);
-                $command = '';
-                foreach ($r as $key=>$c) {
-                    if ($key >= 17) {
-                        $command .= "$c ";
-                    }
-                }
-                $arr = array($r[0],$r[3],$r[4],trim($command));
-                $lines[] = $arr;
-            }
-        }
+        $a = explode(PHP.PHP_EOL,$var);
+        $lines = preg_grep("/(\w*)\s(\d*)\s(\d*)\s\d*\s\d*[\s\S]*python[\s\S]*test.py/",$a);
         return $lines;
     }
 

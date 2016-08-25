@@ -8,6 +8,15 @@ define("MSG_TEXT","<xml>
                    <FuncFlag>0</FuncFlag>
                    </xml>"
 );
+define("MSG_IMG","<xml>
+<ToUserName><![CDATA[%s]]></ToUserName>
+<FromUserName><![CDATA[%s]]></FromUserName>
+<CreateTime>%s</CreateTime>
+<MsgType><![CDATA[image]]></MsgType>
+<Image>
+<MediaId><![CDATA[%s]]></MediaId>
+</Image>
+</xml>");
 
 define("MSG_SINGLE_PIC_TXT" , 		
 "<xml>

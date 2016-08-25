@@ -84,8 +84,11 @@ class Response extends MY_Controller {
 				$keys = $this->keywords->getKeyword($ap['id'],null,$temp_key,$fromUsername);
 			}
 
-			if (count($keys) == 0) {
-				$keys = $this->keywords->getKeyword($ap['id'],$keyword,$event);
+			//if (count($keys) == 0 ||  $keyword) {
+				$keys2 = $this->keywords->getKeyword($ap['id'],$keyword,$event);
+			//}
+			if (count($keys2) > 0) {
+				$keys = $keys2;
 			}
 			//保存
 			$message = array();

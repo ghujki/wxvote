@@ -9,7 +9,7 @@
     .grid {
         margin-top:10px;
     }
-    .grid-item { width: 200px;margin-bottom:10px; border:1px solid #ccc;padding:1em;background:#fff;}
+    .grid-item { width: 200px;margin-bottom:50px; border:1px solid #ccc;padding:1em;background:#fff;}
     .grid-item.item-synched {
         border:#2e6da4 2px solid ;
     }
@@ -51,9 +51,23 @@
     .customed-confirm {display:none;}
     .modal-user-list {list-style: none}
     .modal-user-list li {float:left;margin-right:20px;}
+
+    .bootstrap-tagsinput {
+        position:absolute;
+        margin-top:20px;
+        left:0px;
+        width:200px;
+    }
+
 </style>
 <link  rel="stylesheet" href="application/views/css/jquery.datetimepicker.css" />
 <link  rel="stylesheet" href="application/views/css/tinyselect.css" />
+<link  rel="stylesheet" href="application/views/css/bootstrap-tagsinput.css" />
+<style>
+    .bootstrap-tagsinput input {
+        padding:0;
+    }
+</style>
 <div class="row">
     <div class="col-xs-12">
         <form class="admin-query" onsubmit="checkQuery()">
@@ -84,7 +98,7 @@
             <div class="container-fluid" id="material_container">
             <?php foreach ($materials as $m) :?>
                 <?php $cover = array_shift($m);?>
-            <div class="grid-item <?php if ($cover['synchronized']) {echo 'item-synched';} ?>" data-id="<?=$cover['media_id']?>">
+                <div class="grid-item <?php if ($cover['synchronized']) {echo 'item-synched';} ?>" data-id="<?=$cover['media_id']?>">
                
                 <figure>
                     <img src="<?=$cover['picurl']?>" class="img-responsive">
@@ -101,6 +115,7 @@
                     <button class="btn btn-default" id="mobile-preview"  data-toggle="modal" data-target="#prevModal" onclick="view_users('<?=$cover["app_id"]?>')">手机预览</button>
                 </div>
                 <?php }?>
+                <input type="text" value="<?=$cover['tags']?>" data-role="tagsinput" />
             </div>
             <?php endforeach;?>
             </div>

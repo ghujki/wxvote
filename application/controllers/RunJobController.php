@@ -396,4 +396,118 @@ class RunJobController extends MY_Controller
             $this->saveSyncUserJob($id,$job);
         }
     }
+
+    public function delExpireJobs() {
+        $this->load->library("cron/CrontabManager",null,"cron");
+        $out = $this->cron->listJobs();
+        $jobs = explode("\n",$out);
+        $i = 0;
+        if ($jobs) {
+            foreach ($jobs as $str) {
+                if ($str) {
+                    $arr = explode("#", $str);
+                    $job['id'] = trim($arr[1]);
+                    $job['command'] = $arr[0];
+
+                    $command = $arr[0];
+                    if (preg_match("/(\d+)\s(\d+)\s(\d+)\s(\d+)\s(\d+|\*)\s([\s\S]*)/",$command,$matches)) {
+                        $minute = $matches[1];
+                        $hour = $matches[2];
+                        $day = $matches[3];
+                        $month = $matches[4];
+                        $now = time();
+                        $year = date("Y",$now);
+                        $date = "$year-$month-$day $hour:$minute:00";
+                        $runtime = strtotime($date);
+                        if ($runtime < $now) {
+                            $i ++;
+                            $this->cron->deleteJob($job['id']);
+                            $this->cron->save(false);
+                        }
+                    }
+                }
+            }
+        }
+        echo json_encode($i);
+    }
+
+    public function monitorRobots() {
+        $dir = APPPATH."modules/weixin_robot";
+        $file = $dir."/account_list.json";
+        $users = json_decode(file_get_contents($file),true);
+        $this->load->model("User_model","user");
+        $aft = array();
+        foreach ($users as $user) {
+            $config_file = $dir."/robots/".$user['uin']."/replyConfig.conf";
+            $reply_config = json_decode(file_get_contents($config_file),true);
+            if (isset($user['pid']) && $user['status'] == 1) {
+                $process = $this->getParentPid($user['pid']);
+                if (count($process) == 0) {
+                    $user['status'] = -1;
+                    $user['desc'] = 'exit';
+                    error_log($user['uin']."已下线");
+                    if($reply_config['cellphone'] && (!isset($user['notified']) || $user['notified'] == 0)) {
+                        //
+                        $this->load->library("SMSender",null,"sender");
+                        $arr = $this->sender->sendMsg("监控：机器人[".$user['nickname']."]下线了",$reply_config['cellphone']);
+                        if ($arr['code'] == '0') {
+                            $user['notified'] = 1;
+                        } else {
+                            error_log(json_encode($arr,JSON_UNESCAPED_UNICODE));
+                            $user['notified'] = 0;
+                        }
+
+                    }
+                }
+            } elseif ($user['status'] == -1 || $user['status'] == 0) {
+                if($reply_config['cellphone'] && (!isset($user['notified']) || $user['notified'] == 0)) {
+                    //
+                    $this->load->library("SMSender",null,"sender");
+                    $arr = $this->sender->sendMsg("监控：机器人[".$user['nickname']."]下线了",$reply_config['cellphone']);
+                    if ($arr['code'] == '0') {
+                        $user['notified'] = 1;
+                    } else {
+                        error_log(json_encode($arr,JSON_UNESCAPED_UNICODE));
+                        $user['notified'] = 0;
+                    }
+                }
+            }
+            $aft[] = $user;
+        }
+        file_put_contents($file,json_encode($aft));
+    }
+
+    private function getParentPid($pid) {
+        ob_start();
+        passthru ("ps -ef | grep $pid | grep -v 'grep'");
+        $var = ob_get_contents();
+        ob_end_clean();
+        $a = explode(PHP.PHP_EOL,$var);
+        $lines = preg_grep("/(\w*)\s(\d*)\s(\d*)\s\d*\s\d*[\s\S]*python[\s\S]*test.py/",$a);
+        return $lines;
+    }
+
+    private function sendMessage($user,$number_id,$openid) {
+        $this->load->model("OfficialNumber_model","number");
+        if(!isset($user['notified']) || !$user['notified']) {
+            $number = $this->number->getOfficialNumber($number_id);
+            if (!isset($number['id'])) {
+                error_log("invalid official number id :$number_id");
+                return false;
+            }
+            $this->load->library("wx/MpWechat", null, "wechat");
+            $msg = array("touser" => $openid, "msgtype" => "text", "text" => array("content" => "机器人" . $user['nickname'] . "下线了\r\n点击<a href='http://www.rtzmy.com/index.php/module/weixin_robot/IndexController'>重新登录</a>"));
+            $str = $this->wechat->sendCustomMessage($number['app_id'], $number['secretkey'], json_encode($msg, JSON_UNESCAPED_UNICODE));
+            $data = json_decode($str,true);
+            if ($data['errcode'] == 0) {
+                $user['notified'] = true;
+                return true;
+            } else {
+                $user['notified'] = false;
+                error_log("发送客服消息失败,".$str);
+                return false;
+            }
+        }
+        return false;
+    }
 }

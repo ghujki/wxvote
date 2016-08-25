@@ -222,6 +222,35 @@ class MpWechat {
 		return json_decode($str,true);
 	}
 
+	/**
+	 *增加临时素材
+	 */
+	public function postTempMedia($appid,$secretkey,$file,$type) {
+		$accessToken  = $this->getAccessToken($appid,$secretkey);
+		if ($accessToken == null) {
+			return array("errcode"=>"1","errmsg"=>"获得accesstoken出错");
+		}
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_VERBOSE, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
+		curl_setopt($ch, CURLOPT_URL, "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=$accessToken&type=$type");
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		// same as <input type="file" name="file_box">\
+		$cfile = new CURLFile(realpath($file));
+
+		$post = array (
+			"media"=> $cfile, //"@".APPPATH."..".$file,
+			"type"=>$type,
+			"access_token"=>$accessToken
+		);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+		$response = curl_exec($ch);
+		return json_decode($response,true);
+	}
+
 	//增加永久素材
 	public function postMedia ($appid,$secretkey,$file,$type) {
 		$accessToken  = $this->getAccessToken($appid,$secretkey);

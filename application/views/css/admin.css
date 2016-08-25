@@ -294,3 +294,28 @@ a.sync_error {
 .news-toolbar .tag-item img {
     max-width:100%;
 }
+.wxuser-content {
+    margin-bottom:1em ;
+}
+.wxuser-content .wxuser_item {
+    width:100px;
+    float:left;
+    margin-right:10px;
+    font-size:smaller;
+    word-break: break-all;
+}
+.wxuser-content .wxuser_item img {
+    width:100px;
+}
+.wxuser-content .wxuser_item.checked {
+    border-color:green;
+}
+.wxuser-list{
+    margin-top: 20px;
+}
+
+@media only screen and (max-width: 768px) {
+    .account-info {position:relative;right:0;top:0;    padding: 0 1em;}
+    .search-query {position:relative;right:0;top:0;    text-align: left;}
+    .scroll-tool {display:none;}
+}

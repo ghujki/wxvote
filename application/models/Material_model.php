@@ -82,4 +82,10 @@ class Material_model extends  CI_Model
         $q = $this->db->get("material");
         return $q->row_array();
     }
+
+    public function updateTags($media_id,$tags) {
+        $sql = "update wsg_material set tags = '$tags' where media_id='$media_id'";
+        $result = $this->db->query($sql);
+        return $result;
+    }
 }

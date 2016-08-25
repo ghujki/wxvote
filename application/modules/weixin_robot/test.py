@@ -43,20 +43,31 @@ class MyWXBot(WXBot):
             pass
 
     def send_message_by_rules(self,msg,msg_type,touser):
-        for config_item in self.config['reply_rules']:
+        for i in range(len(self.config['reply_rules'])):
+            config_item = self.config['reply_rules'][i]
             if config_item["msg_type"] == msg_type and (config_item['keywords'] == '' or re.search(config_item['keywords'], msg['content']['data']) != None ) :
                 conf_reply = config_item['reply']
-                for reply_item in conf_reply:
+                for j in range(len(conf_reply)):
+                    reply_item = conf_reply[j]
                     if reply_item['type'] == 'text':
                         self.send_msg_by_uid(reply_item['content'], touser)
                     elif reply_item['type'] == 'image':
-                        self.send_img_msg_by_uid(os.path.dirname(os.path.realpath(__file__)) + "/" + reply_item['content'], touser)
+                        (result,mid) = self.send_img_msg(os.path.dirname(os.path.realpath(__file__)) + "/" + reply_item['content'], self.getmid(reply_item), touser)
+                        if result and mid is not None:
+                            reply_item['mid'] = mid
+                            self.config['reply_rules'][i]['reply'][j] = reply_item
                     else:
                         logger.debug(reply_item['type'] + " not supported")
+        with open(self.base_dir + "/robots/" + self.uin + "/replyConfig.conf","w") as f:
+            f.write(json.dumps(self.config))
 
+    def getmid(self,reply_item):
+        if 'mid' in reply_item:
+            return reply_item['mid']
+        else:
+            return None
 
     def schedule(self):
-        logger.debug("scheduling...");
         with open(self.base_dir + '/account_list.json', 'r') as f:
             find = 0;
             users = json.load(f)

@@ -50,25 +50,7 @@
           border: 0;                            /* 修改的地方 */
           border-top: 1px solid #000;
         }
-        .wxuser-content {
-            margin-bottom:1em ;
-        }
-        .wxuser-content .wxuser_item {
-            width:100px;
-            float:left;
-            margin-right:10px;
-            font-size:smaller;
-            word-break: break-all;
-        }
-        .wxuser-content .wxuser_item img {
-            width:100px;
-        }
-        .wxuser-content .wxuser_item.checked {
-            border-color:green;
-        }
-        .wxuser-list{
-            margin-top: 20px;       
-        }
+        
         #keywords{
             -webkit-border-radius:10px;
             -moz-border-radius:10px;         /* 修改的地方 */

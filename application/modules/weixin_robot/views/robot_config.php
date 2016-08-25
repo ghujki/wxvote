@@ -57,3 +57,9 @@
         <?php }}}?>
         <input type="hidden" id="cuin" value="<?=$uin?>">
     </div>
+    <div class="robot-config-panel" id="robot_monitor_panel">
+        <h5>下线通知设置</h5>
+        <div class="robot-config-item">
+        管理员手机号:
+        <input type="number" value="<?=$rule['cellphone']?>" id="cellphone" replaceholder="手机号"/>
+    </div>

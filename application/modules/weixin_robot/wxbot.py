@@ -804,7 +804,42 @@ class WXBot:
         except Exception,e:
             return False
 
-    def send_img_msg_by_uid(self, fpath, uid):
+    def send_img_msg(self,fpath,mid,uid):
+        if mid is not None:
+            if self.send_img_msg_by_mid(mid,uid):
+                return (True,None)
+        logger.info("send mid failed,try upload media")
+        mid = self.upload_media(fpath,uid,is_img=True)
+        if mid is None:
+            logger.error("post media failed ,mid is null")
+            return (False,None)
+        # 更新状态
+        return (self.send_img_msg_by_mid(mid,uid),mid)
+
+    def send_img_msg_by_mid(self,mid,uid):
+        url = self.base_uri + '/webwxsendmsgimg?fun=async&f=json'
+        data = {
+            'BaseRequest': self.base_request,
+            'Msg': {
+                'Type': 3,
+                'MediaId': mid,
+                'FromUserName': self.my_account['UserName'],
+                'ToUserName': uid,
+                'LocalID': str(time.time() * 1e7),
+                'ClientMsgId': str(time.time() * 1e7),},}
+        try:
+            r = self.session.post(url, data=json.dumps(data))
+            res = json.loads(r.text)
+            logger.debug(res)
+            if res['BaseResponse']['Ret'] == 0:
+                return True
+            else:
+                return False
+        except Exception, e:
+            return False
+
+
+    def send_img_msg_by_uid(self, fpath,mid, uid):
         mid = self.upload_media(fpath, uid,is_img=True)
         if mid is None:
             logger.error("post media failed ,mid is null")
@@ -924,7 +959,7 @@ class WXBot:
             return
         self.status_notify()
         self.get_contact()
-        self.record_status({"uin": self.uin, "nickname":self.my_account['NickName'],"status": 1, "desc": "processing","pid":os.getpid(),"uuid":self.uuid})
+        self.record_status({"uin": self.uin, "nickname":self.my_account['NickName'],"status": 1, "desc": "processing","pid":os.getpid(),"uuid":self.uuid,"notified":0})
         logger.info( '[INFO] Get %d contacts' % len(self.contact_list))
         logger.info( '[INFO] Start to process messages .')
         self.proc_msg()
@@ -942,7 +977,17 @@ class WXBot:
                 user = users[i]
                 if ("uin" in user and user['uin'] == self.uin) or ("uuid" in user and user['uuid'] == self.uuid):
                     find = 1
-                    users[i] = arr
+                    users[i]['status'] = arr['status']
+                    users[i]['desc'] = arr['desc']
+                    users[i]['pid'] = os.getpid()
+                    if self.uuid:
+                        users[i]['uuid'] = self.uuid
+                    if self.uin:
+                        users[i]['uin'] = self.uin
+                    if "nickname" in arr:
+                        users[i]['nickname'] = arr['nickname']
+                    if "notified" in arr:
+                        users[i]['notified'] = arr['notified']
             if find == 0:
                 users.append(arr)
         with open(self.base_dir + '/account_list.json','w') as f:

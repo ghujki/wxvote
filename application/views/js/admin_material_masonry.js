@@ -11,6 +11,10 @@ $(function() {
     },200);
 
     $("#number_id").tinyselect();
+
+    $('input').on('itemAddedOnInit', function(event) {
+        $(".bootstrap-tagsinput input").attr("size",1);
+    });
 });
 
 
@@ -131,4 +135,49 @@ $(function(){
             minView:"second"
         });
     }
+    window.setTimeout(function(){
+        $("input").on("beforeItemAdd",function(event){
+            var item = event.item;
+            var content = event.target.value;
+            var id = $(event.target).parents(".grid-item").attr("data-id");
+            $.ajax({
+                url:"/index.php/AdminMaterial/addTag",
+                dataType:"json",
+                async : false,
+                data:{"id":id,"content":content,"item":item},
+                success:function(data) {
+                    if (data.err) {
+                        alert(data.err);
+                        event.cancel = true;
+                    } else {
+                      event.cancel = false;
+                    }
+                }
+            });
+            event.cancel = false;
+        });
+
+        $("input").on("beforeItemRemove",function(event){
+            var item = event.item;
+            var content = event.target.value;
+            var id = $(event.target).parents(".grid-item").attr("data-id");
+            console.log(item+','+content+"," + id);
+            $.ajax({
+                url:"/index.php/AdminMaterial/removeTag",
+                dataType:"json",
+                async : false,
+                data:{"id":id,"content":content,"item":item},
+                success:function(data) {
+                    if (data.err) {
+                        alert(data.err);
+                        event.cancel = true;
+                    } else {
+                        event.cancel = false;
+                    }
+                }
+            });
+            event.cancel = false;
+        });
+    },1000);
 });
+

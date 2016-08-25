@@ -6,7 +6,15 @@
  * Time: 15:06
  */
 ?>
+<link href="/application/views/css/tinyselect.css" />
 <div class="row">
+    <div class="col-xs-12">
+        <a href="javascript:;" class="btn btn-default margin-top-10" onclick="refresh_status()">刷新状态</a>
+        <button type="button" id="monitor" data-loading-text="监控中..." class="btn btn-default margin-top-10" autocomplete="off" onclick="monitoring()">
+            启动监控程序
+        </button>
+        <input type="hidden" id="monitoring" value="<?=$monitoring?>" />
+    </div>
     <?php foreach ($users as $user) {?>
         <div class="col-xs-4" >
             <figure class="robot-item" onclick="select_item(this)">
@@ -63,10 +71,30 @@
 
 <script>
 
+    function monitoring() {
+        var btn = $("#monitor");
+        btn.button('loading');
+        $.get("/index.php/module/weixin_robot/IndexController/start_monitor",function(data){
+            if (data.err != 0) {
+                btn.button('reset');
+            }
+        });
+    }
+
+    function refresh_status() {
+        $.get("/index.php/module/weixin_robot/indexController/checkProcess",function(){
+            window.location.href = window.location.href;
+        });
+    }
+
     function postRule() {
         var uin = $("#cuin").val();
         var auto_verify = $("#auto_verify").prop('checked');
-
+        var cellphone = $("#cellphone").val();
+        var selectedId = $("#selectedId").val();
+        if (selectedId && selectedId != user_id) {
+            user_id = selectedId;
+        }
 
         var p = $("#robot_verify_panel .robot-config-item:first").nextAll();
         var verify_rule = {"msg_type":'add',"keywords":'',"reply":[]};
@@ -82,7 +110,7 @@
             verify_rule.reply.push(v_reply);
         }
 
-        var rules = {"auto_add":auto_verify,"reply_rules":[verify_rule]};
+        var rules = {"auto_add":auto_verify,"reply_rules":[verify_rule],"cellphone":cellphone};
 
         var rp = $("#robot_reply_panel .robot-config-item");
         for (var i = 0 ; i < rp.length ; i++ ) {
@@ -253,6 +281,10 @@
     }
 
     function remove_robot(obj,uuid) {
+        var status = $(obj).parent(".robot-item").find(".robot-status").text();
+        if (status.trim() == 'processing' && !confirm("确定要退出这个机器人吗?")) {
+            return ;
+        }
         $.ajax({
             url:"/index.php/module/weixin_robot/IndexController/remove_robot",
             dataType:"json",
@@ -265,6 +297,7 @@
                 }
             }
         });
+
     }
 
     function select_item(obj) {

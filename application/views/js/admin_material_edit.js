@@ -207,6 +207,9 @@ function editNewsMessage(obj) {
 
     if ((lid == null || lid == '') && ue.getContentLength() > 0 || (lid > 0 && contentChanged)) {
  //       if (confirm("上一条编辑的内容尚未保存,需要保存吗?")) {
+            if ($("input[name=title]").val().trim().length == 0 ) {
+                return;
+            }
             $("#materialForm").ajaxSubmit({
                 url: "index.php/AdminMaterial/doEdit",
                 type: "post",
